@@ -80,9 +80,13 @@ The house file format is a text file that represents a grid layout of the house,
 ### Example
 
 Consider the following house file:
+
 1 1 2 3
+
 2 3 W 1
+
 0 1 D 2
+
 3 W 1 0
 
 #### Explanation
