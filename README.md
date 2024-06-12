@@ -81,6 +81,10 @@ The house file format is a text file that represents a grid layout of the house,
 
 Consider the following house file:
 
+max_battery_steps
+
+max_steps
+
 1 1 2 3
 
 2 3 W 1

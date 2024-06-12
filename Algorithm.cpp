@@ -3,13 +3,12 @@
 #include <ctime>   // For std::time>
 #include <algorithm> // For std::random_shuffle
 
-Algorithm::Algorithm(VacuumCleaner* vacuumCleaner) : vacuumCleaner(vacuumCleaner) {
+Algorithm::Algorithm() {
     std::srand(std::time(nullptr)); // Seed random number generator
 }
 
-char Algorithm::decideNextStep() {
+char Algorithm::decideNextStep(std::vector<char> validMoves) {
     try {
-        std::vector<char> validMoves = getValidMoves();
         if (validMoves.empty()) {
             return 'S'; // Stay in place if no valid moves
         }
@@ -18,14 +17,4 @@ char Algorithm::decideNextStep() {
         std::cerr << "Error deciding next step: " << e.what() << std::endl;
         return 'S'; // Default to staying in place on error
     }
-}
-
-std::vector<char> Algorithm::getValidMoves() const {
-    std::vector<char> validMoves;
-    for (char direction : directions) {
-        if (!vacuumCleaner->isWall(direction)) {
-            validMoves.push_back(direction);
-        }
-    }
-    return validMoves;
 }

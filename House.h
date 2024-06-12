@@ -4,27 +4,23 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include "point.h"
 
 class House {
 public:
-    House(const std::string& filename);
+    House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY);
 
-    int getMaxBatterySteps() const;
-    int getMaxSteps() const;
     int getDirtLevel(int x, int y) const;
-    void setDirtLevel(int x, int y, int level);
+    void decreaseDirtLevel(int x, int y, int decreaseBy);
     bool isWall(int x, int y) const;
     int getDockingX() const;
     int getDockingY() const;
     int getTotalDirt() const;
 
 private:
-    void loadHouse(const std::string& filename);
-
-    std::vector<std::vector<int>> house_map;
-    int docking_x, docking_y;
-    int max_battery_steps;
-    int max_steps;
+    int totalDirt;
+    std::vector<std::vector<int>> houseMap;
+    Point dockingLocation;
 };
 
-#endif // HOUSE_H
+#endif

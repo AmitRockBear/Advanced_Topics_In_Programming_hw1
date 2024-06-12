@@ -6,14 +6,11 @@
 
 class Algorithm {
 public:
-    Algorithm(VacuumCleaner* vacuumCleaner);
+    Algorithm();
 
     char decideNextStep();
 
 private:
-    VacuumCleaner* vacuumCleaner;
-    std::vector<char> directions {'N', 'E', 'S', 'W'};
-
     std::vector<char> getValidMoves() const;
 };
 

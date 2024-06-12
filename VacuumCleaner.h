@@ -1,42 +1,37 @@
 #ifndef VACUUMCLEANER_H
 #define VACUUMCLEANER_H
 
-#include "House.h"
-#include "Sensors.h"
+#include "Point.h"
 #include <stack>
 
-class VacuumCleaner : public Sensors {
+class VacuumCleaner {
 public:
-    VacuumCleaner(House* house);
+    VacuumCleaner(int x, int y, int maxBatterySteps);
 
     void move(char direction);
-    void clean();
-    void charge(int steps);
-    bool isMissionCompleted() const;
-    bool isDead() const;
-    int getStepsTaken() const;
-    int getBatteryLevel() const override;
-    int getMaxBatterySteps() const override;
-    bool isAtDockingStation() const;
+    void increaseChargeBy(int steps);
+    void decreaseChargeBy(int steps);
+    int getBatteryLevel() const;
+    int getMaxBatterySteps() const;
+    bool isAtLocation(int locationX, int locationY) const;
     int getPathSize() const;
-
-    // Backtracking
+    int getX() const;
+    int getY() const;
+    bool getIsBackTracking() const;
+    std::stack<char>& getAllSteps();
+    void setX(int newX);
+    void setY(int newY);
+    void setMaxBatterySteps(int newMaxBatterySteps);
+    void flipIsBackTrackingStatus();
     char backtrack();
 
-    // Sensors interface implementation
-    int getDirtLevel() const override;
-    bool isWall(char direction) const override;
-
 private:
-    House* house;
-    int x, y;
+    Point location;
     int battery;
-    int stepsTaken;
-    bool missionCompleted;
-    bool dead;
+    int maxBatterySteps;
+    bool isBackTracking;
     std::stack<char> path;
-
-    void updateMissionStatus();
+    std::stack<char> allSteps;
 };
 
 #endif // VACUUMCLEANER_H
