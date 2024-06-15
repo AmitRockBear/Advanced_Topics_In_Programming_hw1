@@ -18,7 +18,7 @@ private:
     int stepsTaken;
     bool missionCompleted;
     bool gameOver;
-    static const std::vector<char> directions;
+    // static const std::vector<char> directions;
 
 
     void loadGameSettings(const std::string &filename);
@@ -32,6 +32,6 @@ private:
     void handleNextStep();
 };
 
-const std::vector<char> GameMaster::directions = {'S', 'W', 'N', 'E'};
+// const std::vector<char> GameMaster::directions = {'S', 'W', 'N', 'E'};
 
 #endif // GAMEMASTER_H

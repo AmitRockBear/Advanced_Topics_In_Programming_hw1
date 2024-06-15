@@ -8,7 +8,7 @@ class Algorithm {
 public:
     Algorithm();
 
-    char decideNextStep();
+    // char decideNextStep();
 
 private:
     std::vector<char> getValidMoves() const;
