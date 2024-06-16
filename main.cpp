@@ -1,4 +1,4 @@
-#include "GameMaster.h"
+#include "Controller.h"
 #include "FileDataExtractor.h"
 #include <iostream>
 #include <fstream>
@@ -11,13 +11,15 @@ int main(int argc, char *argv[]) {
     }
 
     const std::string& fileName = argv[1];
-    FileDataExtractor inputData = FileDataExtractor(fileName);
+    FileDataExtractor inputData = FileDataExtractor();
+    if (!inputData.readAndExtract(fileName))
+        return 1;
 
     int dockingX = inputData.getDockingX();
     int dockingY = inputData.getDockingY();
     House house(inputData.getHouseMap(), dockingX, dockingY);
     VacuumCleaner vacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps());
-    GameMaster gameMaster(house, vacuumCleaner, inputData.getMaxSteps());
+    Controller gameMaster(house, vacuumCleaner, inputData.getMaxSteps());
     gameMaster.run();
 
     return 0;

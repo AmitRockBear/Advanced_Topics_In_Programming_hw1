@@ -3,9 +3,8 @@
 #include <sstream>
 #include "FileDataExtractor.h"
 
-FileDataExtractor::FileDataExtractor(const std::string& fileName) {
-  readAndExtract(fileName);
-}
+FileDataExtractor::FileDataExtractor() {
+};
 
 int FileDataExtractor::getDockingX() const {
     return dockingX;
@@ -27,11 +26,11 @@ const std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() const {
     return houseMap;
 }
 
-void FileDataExtractor::readAndExtract(const std::string& fileName) {
+bool FileDataExtractor::readAndExtract(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
         std::cerr << "Unable to open file: " << fileName << std::endl;
-        return;
+        return false;
     }
 
     try {
@@ -40,10 +39,11 @@ void FileDataExtractor::readAndExtract(const std::string& fileName) {
         readAndExtractHouseData(file);
     } catch (const std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
+        return false;
     }
 
     file.close();
-
+    return true;
 }
 
 void FileDataExtractor::readAndExtractMaxBatterySteps(std::ifstream& file) {
@@ -59,7 +59,6 @@ void FileDataExtractor::readAndExtractMaxBatterySteps(std::ifstream& file) {
 }
 
 void FileDataExtractor::readAndExtractMaxSteps(std::ifstream& file) {
-    int maxSteps;
     std::string line;
     if (!std::getline(file, line)) {
         throw std::runtime_error("Error reading maxSteps");

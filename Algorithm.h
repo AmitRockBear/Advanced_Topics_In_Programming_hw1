@@ -3,15 +3,25 @@
 
 #include "VacuumCleaner.h"
 #include <vector>
+#include <functional>
 
 class Algorithm {
 public:
-    Algorithm();
+    Algorithm(std::function<double()> battery_sensor, std::function<bool(char)> wall_sensor, std::function<int(char)> dirt_sensor);
 
-    // char decideNextStep();
+
+    char decideNextStep();
+
 
 private:
-    std::vector<char> getValidMoves() const;
+    std::function<double()> battery_sensor;
+    std::function<bool(char)> wall_sensor;
+    std::function<int(char)> dirt_sensor;
+    static const std::vector<char> directions;
+    std::stack<char> stepsBack;
+    std::vector<char> calcValidMoves();
+    std::tuple<int, int> distanceFromDock;
+    bool isBacktracking;
 };
 
 #endif // ALGORITHM_H

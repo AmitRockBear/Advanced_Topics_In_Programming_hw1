@@ -6,13 +6,15 @@
 
 class FileDataExtractor {
 public:
-    FileDataExtractor(const std::string& filename);
+    FileDataExtractor();
 
     int getDockingX() const;
     int getDockingY() const;
     int getMaxSteps() const;
     int getMaxBatterySteps() const;
     const std::vector<std::vector<int>>& getHouseMap() const;
+
+    bool readAndExtract(const std::string& fileName);
 
 private:
     int dockingX;
@@ -21,7 +23,6 @@ private:
     int maxBatterySteps;
     std::vector<std::vector<int>> houseMap;
 
-    void readAndExtract(const std::string& filename);
     void readAndExtractHouseData(std::ifstream& file);
     void readAndExtractMaxSteps(std::ifstream& file);
     void readAndExtractMaxBatterySteps(std::ifstream& file);

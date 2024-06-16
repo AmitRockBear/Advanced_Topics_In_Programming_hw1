@@ -16,9 +16,11 @@ public:
     int getDockingX() const;
     int getDockingY() const;
     int getTotalDirt() const;
+    void printHouse() const;
 
 private:
     int totalDirt;
+    int calcTotalDirt() const;
     std::vector<std::vector<int>> houseMap;
     Point dockingLocation;
 };
