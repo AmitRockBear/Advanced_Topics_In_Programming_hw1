@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "General.h"
+#include "Point.h"
 
 Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken, bool missionCompleted, bool missionFailed)
     : house(house), vacuumCleaner(vacuumCleaner),
@@ -89,14 +90,15 @@ void Controller::handleNextStep(char nextStep) {
 }
 
 int Controller::getDirtLevel(char direction) const {
-    auto[newX, newY] = getCoordinate(vacuumCleaner.getX(), vacuumCleaner.getY(), direction);
-    return house.getDirtLevel(newX, newY);
+    Point neighbor = vacuumCleaner.getLocation().getNeighbor(direction);
+    return house.getDirtLevel(neighbor.getX(), neighbor.getY());
 }
 
 int Controller::isWall(char direction) const {
-    auto[newX, newY] = getCoordinate(vacuumCleaner.getX(), vacuumCleaner.getY(), direction);
-    return house.isWall(newX, newY);
+    Point neighbor = vacuumCleaner.getLocation().getNeighbor(direction);
+    return house.isWall(neighbor.getX(), neighbor.getY());
 }
+
 double Controller::batteryRemaining() const {
     return vacuumCleaner.getBatteryLevel();
 }

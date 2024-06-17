@@ -4,6 +4,7 @@
 #include "VacuumCleaner.h"
 #include <vector>
 #include <functional>
+#include "Point.h"
 
 class Algorithm {
 public:
@@ -20,7 +21,7 @@ private:
     static const std::vector<char> directions;
     std::stack<char> stepsBack;
     std::vector<char> calcValidMoves();
-    std::tuple<int, int> distanceFromDock;
+    Point distanceFromDock;
     bool isBacktracking;
 };
 

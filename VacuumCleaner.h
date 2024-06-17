@@ -16,8 +16,7 @@ public:
     bool isAtLocation(int locationX, int locationY) const;
     int getX() const;
     int getY() const;
-    void setX(int newX);
-    void setY(int newY);
+    Point getLocation() const;
 
 private:
     Point location;

@@ -5,15 +5,7 @@
 VacuumCleaner::VacuumCleaner(int x, int y, int maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {}
 
 void VacuumCleaner::move(char direction) {
-    int x = location.getX(), y = location.getY();
-
-    switch (direction) {
-        case 'N': setX(x-1); break;
-        case 'E': setY(y+1); break;
-        case 'S': setX(x+1); break;
-        case 'W': setY(y-1); break;
-        default: break;
-    }
+    location.move(direction);
 }
 
 void VacuumCleaner::increaseChargeBy(int steps) {
@@ -49,10 +41,6 @@ int VacuumCleaner::getY() const {
     return location.getY();
 }
 
-void VacuumCleaner::setX(int newX) {
-    location.setX(newX);
-}
-
-void VacuumCleaner::setY(int newY) {
-    location.setY(newY);
+Point VacuumCleaner::getLocation() const {
+    return location;
 }

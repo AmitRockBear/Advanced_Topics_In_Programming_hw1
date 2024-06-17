@@ -3,7 +3,8 @@
 #include <ctime>   // For std::time>
 #include <algorithm> // For std::random_shuffle
 #include <iostream>
-#include "general.h"
+#include "General.h"
+#include "Point.h"
 
 const std::vector<char> Algorithm::directions = {'S', 'W', 'N', 'E'};
 
@@ -13,7 +14,7 @@ Algorithm::Algorithm(std::function<double()> battery_sensor, std::function<bool(
     this->wall_sensor = wall_sensor;
     this->dirt_sensor = dirt_sensor;
     this->stepsBack = std::stack<char>();
-    this->distanceFromDock = {0, 0};
+    this->distanceFromDock = Point(0, 0);
     this->isBacktracking = false;
     std::srand(std::time(nullptr));
 }
@@ -58,7 +59,8 @@ std::vector<char> Algorithm::calcValidMoves() {
     // Checking other possible directions
     for (auto &&direction : directions) {
         if(!wall_sensor(direction)) {
-            moves.push_back(direction); }
+            moves.push_back(direction);
+        }
     }
     return moves;
 }
@@ -72,17 +74,16 @@ char Algorithm::decideNextStep() {
          // Choose the next move randomly
          char nextMove = validMoves[std::rand() % validMoves.size()];
          char oppMove = oppositeMove(nextMove);
+         distanceFromDock.move(nextMove);
 
          // If the vacuum is moving, and it's not backtracking, we want to save its movement as part of the next backtrack path
          if(oppMove != STAY && (!isBacktracking)) {
              stepsBack.push(oppMove);
-             // If we're back at the docking station, we'd like to empty the backtrack path
-             auto[x, y] = distanceFromDock;
-             auto[newX, newY] = getCoordinate( x, y, nextMove);
-             distanceFromDock = {newX, newY};
-             if (newX == 0 && newY == 0) {
-                 stepsBack = std::stack<char>();
-             }
+         }
+
+         // If we're back at the docking station, we'd like to empty the backtrack path
+         if (distanceFromDock.getX() == 0 && distanceFromDock.getY() == 0) {
+             stepsBack = std::stack<char>();
          }
 
          return nextMove;
