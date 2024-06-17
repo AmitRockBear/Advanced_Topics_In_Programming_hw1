@@ -31,14 +31,8 @@ void Point::move(char direction) {
     }
 }
 
-Point Point::getNeighbor(char direction) {
+Point Point::getNeighbor(char direction) const {
     Point neighbor = Point(getX(), getY());
-    switch (direction) {
-        case 'N': neighbor.setX(x-1); break;
-        case 'E': neighbor.setY(y+1); break;
-        case 'S': neighbor.setX(x+1); break;
-        case 'W': neighbor.setY(y-1); break;
-        default: break;
-    }
+    neighbor.move(direction);
     return neighbor;
 }
