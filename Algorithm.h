@@ -11,12 +11,14 @@ public:
     Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor, std::function<int(char)> dirtSensor);
     char decideNextStep();
 private:
+    void calcValidMoves(std::vector<char>& moves);
+    char oppositeMove(char move) const;
+    
     std::function<double()> batterySensor;
     std::function<bool(char)> wallSensor;
     std::function<int(char)> dirtSensor;
     static const std::vector<char> directions;
     std::stack<char> stepsBack;
-    void calcValidMoves(std::vector<char>& moves);
     Point distanceFromDock;
     bool isBacktracking;
 };

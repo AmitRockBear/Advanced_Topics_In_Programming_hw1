@@ -14,7 +14,7 @@ Algorithm::Algorithm(std::function<double()> batterySensor, std::function<bool(c
     std::srand(std::time(nullptr));
 }
 
-char oppositeMove(char move) {
+char Algorithm::oppositeMove(char move) const {
     switch (move) {
         case 'N': return 'S';
         case 'E': return 'W';
