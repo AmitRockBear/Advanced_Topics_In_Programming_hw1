@@ -73,21 +73,35 @@ void FileDataExtractor::readAndExtractMaxSteps(std::ifstream& file) {
 void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
     std::string line;
     int row = 0;
+    int dockingStationCount = 0;
     while (std::getline(file, line)) {
+        // Check if the line starts with a space
+        if (!line.empty() && line[0] == ' ') {
+            throw std::runtime_error("Line starts with an invalid space character");
+        }
         std::vector<int> row_data;
         std::istringstream iss(line);
         char ch;
         while (iss >> ch) {
             if (ch >= '0' && ch <= '9') {
                 row_data.push_back(ch - '0');
-            } else if (ch == 'W') {
+            } else if (ch == 'W' || ch == '-') {
                 row_data.push_back(-1);
             } else if (ch == 'D') {
+                if (dockingStationCount > 0) {
+                    throw std::runtime_error("More than one docking station in house file");
+                }
                 dockingX = row;
                 dockingY = row_data.size();
+                dockingStationCount++;
                 row_data.push_back(0); // No dirt at docking station
             } else {
                 throw std::runtime_error("Invalid character in house file: " + std::string(1, ch));
+            }
+
+            // Check if the next character is not a space or the end of the line
+            if (iss.peek() != ' ' && iss.peek() != EOF) {
+                throw std::runtime_error("Invalid format: characters must be separated by spaces");
             }
         }
         houseMap.push_back(row_data);
