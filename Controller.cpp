@@ -34,15 +34,12 @@ void Controller::run() {
     }
 }
 
-
-
 void Controller::vacuumLoop() {
-    int dockingX = house.getDockingX();
-    int dockingY = house.getDockingY();
+    Point dockingLocation = house.getDockingLocation();
 
     while (!missionCompleted && !missionFailed) {
         double currentBatteryLevel = vacuumCleaner.getBatteryLevel();
-        bool atDockingStation = vacuumCleaner.isAtLocation(dockingX, dockingY);
+        bool atDockingStation = vacuumCleaner.isAtLocation(dockingLocation);
 
         // Check if Mission completed
         if (house.getTotalDirt() == 0 && atDockingStation) {
@@ -50,14 +47,14 @@ void Controller::vacuumLoop() {
             continue;
         }
 
-        // Check if Mission failed
+        // Check if mission failed
         if ((currentBatteryLevel == 0 && (!atDockingStation)) || maxSteps - stepsTaken == 0) {
             missionFailed = true;
             continue;
         }
 
         // If vacuumCleaner is at docking station, it loads up until battery is full
-        if (currentBatteryLevel < vacuumCleaner.getMaxBatterySteps() &&atDockingStation) {
+        if (currentBatteryLevel < vacuumCleaner.getMaxBatterySteps() && atDockingStation) {
             handleDockingStation();
             stepsTaken++;
             steps.push_back(STAY);
@@ -71,14 +68,12 @@ void Controller::vacuumLoop() {
 }
 
 void Controller::handleNextStep(char nextStep) {
-    int vacuumCleanerX = vacuumCleaner.getX();
-    int vacuumCleanerY = vacuumCleaner.getY();
-
+    Point vacuumCleanerLocation = vacuumCleaner.getLocation();
     steps.push_back(nextStep);
 
     // Clean
     if (nextStep == STAY) {
-        house.decreaseDirtLevel(vacuumCleanerX, vacuumCleanerY, 1);
+        house.decreaseDirtLevel(vacuumCleanerLocation, 1);
     }
     // Otherwise, move
     else {

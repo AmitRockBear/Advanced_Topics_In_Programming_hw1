@@ -31,7 +31,7 @@ void Point::move(char direction) {
 void Point::moveToNeighbor(char direction) {
     Point neighbor = Point(getX(), getY());
     (*this).move(direction);
-    }
+}
 
 bool Point::operator==(const Point& other) const {
     return (this->x == other.x) && (this->y == other.y);

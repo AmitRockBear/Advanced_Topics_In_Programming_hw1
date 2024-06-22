@@ -13,7 +13,7 @@ public:
     void decreaseChargeBy(int steps);
     double getBatteryLevel() const;
     int getMaxBatterySteps() const;
-    bool isAtLocation(int locationX, int locationY) const;
+    bool isAtLocation(Point& otherLocation) const;
     int getX() const;
     int getY() const;
     Point getLocation() const;

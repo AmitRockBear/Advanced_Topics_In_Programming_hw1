@@ -24,14 +24,21 @@ int House::getTotalDirt() const {
     return totalDirt;
 }
 
-int House::getDirtLevel(int x, int y) const {
+int House::getDirtLevel(Point& location) const {
+    int x = location.getX();
+    int y = location.getY();
+
     if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
+
     return houseMap[x][y];
 }
 
-void House::decreaseDirtLevel(int x, int y, int decreaseBy) {
+void House::decreaseDirtLevel(Point& location, int decreaseBy) {
+    int x = location.getX();
+    int y = location.getY();
+    
     if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
@@ -41,10 +48,14 @@ void House::decreaseDirtLevel(int x, int y, int decreaseBy) {
     houseMap[x][y] = newDirtLevel;
 }
 
-bool House::isWall(int x, int y) const {
+bool House::isWall(Point& location) const {
+    int x = location.getX();
+    int y = location.getY();
+
     if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
         return true;
     }
+    
     return houseMap[x][y] == -1;
 }
 
@@ -55,6 +66,10 @@ int House::getDockingX() const {
 
 int House::getDockingY() const {
     return dockingLocation.getY();
+}
+
+Point House::getDockingLocation() const {
+    return dockingLocation;
 }
 
 void House::printHouse() const {
