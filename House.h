@@ -16,10 +16,9 @@ public:
     int getTotalDirt() const;
     void printHouse() const;
     Point getDockingLocation() const;
-    static void padHouseMap(std::vector<std::vector<int>>& houseMap);
-  
   private:
-    static int getMaxY(std::vector<std::vector<int>> &houseMap);
+    void padHouseMap(std::vector<std::vector<int>>& houseMap);
+    int getMaxY(std::vector<std::vector<int>> &houseMap);
 
     int totalDirt;
     int calcTotalDirt() const;

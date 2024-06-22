@@ -3,10 +3,10 @@
 #include <iostream>
 
 House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY)
-    : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY))
-    {
-        totalDirt = calcTotalDirt(); // In order for it to be called after initializing the houseMap
-    }
+    : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY)) {
+    padHouseMap(this->houseMap);
+    totalDirt = calcTotalDirt(); // In order for it to be called after initializing the houseMap
+}
 
 int House::calcTotalDirt() const {
     int sum = 0;
