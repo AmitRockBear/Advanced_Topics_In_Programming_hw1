@@ -1,0 +1,111 @@
+classDiagram
+    class Algorithm {
+        +Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor, std::function<int(char)> dirtSensor)
+        +char decideNextStep()
+        -void calcValidMoves(std::vector<char>& moves)
+        -char oppositeMove(char move) const
+        -static const std::vector<char> directions
+        -std::stack<char> stepsBack
+        -Point distanceFromDock
+        -bool isBacktracking
+        -std::function<double> batterySensor
+        -std::function<bool,char> wallSensor
+        -std::function<int,char> dirtSensor
+    }
+
+    class Controller {
+        +Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken=0, bool missionCompleted=false, bool missionFailed=false)
+        +void run()
+        -void vacuumLoop()
+        -void handleDockingStation()
+        -int getDirtLevel(char direction=STAY) const
+        -int isWall(char direction) const
+        -double batteryRemaining() const
+        -void handleNextStep(char nextStep)
+        -House house
+        -VacuumCleaner vacuumCleaner
+        -Algorithm algorithm
+        -int maxSteps
+        -int stepsTaken
+        -bool missionCompleted
+        -bool missionFailed
+        -std::vector<char> steps
+        -const std::string OUTPUT_FILE_NAME="output.txt"
+    }
+
+    class FileDataExtractor {
+        +FileDataExtractor()
+        +int getDockingX() const
+        +int getDockingY() const
+        +int getMaxSteps() const
+        +int getMaxBatterySteps() const
+        +std::vector<std::vector<int>>& getHouseMap()
+        +bool readAndExtract(const std::string& fileName)
+        -void readAndExtractHouseData(std::ifstream& file)
+        -void readAndExtractMaxSteps(std::ifstream& file)
+        -void readAndExtractMaxBatterySteps(std::ifstream& file)
+        -bool isNextCharacterSpaceOrEndOfLine(std::istringstream& iss)
+        -int dockingX
+        -int dockingY
+        -int maxSteps
+        -int maxBatterySteps
+        -std::vector<std::vector<int>> houseMap
+    }
+
+    class General {
+        +static const char STAY='C'
+    }
+
+    class House {
+        +House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY)
+        +int getDirtLevel(Point& location) const
+        +void decreaseDirtLevel(Point& location, int decreaseBy)
+        +bool isWall(Point& location) const
+        +int getDockingX() const
+        +int getDockingY() const
+        +int getTotalDirt() const
+        +void getDockingLocation(Point& locationToModify) const
+        -void padHouseMap(std::vector<std::vector<int>>& houseMap)
+        -size_t getMaxY(std::vector<std::vector<int>>& houseMap)
+        -int totalDirt
+        -int calcTotalDirt() const
+        -std::vector<std::vector<int>> houseMap
+        -Point dockingLocation
+    }
+
+    class Point {
+        +Point(int x=0, int y=0)
+        +int getX() const
+        +void setX(int newX)
+        +int getY() const
+        +void setY(int newY)
+        +void moveToNeighbor(char direction=STAY)
+        +void move(char direction)
+        +bool operator==(const Point& other) const
+        -int x
+        -int y
+    }
+
+    class VacuumCleaner {
+        +VacuumCleaner(int x, int y, int maxBatterySteps)
+        +void move(char direction)
+        +void increaseChargeBy(int steps)
+        +void decreaseChargeBy(int steps)
+        +double getBatteryLevel() const
+        +int getMaxBatterySteps() const
+        +bool isAtLocation(Point& otherLocation) const
+        +int getX() const
+        +int getY() const
+        +void getLocation(Point& locationToModify) const
+        -Point location
+        -double battery
+        -int maxBatterySteps
+    }
+
+    Algorithm --> Point
+    Controller --> House
+    Controller --> VacuumCleaner
+    Controller --> Algorithm
+    FileDataExtractor --> Point
+    House --> Point
+    VacuumCleaner --> Point
