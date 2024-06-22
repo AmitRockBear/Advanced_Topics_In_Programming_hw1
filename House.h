@@ -15,7 +15,8 @@ public:
     int getDockingY() const;
     int getTotalDirt() const;
     void printHouse() const;
-    Point getDockingLocation() const;
+    void getDockingLocation(Point& locationToModify) const;
+    
   private:
     void padHouseMap(std::vector<std::vector<int>>& houseMap);
     int getMaxY(std::vector<std::vector<int>> &houseMap);

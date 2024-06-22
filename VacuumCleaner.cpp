@@ -41,6 +41,7 @@ int VacuumCleaner::getY() const {
     return location.getY();
 }
 
-Point VacuumCleaner::getLocation() const {
-    return location;
+void VacuumCleaner::getLocation(Point& locationToModify) const {
+    locationToModify.setX(location.getX());
+    locationToModify.setY(location.getY());
 }

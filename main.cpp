@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     FileDataExtractor inputData = FileDataExtractor();
     if (!inputData.readAndExtract(fileName))
         return 1;
-
+    
     int dockingX = inputData.getDockingX();
     int dockingY = inputData.getDockingY();
     House house(inputData.getHouseMap(), dockingX, dockingY);

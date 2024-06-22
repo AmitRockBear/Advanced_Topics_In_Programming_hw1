@@ -68,8 +68,9 @@ int House::getDockingY() const {
     return dockingLocation.getY();
 }
 
-Point House::getDockingLocation() const {
-    return dockingLocation;
+void House::getDockingLocation(Point& locationToModify) const {
+    locationToModify.setX(dockingLocation.getX());
+    locationToModify.setY(dockingLocation.getY());
 }
 
 void House::printHouse() const {
