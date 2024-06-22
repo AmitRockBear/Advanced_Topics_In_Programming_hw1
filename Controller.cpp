@@ -10,14 +10,12 @@ Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps,
             [=]() { return this->batteryRemaining(); },
             [=](char direction) { return this->isWall(direction); },
             [=](char direction) { return this->getDirtLevel(direction); })),
-    maxSteps(maxSteps), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed) {
-    steps = std::vector<char>();
-}
+    maxSteps(maxSteps), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {}
 
 void Controller::run() {
     try {
         vacuumLoop();
-        std::ofstream outfile (OUTPUT_FILE_NAME);
+        std::ofstream outfile(OUTPUT_FILE_NAME);
         outfile << "Steps preformed: ";
         for(auto &&step : steps) {
             outfile << step << " ";

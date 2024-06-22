@@ -5,6 +5,8 @@
 #include "VacuumCleaner.h"
 #include "Algorithm.h"
 #include "General.h"
+#include <vector>
+#include <string>
 
 class Controller {
 public:
