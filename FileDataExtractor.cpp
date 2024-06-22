@@ -114,4 +114,8 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
         houseMap.push_back(row_data);
         row++;
     }
+
+    if (dockingStationCount == 0) {
+        throw std::runtime_error("Invalid house map: no docking station found in input file");
+    }
 }
