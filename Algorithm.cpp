@@ -8,14 +8,9 @@
 
 const std::vector<char> Algorithm::directions = {'S', 'W', 'N', 'E'};
 
-Algorithm::Algorithm(std::function<double()> battery_sensor, std::function<bool(char)> wall_sensor,
-                     std::function<int(char)> dirt_sensor) {
-    this->battery_sensor = battery_sensor;
-    this->wall_sensor = wall_sensor;
-    this->dirt_sensor = dirt_sensor;
-    this->stepsBack = std::stack<char>();
-    this->distanceFromDock = Point(0, 0);
-    this->isBacktracking = false;
+Algorithm::Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor,
+                     std::function<int(char)> dirtSensor) : batterySensor(batterySensor), wallSensor(wallSensor),
+                                                             dirtSensor(dirtSensor), stepsBack(std::stack<char>()), distanceFromDock(Point(0, 0)), isBacktracking(false) {
     std::srand(std::time(nullptr));
 }
 
@@ -29,44 +24,44 @@ char oppositeMove(char move) {
     }
 }
 
-std::vector<char> Algorithm::calcValidMoves() {
-    std::vector<char> moves = std::vector<char>();
+void Algorithm::calcValidMoves(std::vector<char>& moves) {
     int stepsAmount = stepsBack.size();
 
-    // If there's no battery, the vacuum can only stay in place
-    if (battery_sensor() == 0) {
+    // If there's not enough battery to make a move, the vacuum can only stay in place
+    if (batterySensor() < 1) {
         isBacktracking = false;
         moves.push_back(STAY);
-        return moves;
+        return;
     }
 
     // If battery left is the same as the amount of steps to the docking station, the vacuum should go back
-    if (battery_sensor() >= stepsAmount && battery_sensor() <= stepsAmount + 1) {
+    if (batterySensor() >= stepsAmount && batterySensor() <= stepsAmount + 1) {
         isBacktracking = true;
         moves.push_back(stepsBack.top());
         stepsBack.pop();
-        return moves;
+        return;
     }
 
     isBacktracking = false;
 
     // If there's still dirt, the vacuum will stay and clean
-    if(dirt_sensor(STAY) > 0) {
+    if(dirtSensor(STAY) > 0) {
         moves.push_back(STAY);
-        return moves;
+        return;
     }
 
     // Checking other possible directions
     for (auto &&direction : directions) {
-        if(!wall_sensor(direction)) {
+        if(!wallSensor(direction)) {
             moves.push_back(direction);
         }
     }
-    return moves;
 }
 
 char Algorithm::decideNextStep() {
-    std::vector<char> validMoves = calcValidMoves();
+    std::vector<char> validMoves = std::vector<char>();
+    calcValidMoves(validMoves);
+
      try {
          if (validMoves.empty()) {
              return STAY; // Stay in place if no valid moves. C stands for clean

@@ -1,26 +1,22 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "VacuumCleaner.h"
-#include <vector>
 #include <functional>
 #include "Point.h"
+#include <vector>
+#include <stack>
 
 class Algorithm {
 public:
-    Algorithm(std::function<double()> battery_sensor, std::function<bool(char)> wall_sensor, std::function<int(char)> dirt_sensor);
-
-
+    Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor, std::function<int(char)> dirtSensor);
     char decideNextStep();
-
-
 private:
-    std::function<double()> battery_sensor;
-    std::function<bool(char)> wall_sensor;
-    std::function<int(char)> dirt_sensor;
+    std::function<double()> batterySensor;
+    std::function<bool(char)> wallSensor;
+    std::function<int(char)> dirtSensor;
     static const std::vector<char> directions;
     std::stack<char> stepsBack;
-    std::vector<char> calcValidMoves();
+    void calcValidMoves(std::vector<char>& moves);
     Point distanceFromDock;
     bool isBacktracking;
 };
