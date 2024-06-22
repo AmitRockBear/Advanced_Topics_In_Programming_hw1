@@ -13,7 +13,7 @@ public:
     void setX(int newX);
     int getY() const;
     void setY(int newY);
-    Point getNeighbor(char direction=STAY);
+    void moveToNeighbor(char direction=STAY);
     void move(char direction);
 };
 

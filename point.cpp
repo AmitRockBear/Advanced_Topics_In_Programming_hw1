@@ -31,8 +31,11 @@ void Point::move(char direction) {
     }
 }
 
-Point Point::getNeighbor(char direction) const {
+void Point::moveToNeighbor(char direction) {
     Point neighbor = Point(getX(), getY());
-    neighbor.move(direction);
+    (*this).move(direction);
+    }
+
+bool Point::operator==(const Point& other) const {
     return neighbor;
 }

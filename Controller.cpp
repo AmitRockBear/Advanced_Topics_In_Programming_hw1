@@ -90,13 +90,15 @@ void Controller::handleNextStep(char nextStep) {
 }
 
 int Controller::getDirtLevel(char direction) const {
-    Point neighbor = vacuumCleaner.getLocation().getNeighbor(direction);
-    return house.getDirtLevel(neighbor.getX(), neighbor.getY());
+    Point neighbor = vacuumCleaner.getLocation();
+    neighbor.moveToNeighbor(direction);
+    return house.getDirtLevel(neighbor);
 }
 
 int Controller::isWall(char direction) const {
-    Point neighbor = vacuumCleaner.getLocation().getNeighbor(direction);
-    return house.isWall(neighbor.getX(), neighbor.getY());
+    Point neighbor = vacuumCleaner.getLocation();
+    neighbor.moveToNeighbor(direction);
+    return house.isWall(neighbor);
 }
 
 double Controller::batteryRemaining() const {
