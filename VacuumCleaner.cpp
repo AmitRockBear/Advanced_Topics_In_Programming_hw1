@@ -29,8 +29,8 @@ int VacuumCleaner::getMaxBatterySteps() const {
     return maxBatterySteps;
 }
 
-bool VacuumCleaner::isAtLocation(int locationX, int locationY) const {
-    return location.getX() == locationX && location.getY() == locationY;
+bool VacuumCleaner::isAtLocation(Point& otherLocation) const {
+    return location == otherLocation;
 }
 
 int VacuumCleaner::getX() const {

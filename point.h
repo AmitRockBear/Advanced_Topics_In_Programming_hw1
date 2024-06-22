@@ -7,14 +7,14 @@ private:
     int x;
     int y;
 public:
-    Point();
-    Point(int x, int y);
+    Point(int x=0, int y=0);
     int getX() const;
     void setX(int newX);
     int getY() const;
     void setY(int newY);
     void moveToNeighbor(char direction=STAY);
     void move(char direction);
+    bool operator==(const Point& other) const;
 };
 
 #endif // POINT_H
