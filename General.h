@@ -1,6 +1,5 @@
-#ifndef HW1_GENERAL_H
-#define HW1_GENERAL_H
-#include "Point.h"
+#ifndef GENERAL_H
+#define GENERAL_H
 
 static const char STAY = 'C';
 
