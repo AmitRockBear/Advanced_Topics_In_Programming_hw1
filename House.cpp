@@ -81,3 +81,22 @@ void House::printHouse() const {
         std::cout << std::endl;
     }
 }
+
+int House::getMaxY(std::vector<std::vector<int>>& houseMap) { 
+    int maxRowSize = 0;
+    for (const auto& row : houseMap) {
+        if (row.size() > maxRowSize) {
+            maxRowSize = row.size();
+        }
+    }
+    return maxRowSize;
+}
+
+void House::padHouseMap(std::vector<std::vector<int>>& houseMap) {
+    int maxY = getMaxY(houseMap);
+    for (auto& row : houseMap) {
+        while (row.size() < maxY) {
+            row.push_back(-1);
+        }
+    }
+}

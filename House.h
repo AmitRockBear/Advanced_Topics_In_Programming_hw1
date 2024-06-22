@@ -2,9 +2,7 @@
 #define HOUSE_H
 
 #include <vector>
-#include <string>
-#include <stdexcept>
-#include "point.h"
+#include "Point.h"
 
 class House {
 public:
@@ -18,6 +16,11 @@ public:
     int getTotalDirt() const;
     void printHouse() const;
     Point getDockingLocation() const;
+    static void padHouseMap(std::vector<std::vector<int>>& houseMap);
+  
+  private:
+    static int getMaxY(std::vector<std::vector<int>> &houseMap);
+
     int totalDirt;
     int calcTotalDirt() const;
     std::vector<std::vector<int>> houseMap;
