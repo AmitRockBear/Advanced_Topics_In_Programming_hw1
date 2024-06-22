@@ -82,16 +82,6 @@ void House::getDockingLocation(Point& locationToModify) const {
     locationToModify.setY(dockingLocation.getY());
 }
 
-void House::printHouse() const {
-    std::cout << "House:" << std::endl;
-    for (const auto &row: houseMap) {
-        for (const auto &cell: row) {
-            std::cout << cell << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
 size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) { 
     size_t maxRowSize = 0;
     for (const auto& row : houseMap) {

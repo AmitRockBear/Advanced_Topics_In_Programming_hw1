@@ -14,7 +14,6 @@ public:
     int getDockingX() const;
     int getDockingY() const;
     int getTotalDirt() const;
-    void printHouse() const;
     void getDockingLocation(Point& locationToModify) const;
     
   private:
