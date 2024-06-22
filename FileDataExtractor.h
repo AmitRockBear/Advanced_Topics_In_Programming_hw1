@@ -1,8 +1,9 @@
-#include <vector>
-#include <sstream>
-
 #ifndef FileDataExtractor_H
 #define FileDataExtractor_H
+
+#include <vector>
+#include <fstream>
+#include <string>
 
 class FileDataExtractor {
 public:
@@ -12,8 +13,7 @@ public:
     int getDockingY() const;
     int getMaxSteps() const;
     int getMaxBatterySteps() const;
-    const std::vector<std::vector<int>>& getHouseMap() const;
-
+    std::vector<std::vector<int>>& getHouseMap();
     bool readAndExtract(const std::string& fileName);
 
 private:

@@ -22,7 +22,7 @@ int FileDataExtractor::getMaxBatterySteps() const {
     return maxBatterySteps;
 }
 
-const std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() const {
+std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() {
     return houseMap;
 }
 
