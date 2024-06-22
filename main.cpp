@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
     int dockingY = inputData.getDockingY();
     House house(inputData.getHouseMap(), dockingX, dockingY);
     VacuumCleaner vacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps());
-    Controller gameMaster(house, vacuumCleaner, inputData.getMaxSteps());
-    gameMaster.run();
+    Controller controller(house, vacuumCleaner, inputData.getMaxSteps());
+    controller.run();
 
     return 0;
 }
