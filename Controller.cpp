@@ -26,16 +26,14 @@ void Controller::run() {
         outfile << (missionCompleted ? "Mission succeeded!" : "Mission failed.") << std::endl;
         outfile.close();
     } catch (const std::exception& e) {
-        std::cerr << "Unrecoverable error: " << e.what() << std::endl;
-    } catch (...) {
-        std::cerr << "An unknown unrecoverable error occurred." << std::endl;
+        throw std::runtime_error("Unrecoverable error has occured in step: " + std::to_string(stepsTaken) + ". The error is: " + e.what());
     }
 }
 
 void Controller::vacuumLoop() {
     Point dockingLocation;
     house.getDockingLocation(dockingLocation);
-
+    
     while (!missionCompleted && !missionFailed) {
         double currentBatteryLevel = vacuumCleaner.getBatteryLevel();
         bool atDockingStation = vacuumCleaner.isAtLocation(dockingLocation);

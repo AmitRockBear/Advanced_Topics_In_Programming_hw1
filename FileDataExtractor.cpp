@@ -3,8 +3,7 @@
 #include <sstream>
 #include "FileDataExtractor.h"
 
-FileDataExtractor::FileDataExtractor() {
-};
+FileDataExtractor::FileDataExtractor() {};
 
 int FileDataExtractor::getDockingX() const {
     return dockingX;
@@ -26,21 +25,22 @@ std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() {
     return houseMap;
 }
 
+bool FileDataExtractor::isNextCharacterSpaceOrEndOfLine(std::istringstream& iss) {
+    if (iss.peek() != ' ' && iss.peek() != EOF) {
+        return false;
+    }
+    return true;
+}
+
 bool FileDataExtractor::readAndExtract(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
-        std::cerr << "Unable to open file: " << fileName << std::endl;
-        return false;
+        throw std::runtime_error("Unable to open input file: " + fileName);
     }
 
-    try {
-        readAndExtractMaxBatterySteps(file);
-        readAndExtractMaxSteps(file);
-        readAndExtractHouseData(file);
-    } catch (const std::runtime_error& e) {
-        std::cerr << e.what() << std::endl;
-        return false;
-    }
+    readAndExtractMaxBatterySteps(file);
+    readAndExtractMaxSteps(file);
+    readAndExtractHouseData(file);
 
     file.close();
     return true;
@@ -49,24 +49,32 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
 void FileDataExtractor::readAndExtractMaxBatterySteps(std::ifstream& file) {
     std::string line;
     if (!std::getline(file, line)) {
-        throw std::runtime_error("Error reading maxBatterySteps");
+        throw std::runtime_error("Error reading maxBatterySteps from input file");
     }
 
     std::istringstream iss(line);
     if (!(iss >> maxBatterySteps)) {
-        throw std::runtime_error("Invalid format for maxBatterySteps in house file");
+        throw std::runtime_error("Invalid format for maxBatterySteps in input file");
+    }
+
+    if (!isNextCharacterSpaceOrEndOfLine(iss)) {
+        throw std::runtime_error("Invalid format: maxBatterySteps must be followed by a space or EOF in input file");
     }
 }
 
 void FileDataExtractor::readAndExtractMaxSteps(std::ifstream& file) {
     std::string line;
     if (!std::getline(file, line)) {
-        throw std::runtime_error("Error reading maxSteps");
+        throw std::runtime_error("Error reading maxSteps from input file");
     }
 
     std::istringstream iss(line);
     if (!(iss >> maxSteps)) {
-        throw std::runtime_error("Invalid format for maxSteps in house file");
+        throw std::runtime_error("Invalid format for maxSteps in input file");
+    }
+
+    if (!isNextCharacterSpaceOrEndOfLine(iss)) {
+        throw std::runtime_error("Invalid format: maxSteps must be followed by a space or EOF in input file");
     }
 }
 
@@ -75,10 +83,10 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
     int row = 0;
     int dockingStationCount = 0;
     while (std::getline(file, line)) {
-        // Check if the line starts with a space
         if (!line.empty() && line[0] == ' ') {
-            throw std::runtime_error("Line starts with an invalid space character");
+            throw std::runtime_error("Invalid format: house map must not start with a space character in input file");
         }
+
         std::vector<int> row_data;
         std::istringstream iss(line);
         char ch;
@@ -89,19 +97,18 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
                 row_data.push_back(-1);
             } else if (ch == 'D') {
                 if (dockingStationCount > 0) {
-                    throw std::runtime_error("More than one docking station in house file");
+                    throw std::runtime_error("Invalid house map: can only have one docking station in input file");
                 }
                 dockingX = row;
                 dockingY = row_data.size();
                 dockingStationCount++;
-                row_data.push_back(0); // No dirt at docking station
+                row_data.push_back(0);
             } else {
-                throw std::runtime_error("Invalid character in house file: " + std::string(1, ch));
+                throw std::runtime_error("Invalid house map: invalid character found: '" + std::string(1, ch) + "', in input file");
             }
 
-            // Check if the next character is not a space or the end of the line
-            if (iss.peek() != ' ' && iss.peek() != EOF) {
-                throw std::runtime_error("Invalid format: characters must be separated by spaces");
+            if (!isNextCharacterSpaceOrEndOfLine(iss)) {
+                throw std::runtime_error("Invalid format: every character in house map must be followed by a space or EOF in input file");
             }
         }
         houseMap.push_back(row_data);

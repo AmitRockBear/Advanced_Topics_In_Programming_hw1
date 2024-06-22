@@ -26,6 +26,7 @@ private:
     void readAndExtractHouseData(std::ifstream& file);
     void readAndExtractMaxSteps(std::ifstream& file);
     void readAndExtractMaxBatterySteps(std::ifstream& file);
+    bool isNextCharacterSpaceOrEndOfLine(std::istringstream& iss);
 };
 
 #endif

@@ -19,7 +19,7 @@ public:
     
   private:
     void padHouseMap(std::vector<std::vector<int>>& houseMap);
-    int getMaxY(std::vector<std::vector<int>> &houseMap);
+    size_t getMaxY(std::vector<std::vector<int>> &houseMap);
 
     int totalDirt;
     int calcTotalDirt() const;

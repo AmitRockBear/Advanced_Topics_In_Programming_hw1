@@ -5,18 +5,27 @@
 House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY)
     : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY)) {
     padHouseMap(this->houseMap);
-    totalDirt = calcTotalDirt(); // In order for it to be called after initializing the houseMap
+    totalDirt = calcTotalDirt();
 }
 
 int House::calcTotalDirt() const {
     int sum = 0;
-    for (const auto& row : houseMap) {
-        for (const auto& cell : row) {
-            if (cell > 0) {
-                sum += cell;
+
+    try
+    {
+        for (const auto& row : houseMap) {
+            for (const auto& cell : row) {
+                if (cell > 0) {
+                    sum += cell;
+                }
             }
         }
     }
+    catch(const std::exception& e)
+    {
+        throw std::runtime_error("Error calculating house's total dirt: " + std::string(e.what()));
+    }
+
     return sum;
 }
 
@@ -83,8 +92,8 @@ void House::printHouse() const {
     }
 }
 
-int House::getMaxY(std::vector<std::vector<int>>& houseMap) { 
-    int maxRowSize = 0;
+size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) { 
+    size_t maxRowSize = 0;
     for (const auto& row : houseMap) {
         if (row.size() > maxRowSize) {
             maxRowSize = row.size();
@@ -94,10 +103,17 @@ int House::getMaxY(std::vector<std::vector<int>>& houseMap) {
 }
 
 void House::padHouseMap(std::vector<std::vector<int>>& houseMap) {
-    int maxY = getMaxY(houseMap);
-    for (auto& row : houseMap) {
-        while (row.size() < maxY) {
-            row.push_back(-1);
+    try
+    {
+        size_t maxY = getMaxY(houseMap);
+        for (auto& row : houseMap) {
+            while (row.size() < maxY) {
+                row.push_back(-1);
+            }
         }
+    }
+    catch(const std::exception& e)
+    {
+        throw std::runtime_error("Error padding house map: " + std::string(e.what()));
     }
 }
