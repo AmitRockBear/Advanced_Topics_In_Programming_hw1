@@ -4,6 +4,16 @@
 #include <vector>
 #include "Point.h"
 
+static const char *const HORIZONTAL_WALL = "_";
+
+static const char *const VERTICAL_WALL = "|";
+
+static const char *const VACUUM_SIGN = "V";
+
+static const char *const DOCKING_SIGN = "D";
+
+static const int WAITING_TIME = 200;
+
 class House {
 public:
     House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY);

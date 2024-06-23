@@ -108,24 +108,24 @@ void clear()
 }
 
 void House::houseVisualization(Point vacuumLocation) const {
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(WAITING_TIME));
     clear();
     for (size_t i = 0; i < houseMap.size(); i++) {
         for (size_t j = 0; j < houseMap[i].size(); j++) {
             int cell = houseMap[i][j];
             if(cell == -1) {
                 if (i == 0 || i == size(houseMap) - 1) {
-                    std::cout << "_" << " ";
+                    std::cout << HORIZONTAL_WALL << " ";
                 }
                 else {
-                    std::cout << "|" << " ";
+                    std::cout << VERTICAL_WALL << " ";
                 }
             }
-            else if (i == dockingLocation.getX() && j == dockingLocation.getY()) {
-                std::cout << "D" << " ";
-            }
             else if (i == vacuumLocation.getX() && j == vacuumLocation.getY()) {
-                std::cout << "V" << " ";
+                std::cout << VACUUM_SIGN << " ";
+            }
+            else if (i == dockingLocation.getX() && j == dockingLocation.getY()) {
+                std::cout << DOCKING_SIGN << " ";
             }
             else {
                 std::cout << cell << " ";
