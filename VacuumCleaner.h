@@ -16,7 +16,7 @@ public:
     bool isAtLocation(Point& otherLocation) const;
     int getX() const;
     int getY() const;
-    void getLocation(Point& locationToModify) const;
+    Point getLocation() const;
 
 private:
     Point location;

@@ -29,7 +29,6 @@ void Point::move(char direction) {
 }
 
 void Point::moveToNeighbor(char direction) {
-    Point neighbor = Point(getX(), getY());
     (*this).move(direction);
 }
 

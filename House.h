@@ -11,15 +11,14 @@ public:
     int getDirtLevel(Point& location) const;
     void decreaseDirtLevel(Point& location, int decreaseBy);
     bool isWall(Point& location) const;
-    int getDockingX() const;
-    int getDockingY() const;
     int getTotalDirt() const;
     void getDockingLocation(Point& locationToModify) const;
-    
-  private:
+    void houseVisualization(Point vacuumLocation) const;
+    void printHouse() const;
+
+private:
     void padHouseMap(std::vector<std::vector<int>>& houseMap);
     size_t getMaxY(std::vector<std::vector<int>> &houseMap);
-
     int totalDirt;
     int calcTotalDirt() const;
     std::vector<std::vector<int>> houseMap;

@@ -1,6 +1,8 @@
 #include "House.h"
 #include <fstream>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY)
     : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY)) {
@@ -47,7 +49,7 @@ int House::getDirtLevel(Point& location) const {
 void House::decreaseDirtLevel(Point& location, int decreaseBy) {
     int x = location.getX();
     int y = location.getY();
-    
+
     if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
@@ -64,17 +66,8 @@ bool House::isWall(Point& location) const {
     if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
         return true;
     }
-    
+
     return houseMap[x][y] == -1;
-}
-
-
-int House::getDockingX() const {
-    return dockingLocation.getX();
-}
-
-int House::getDockingY() const {
-    return dockingLocation.getY();
 }
 
 void House::getDockingLocation(Point& locationToModify) const {
@@ -82,7 +75,7 @@ void House::getDockingLocation(Point& locationToModify) const {
     locationToModify.setY(dockingLocation.getY());
 }
 
-size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) { 
+size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) {
     size_t maxRowSize = 0;
     for (const auto& row : houseMap) {
         if (row.size() > maxRowSize) {
@@ -90,6 +83,57 @@ size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) {
         }
     }
     return maxRowSize;
+}
+
+// Delete Later
+void House::printHouse() const {
+    std::cout << "House:" << std::endl;
+    for (const auto &row: houseMap) {
+        for (const auto &cell: row) {
+            std::cout << cell << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void clear()
+{
+#if defined _WIN32
+    system("cls");
+#elif defined (_LINUX) || defined(gnu_linux) || defined(linux_)
+    system("clear");
+#elif defined (_APPLE_)
+    system("clear");
+#endif
+}
+
+void House::houseVisualization(Point vacuumLocation) const {
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    clear();
+    for (size_t i = 0; i < houseMap.size(); i++) {
+        for (size_t j = 0; j < houseMap[i].size(); j++) {
+            int cell = houseMap[i][j];
+            if(cell == -1) {
+                if (i == 0 || i == size(houseMap) - 1) {
+                    std::cout << "_" << " ";
+                }
+                else {
+                    std::cout << "|" << " ";
+                }
+            }
+            else if (i == dockingLocation.getX() && j == dockingLocation.getY()) {
+                std::cout << "D" << " ";
+            }
+            else if (i == vacuumLocation.getX() && j == vacuumLocation.getY()) {
+                std::cout << "V" << " ";
+            }
+            else {
+                std::cout << cell << " ";
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
 }
 
 void House::padHouseMap(std::vector<std::vector<int>>& houseMap) {
