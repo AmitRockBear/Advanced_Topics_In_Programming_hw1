@@ -3,6 +3,8 @@
 #include <fstream>
 #include "General.h"
 #include "Point.h"
+#include "Logger.h"
+#include "Config.h"
 
 Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken, bool missionCompleted, bool missionFailed)
     : house(house), vacuumCleaner(vacuumCleaner),
@@ -10,12 +12,24 @@ Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps,
             [=]() { return this->batteryRemaining(); },
             [=](char direction) { return this->isWall(direction); },
             [=](char direction) { return this->getDirtLevel(direction); })),
-    maxSteps(maxSteps), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {}
+    maxSteps(maxSteps), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
+        Logger::getInstance().logInfo("Controller successfully initialized with maxSteps: " + std::to_string(maxSteps));
+    }
 
 void Controller::run() {
     try {
+        Logger::getInstance().logInfo("Starting simulation");
         vacuumLoop();
-        std::ofstream outfile(OUTPUT_FILE_NAME);
+
+        Config& config = Config::getInstance();
+        const std::string& outputFileName = config.get("outputFileName");
+
+        std::ofstream outfile;
+        if (outputFileName == "") 
+            outfile.open(DEFAULT_OUTPUT_FILE_NAME, std::ios::out);
+        else
+            outfile.open(outputFileName, std::ios::out);
+
         outfile << "Steps preformed: ";
         for(auto &&step : steps) {
             outfile << step << " ";
@@ -31,27 +45,38 @@ void Controller::run() {
 }
 
 void Controller::vacuumLoop() {
-    Point dockingLocation;
+    Logger& logger = Logger::getInstance();
+    Point dockingLocation, currentVacuumLocation;
     house.getDockingLocation(dockingLocation);
 
     while (!missionCompleted && !missionFailed) {
+        vacuumCleaner.getLocation(currentVacuumLocation);
+
+        logger.logInfo("---------------------------------Step: " + std::to_string(stepsTaken) + "---------------------------------");
+        logger.logInfo("Dirt level: " + std::to_string(house.getTotalDirt()));
+        logger.logInfo("Battery level: " + std::to_string(vacuumCleaner.getBatteryLevel()));
+        logger.logInfo("Vacuum cleaner location: " + currentVacuumLocation.toString());
+        
         double currentBatteryLevel = vacuumCleaner.getBatteryLevel();
         bool atDockingStation = vacuumCleaner.isAtLocation(dockingLocation);
 
         // Check if Mission completed
         if (house.getTotalDirt() == 0 && atDockingStation) {
             missionCompleted = true;
+            logger.logInfo("Mission completed!");
             continue;
         }
 
         // Check if mission failed
         if ((currentBatteryLevel == 0 && (!atDockingStation)) || maxSteps - stepsTaken == 0) {
             missionFailed = true;
+            logger.logInfo("Mission failed!");
             continue;
         }
 
         // If vacuumCleaner is at docking station, it loads up until battery is full
         if (currentBatteryLevel < vacuumCleaner.getMaxBatterySteps() && atDockingStation) {
+            logger.logInfo("Vacuum cleaner is at docking station, charging...");
             handleDockingStation();
             stepsTaken++;
             steps.push_back(STAY);
@@ -65,12 +90,16 @@ void Controller::vacuumLoop() {
 }
 
 void Controller::handleNextStep(char nextStep) {
+    Logger& logger = Logger::getInstance();
     Point vacuumCleanerLocation;
+
+    logger.logInfo("Handling next step: " + std::string(1, nextStep));
     vacuumCleaner.getLocation(vacuumCleanerLocation);
     steps.push_back(nextStep);
 
     // Clean
     if (nextStep == STAY) {
+        logger.logInfo("Cleaning...");
         house.decreaseDirtLevel(vacuumCleanerLocation, 1);
     }
     // Otherwise, move
@@ -82,7 +111,9 @@ void Controller::handleNextStep(char nextStep) {
     stepsTaken++;
 
     vacuumCleaner.getLocation(vacuumCleanerLocation);
-    house.houseVisualization(vacuumCleanerLocation);
+
+    if (Config::getInstance().get("useVisualizer") == "true")
+        house.houseVisualization(vacuumCleanerLocation);
 }
 
 int Controller::getDirtLevel(char direction) const {

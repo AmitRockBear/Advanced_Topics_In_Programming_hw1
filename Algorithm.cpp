@@ -5,6 +5,7 @@
 #include <iostream>
 #include "General.h"
 #include "Point.h"
+#include "Logger.h"
 
 const std::vector<char> Algorithm::directions = {'S', 'W', 'N', 'E'};
 
@@ -59,29 +60,36 @@ void Algorithm::calcValidMoves(std::vector<char>& moves) {
 }
 
 char Algorithm::decideNextStep() {
+    Logger& logger = Logger::getInstance();
+
+    logger.logInfo("Deciding next step...");
+
     std::vector<char> validMoves = std::vector<char>();
     calcValidMoves(validMoves);
 
      try {
-         if (validMoves.empty()) {
-             return STAY; // Stay in place if no valid moves. C stands for clean
-         }
-         // Choose the next move randomly
-         char nextMove = validMoves[std::rand() % validMoves.size()];
-         char oppMove = oppositeMove(nextMove);
-         distanceFromDock.move(nextMove);
+        if (validMoves.empty()) {
+        logger.logInfo("No valid moves, the vacuum cleaner will stay in place.");
+        return STAY; // Stay in place if no valid moves. C stands for clean
+        }
+        // Choose the next move randomly
+        char nextMove = validMoves[std::rand() % validMoves.size()];
+        char oppMove = oppositeMove(nextMove);
+        distanceFromDock.move(nextMove);
 
-         // If the vacuum is moving, and it's not backtracking, we want to save its movement as part of the next backtrack path
-         if(oppMove != STAY && (!isBacktracking)) {
-             stepsBack.push(oppMove);
-         }
+        // If the vacuum is moving, and it's not backtracking, we want to save its movement as part of the next backtrack path
+        if(oppMove != STAY && (!isBacktracking)) {
+            stepsBack.push(oppMove);
+        }
 
-         // If we're back at the docking station, we'd like to empty the backtrack path
-         if (distanceFromDock.getX() == 0 && distanceFromDock.getY() == 0) {
-             stepsBack = std::stack<char>();
-         }
+        // If we're back at the docking station, we'd like to empty the backtrack path
+        if (distanceFromDock.getX() == 0 && distanceFromDock.getY() == 0) {
+            stepsBack = std::stack<char>();
+        }
 
-         return nextMove;
+        logger.logInfo("Next step decided: " + std::string(1, nextMove));
+        
+        return nextMove;
      } catch (const std::exception& e) {
          std::cerr << "Error deciding next step, the vacuum cleaner will stay in place. The error thrown: " << e.what() << std::endl;
          return STAY; // Default to staying in place on error

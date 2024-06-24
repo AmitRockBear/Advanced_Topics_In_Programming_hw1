@@ -1,11 +1,12 @@
 #include "Controller.h"
 #include "FileDataExtractor.h"
+#include "Logger.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 void handleException(const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
+    Logger::getInstance().logError(std::string(e.what()));
 }
 
 int main(int argc, char *argv[]) {
@@ -15,6 +16,8 @@ int main(int argc, char *argv[]) {
         }
 
         const std::string& fileName = argv[1];
+        Logger::getInstance().logInfo("Starting the program with file: " + fileName);
+
         FileDataExtractor inputData = FileDataExtractor();
         inputData.readAndExtract(fileName);
         

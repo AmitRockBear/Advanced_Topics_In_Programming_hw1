@@ -3,11 +3,20 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include "Logger.h"
 
 House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY)
     : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY)) {
+    Logger& logger = Logger::getInstance();
+    
+    logger.logInfo("Initializing House");
+
     padHouseMap(this->houseMap);
+     
     totalDirt = calcTotalDirt();
+
+    logger.logInfo("House initialized successfully with totalDirt: " + std::to_string(totalDirt));
+    printHouse();    
 }
 
 int House::calcTotalDirt() const {
@@ -47,6 +56,10 @@ int House::getDirtLevel(Point& location) const {
 }
 
 void House::decreaseDirtLevel(Point& location, int decreaseBy) {
+    Logger& logger = Logger::getInstance();
+
+    logger.logInfo("Decreasing dirt level by: " + std::to_string(decreaseBy) + " at location: " + location.toString());
+
     int x = location.getX();
     int y = location.getY();
 
@@ -57,6 +70,8 @@ void House::decreaseDirtLevel(Point& location, int decreaseBy) {
     int newDirtLevel = std::max(houseMap[x][y] - decreaseBy, 0); // In case decreaseBy given is too big
     totalDirt = totalDirt - (houseMap[x][y] - newDirtLevel);
     houseMap[x][y] = newDirtLevel;
+
+    logger.logInfo("Dirt level at location: " + location.toString() + " is now: " + std::to_string(newDirtLevel) + " Total dirt in house: " + std::to_string(totalDirt));
 }
 
 bool House::isWall(Point& location) const {
@@ -85,9 +100,8 @@ size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) {
     return maxRowSize;
 }
 
-// Delete Later
 void House::printHouse() const {
-    std::cout << "House:" << std::endl;
+    Logger::getInstance().logInfo("Printing house map");
     for (const auto &row: houseMap) {
         for (const auto &cell: row) {
             std::cout << cell << " ";

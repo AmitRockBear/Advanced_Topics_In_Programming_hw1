@@ -1,6 +1,8 @@
 #ifndef POINT_H
 #define POINT_H
 #include "General.h"
+#include <string>
+#include <sstream>
 
 class Point {
 private:
@@ -15,6 +17,7 @@ public:
     void moveToNeighbor(char direction=STAY);
     void move(char direction);
     bool operator==(const Point& other) const;
+    std::string toString() const;
 };
 
 #endif // POINT_H

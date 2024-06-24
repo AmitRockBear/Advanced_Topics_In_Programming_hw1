@@ -1,20 +1,34 @@
 #include "VacuumCleaner.h"
 #include <stdexcept>
 #include <iostream>
+#include "Logger.h"
 
-VacuumCleaner::VacuumCleaner(int x, int y, int maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {}
+VacuumCleaner::VacuumCleaner(int x, int y, int maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
+    Logger& logger = Logger::getInstance();
+    
+    logger.logInfo("VacuumCleaner successfully initialized at location: " + location.toString() + " with maxBatterySteps: " + std::to_string(maxBatterySteps));
+}
 
 void VacuumCleaner::move(char direction) {
+    Logger::getInstance().logInfo("Moving vacuum cleaner to direction: " + std::string(1, direction));
     location.move(direction);
+    Logger::getInstance().logInfo("Successfully moved vacuum cleaner to location: " + location.toString());
 }
 
 void VacuumCleaner::increaseChargeBy(int steps) {
-    battery+=steps*maxBatterySteps/20.0;
-    if (battery > maxBatterySteps)
+    double increaseBy = steps*maxBatterySteps/20.0;
+
+    Logger::getInstance().logInfo("Increasing battery level by: " + std::to_string(increaseBy));
+    
+    battery+=increaseBy;
+    if (battery > maxBatterySteps){
+        Logger::getInstance().logInfo("Battery level surpassed maxBatterySteps, adjusting to maxBatterySteps");
         battery = maxBatterySteps;
+    }
 }
 
 void VacuumCleaner::decreaseChargeBy(int steps) {
+    Logger::getInstance().logInfo("Decreasing battery level by: " + std::to_string(steps));
     battery-=steps;
     if (battery < 0) {
         battery = 0;

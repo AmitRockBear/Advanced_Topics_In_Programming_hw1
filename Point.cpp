@@ -35,3 +35,9 @@ void Point::moveToNeighbor(char direction) {
 bool Point::operator==(const Point& other) const {
     return (this->x == other.x) && (this->y == other.y);
 }
+
+std::string Point::toString() const {
+    std::stringstream stringStream;
+    stringStream << "Point(" << x << ", " << y << ")";
+    return stringStream.str();
+}

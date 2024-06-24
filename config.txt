@@ -1,0 +1,3 @@
+outputFileName=AAOUTPUT.txt
+logFileName=AALOGGER.log
+useVisualizer=true
