@@ -65,7 +65,8 @@ void Controller::vacuumLoop() {
 }
 
 void Controller::handleNextStep(char nextStep) {
-    Point vacuumCleanerLocation = vacuumCleaner.getLocation();
+    Point vacuumCleanerLocation;
+    vacuumCleaner.getLocation(vacuumCleanerLocation);
     steps.push_back(nextStep);
 
     // Clean
@@ -80,18 +81,20 @@ void Controller::handleNextStep(char nextStep) {
     vacuumCleaner.decreaseChargeBy(1);
     stepsTaken++;
 
-
-    house.houseVisualization(vacuumCleaner.getLocation());
+    vacuumCleaner.getLocation(vacuumCleanerLocation);
+    house.houseVisualization(vacuumCleanerLocation);
 }
 
 int Controller::getDirtLevel(char direction) const {
-    Point neighbor = vacuumCleaner.getLocation();
+    Point neighbor;
+    vacuumCleaner.getLocation(neighbor);
     neighbor.moveToNeighbor(direction);
     return house.getDirtLevel(neighbor);
 }
 
 int Controller::isWall(char direction) const {
-    Point neighbor = vacuumCleaner.getLocation();
+    Point neighbor;
+    vacuumCleaner.getLocation(neighbor);
     neighbor.moveToNeighbor(direction);
     return house.isWall(neighbor);
 }
