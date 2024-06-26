@@ -1,9 +1,10 @@
 #include "House.h"
+#include "Logger.h"
+#include "Utils.h"
 #include <fstream>
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include "Logger.h"
 
 House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int dockingY)
     : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY)) {
@@ -110,17 +111,6 @@ void House::printHouse() const {
     }
 }
 
-void clear()
-{
-#if defined _WIN32
-    system("cls");
-#elif defined (_LINUX) || defined(gnu_linux) || defined(linux_)
-    system("clear");
-#elif defined (_APPLE_)
-    system("clear");
-#endif
-}
-
 void House::houseVisualization(Point vacuumLocation) const {
     std::this_thread::sleep_for(std::chrono::milliseconds(WAITING_TIME));
     clear();
@@ -128,7 +118,7 @@ void House::houseVisualization(Point vacuumLocation) const {
         for (size_t j = 0; j < houseMap[i].size(); j++) {
             int cell = houseMap[i][j];
             if(cell == -1) {
-                if (i == 0 || i == size(houseMap) - 1) {
+                if (i == 0 || i == houseMap.size() - 1) {
                     std::cout << HORIZONTAL_WALL << " ";
                 }
                 else {

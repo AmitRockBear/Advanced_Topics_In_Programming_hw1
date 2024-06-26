@@ -1,16 +1,12 @@
 #include "Config.h"
+#include "General.h"
+#include "Utils.h"
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include "Logger.h"
 
 Config::Config() {
     load("config.txt");
-}
-
-Config& Config::getInstance() {
-    static Config instance;
-    return instance;
 }
 
 void Config::load(const std::string& filePath) {
@@ -24,6 +20,9 @@ void Config::load(const std::string& filePath) {
         std::istringstream lineStream(line);
         std::string key, value;
         if (std::getline(lineStream, key, '=') && std::getline(lineStream, value)) {
+            key = trim(key);
+            value = trim(value);
+
             if (key.empty() || value.empty()) {
                 continue;
             }
@@ -33,12 +32,16 @@ void Config::load(const std::string& filePath) {
     }
 }
 
+Config& Config::getInstance() {
+    static Config instance;
+    return instance;
+}
+
 const std::string& Config::get(const std::string& key) const {
     auto it = configMap.find(key);
     if (it != configMap.end()) {
         return it->second;
     } 
 
-    static std::string defaultValue;
-    return defaultValue;
+    return EMPTY_STRING;
 }

@@ -1,13 +1,10 @@
 #include "Algorithm.h"
-#include <cstdlib> // For std::rand() and std::srand()
-#include <ctime>   // For std::time>
-#include <algorithm> // For std::random_shuffle
-#include <iostream>
 #include "General.h"
-#include "Point.h"
 #include "Logger.h"
-
-const std::vector<char> Algorithm::directions = {'S', 'W', 'N', 'E'};
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+#include <iostream>
 
 Algorithm::Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor,
                      std::function<int(char)> dirtSensor) : batterySensor(batterySensor), wallSensor(wallSensor),

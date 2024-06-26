@@ -1,4 +1,5 @@
 #include "Point.h"
+#include <sstream>
 
 Point::Point(int x, int y) : x(x), y(y) {}
 

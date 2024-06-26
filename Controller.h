@@ -4,9 +4,7 @@
 #include "House.h"
 #include "VacuumCleaner.h"
 #include "Algorithm.h"
-#include "General.h"
 #include <vector>
-#include <string>
 
 class Controller {
 public:
@@ -28,7 +26,7 @@ private:
     int isWall(char direction) const;
     double batteryRemaining() const;
     void handleNextStep(char nextStep);
-    const std::string OUTPUT_FILE_NAME = "output.txt";
+    void createOutputFile(const std::string& outputFileName) const;
 };
 
 #endif

@@ -1,10 +1,10 @@
 #include "Controller.h"
-#include <iostream>
-#include <fstream>
 #include "General.h"
 #include "Point.h"
 #include "Logger.h"
 #include "Config.h"
+#include <iostream>
+#include <fstream>
 
 Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken, bool missionCompleted, bool missionFailed)
     : house(house), vacuumCleaner(vacuumCleaner),
@@ -16,29 +16,38 @@ Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps,
         Logger::getInstance().logInfo("Controller successfully initialized with maxSteps: " + std::to_string(maxSteps));
     }
 
+void Controller::createOutputFile(const std::string& outputFileName) const {
+    Logger& logger = Logger::getInstance();
+    std::ofstream outfile;
+    bool isEmptyFileName = outputFileName == EMPTY_STRING;
+    
+    logger.logInfo("Creating output file: " + isEmptyFileName ? DEFAULT_OUTPUT_FILE_NAME : outputFileName);
+
+    if (isEmptyFileName) 
+        outfile.open(DEFAULT_OUTPUT_FILE_NAME, std::ios::out);
+    else
+        outfile.open(outputFileName, std::ios::out);
+
+
+    outfile << "Steps preformed: ";
+    for(auto &&step : steps) {
+        outfile << step << " ";
+    }
+    outfile << std::endl << "Total steps taken: " << stepsTaken << std::endl;
+    outfile << "Dirt remaining in house: " << house.getTotalDirt() << std::endl;
+    outfile << (vacuumCleaner.getBatteryLevel() == 0 ? "Vacuum cleaner is dead." : "Vacuum cleaner is alive.") << std::endl;
+    outfile << (missionCompleted ? "Mission succeeded!" : "Mission failed.") << std::endl;
+    outfile.close();
+
+    logger.logInfo("Output file created successfully");
+}
+
 void Controller::run() {
     try {
-        Logger::getInstance().logInfo("Starting simulation");
+        Logger::getInstance().logInfo("Starting vacuum cleaner");
         vacuumLoop();
-
-        Config& config = Config::getInstance();
-        const std::string& outputFileName = config.get("outputFileName");
-
-        std::ofstream outfile;
-        if (outputFileName == "") 
-            outfile.open(DEFAULT_OUTPUT_FILE_NAME, std::ios::out);
-        else
-            outfile.open(outputFileName, std::ios::out);
-
-        outfile << "Steps preformed: ";
-        for(auto &&step : steps) {
-            outfile << step << " ";
-        }
-        outfile << std::endl << "Total steps taken: " << stepsTaken << std::endl;
-        outfile << "Dirt remaining in house: " << house.getTotalDirt() << std::endl;
-        outfile << (vacuumCleaner.getBatteryLevel() == 0 ? "Vacuum cleaner is dead." : "Vacuum cleaner is alive.") << std::endl;
-        outfile << (missionCompleted ? "Mission succeeded!" : "Mission failed.") << std::endl;
-        outfile.close();
+        const std::string& outputFileName = Config::getInstance().get("outputFileName");
+        createOutputFile(outputFileName);
     } catch (const std::exception& e) {
         throw std::runtime_error("Unrecoverable error has occured in step: " + std::to_string(stepsTaken) + ". The error is: " + e.what());
     }

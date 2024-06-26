@@ -24,13 +24,14 @@ public:
     int getTotalDirt() const;
     void getDockingLocation(Point& locationToModify) const;
     void houseVisualization(Point vacuumLocation) const;
-    void printHouse() const;
 
 private:
+    void printHouse() const;
     void padHouseMap(std::vector<std::vector<int>>& houseMap);
     size_t getMaxY(std::vector<std::vector<int>> &houseMap);
-    int totalDirt;
     int calcTotalDirt() const;
+    
+    int totalDirt;
     std::vector<std::vector<int>> houseMap;
     Point dockingLocation;
 };

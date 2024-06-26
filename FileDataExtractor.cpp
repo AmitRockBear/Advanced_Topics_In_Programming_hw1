@@ -1,8 +1,10 @@
+#include "FileDataExtractor.h"
+#include "Logger.h"
+#include "Utils.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "FileDataExtractor.h"
-#include "Logger.h"
+#include <cctype>
 
 FileDataExtractor::FileDataExtractor() {
     Logger::getInstance().logInfo("Initializing FileDataExtractor");
@@ -26,13 +28,6 @@ int FileDataExtractor::getMaxBatterySteps() const {
 
 std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() {
     return houseMap;
-}
-
-bool FileDataExtractor::isNextCharacterSpaceOrEndOfLine(std::istringstream& iss) {
-    if (iss.peek() != ' ' && iss.peek() != EOF) {
-        return false;
-    }
-    return true;
 }
 
 bool FileDataExtractor::readAndExtract(const std::string& fileName) {

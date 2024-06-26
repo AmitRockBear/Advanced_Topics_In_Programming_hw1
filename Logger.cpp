@@ -1,13 +1,12 @@
 #include "Logger.h"
-#include <iostream>
 #include "Config.h"
 #include "General.h"
-
+#include <iostream>
 
 Logger::Logger() {
     Config& config = Config::getInstance();
     const std::string& logFileName = config.get("logFileName");
-    if (logFileName == "") 
+    if (logFileName == EMPTY_STRING) 
         logFile.open(DEFAULT_LOG_FILE_NAME, std::ios::out);
     else
         logFile.open(logFileName, std::ios::out);

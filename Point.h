@@ -2,7 +2,6 @@
 #define POINT_H
 #include "General.h"
 #include <string>
-#include <sstream>
 
 class Point {
 private:
@@ -20,4 +19,4 @@ public:
     std::string toString() const;
 };
 
-#endif // POINT_H
+#endif

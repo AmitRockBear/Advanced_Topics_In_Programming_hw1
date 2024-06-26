@@ -14,10 +14,9 @@ private:
     ~Config() = default;
     Config(const Config&) = delete;
     Config& operator=(const Config&) = delete;
-
     void load(const std::string& filePath);
 
     std::unordered_map<std::string, std::string> configMap;
 };
 
-#endif // CONFIG_H
+#endif

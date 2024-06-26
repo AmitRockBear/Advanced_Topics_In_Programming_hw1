@@ -17,10 +17,9 @@ private:
     std::function<double()> batterySensor;
     std::function<bool(char)> wallSensor;
     std::function<int(char)> dirtSensor;
-    static const std::vector<char> directions;
     std::stack<char> stepsBack;
     Point distanceFromDock;
     bool isBacktracking;
 };
 
-#endif // ALGORITHM_H
+#endif

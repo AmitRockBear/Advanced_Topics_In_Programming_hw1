@@ -1,13 +1,12 @@
+#include "House.h"
+#include "VacuumCleaner.h"
 #include "Controller.h"
 #include "FileDataExtractor.h"
 #include "Logger.h"
+#include "Utils.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
-void handleException(const std::exception& e) {
-    Logger::getInstance().logError(std::string(e.what()));
-}
 
 int main(int argc, char *argv[]) {
     try {
@@ -16,7 +15,9 @@ int main(int argc, char *argv[]) {
         }
 
         const std::string& fileName = argv[1];
-        Logger::getInstance().logInfo("Starting the program with file: " + fileName);
+        
+        Logger& logger = Logger::getInstance();
+        logger.logInfo("Starting the program with file: " + fileName);
 
         FileDataExtractor inputData = FileDataExtractor();
         inputData.readAndExtract(fileName);
@@ -27,6 +28,8 @@ int main(int argc, char *argv[]) {
         VacuumCleaner vacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps());
         Controller controller(house, vacuumCleaner, inputData.getMaxSteps());
         controller.run();
+        
+        logger.logInfo("Program finished successfully");
     } catch (const std::exception& e) {
         handleException(e);
         return 1;
