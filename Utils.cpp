@@ -1,7 +1,6 @@
 #include "Utils.h"
 #include "Logger.h"
 #include <thread>
-#include <sstream>
 
 void clear() {
   #if defined _WIN32
