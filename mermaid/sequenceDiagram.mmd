@@ -1,45 +1,55 @@
 sequenceDiagram
-    participant main
-    participant FileDataExtractor
-    participant House
-    participant VacuumCleaner
-    participant Controller
-    participant Algorithm
+    participant User
+    participant Main as main()
+    participant Logger as Logger
+    participant FileDataExtractor as FileDataExtractor
+    participant House as House
+    participant VacuumCleaner as VacuumCleaner
+    participant Controller as Controller
 
-    main->>FileDataExtractor: readAndExtract(fileName)
-    FileDataExtractor-->>main: extracted data
-    main->>House: House(inputData.getHouseMap(), dockingX, dockingY)
-    main->>VacuumCleaner: VacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps())
-    main->>Controller: Controller(house, vacuumCleaner, inputData.getMaxSteps())
-    main->>Controller: run()
+    User ->> Main: Start program with file argument
+    Main ->> Logger: getInstance()
+    Logger ->> Main: logger
+    Main ->> Logger: logInfo("Starting the program with file: " + fileName)
+    Main ->> FileDataExtractor: readAndExtract(fileName)
+    FileDataExtractor -->> Main: Extraction results
 
-    Controller->>Algorithm: Algorithm(batterySensor, wallSensor, dirtSensor)
-    Controller->>Controller: vacuumLoop()
-    Controller->>House: getDockingLocation(location)
-    loop vacuumLoop
-        Controller->>VacuumCleaner: getBatteryLevel()
-        VacuumCleaner-->>Controller: currentBatteryLevel
-        Controller->>VacuumCleaner: isAtLocation(dockingLocation)
-        VacuumCleaner-->>Controller: atDockingStation
-        Controller->>House: getTotalDirt()
-        House-->>Controller: totalDirt
-        alt mission completed
-            Controller->>Controller: set missionCompleted
-        else mission failed
-            Controller->>Controller: set missionFailed
+    Main ->> House: House(inputData.getHouseMap(), dockingX, dockingY)
+    Main ->> VacuumCleaner: VacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps())
+    Main ->> Controller: Controller(house, vacuumCleaner, inputData.getMaxSteps())
+    
+    Controller ->> Logger: logInfo("Controller successfully initialized with maxSteps: " + std::to_string(maxSteps))
+    Main ->> Controller: run()
+    Controller ->> Logger: logInfo("Starting vacuum cleaner")
+    
+    loop Until missionCompleted or missionFailed
+        Controller ->> House: getTotalDirt()
+        Controller ->> VacuumCleaner: getBatteryLevel()
+        Controller ->> VacuumCleaner: getLocation(currentVacuumLocation)
+        Controller ->> Logger: logInfo("Step details...")
+        Controller ->> House: getDockingLocation(dockingLocation)
+        alt House.getTotalDirt() == 0 and atDockingStation
+            Controller ->> Logger: logInfo("Mission completed!")
+            %% break
         end
-        alt atDockingStation
-            Controller->>VacuumCleaner: increaseChargeBy(1)
-            Controller->>Controller: increment stepsTaken
-            Controller->>Controller: push step STAY
-        else next step
-            Controller->>Algorithm: decideNextStep()
-            Algorithm-->>Controller: nextStep
-            Controller->>VacuumCleaner: move(nextStep)
-            Controller->>VacuumCleaner: decreaseChargeBy(1)
-            Controller->>House: decreaseDirtLevel(vacuumCleanerLocation, 1) if nextStep == STAY
-            Controller->>Controller: increment stepsTaken
-            Controller->>Controller: push step nextStep
+        alt (currentBatteryLevel == 0 and !atDockingStation) or maxSteps - stepsTaken == 0
+            Controller ->> Logger: logInfo("Mission failed!")
+            %% break
         end
+        alt currentBatteryLevel < VacuumCleaner.getMaxBatterySteps() and atDockingStation
+            Controller ->> Logger: logInfo("Charging...")
+            Controller ->> VacuumCleaner: increaseChargeBy(steps)
+            Controller ->> House: houseVisualization(vacuumCleanerLocation)
+        else
+            Controller ->> Algorithm: decideNextStep()
+            Algorithm -->> Controller: nextStep
+            Controller ->> VacuumCleaner: move(nextStep)
+            Controller ->> House: decreaseDirtLevel(vacuumCleanerLocation, 1)
+            Controller ->> VacuumCleaner: decreaseChargeBy(1)
+            Controller ->> House: houseVisualization(vacuumCleanerLocation)
+        end
+        Controller ->> Logger: logInfo("End of Step")
     end
-    Controller->>Controller: write results to output.txt
+    Controller ->> Logger: logInfo("Controller finished running")
+    Controller ->> Main: Finished
+    Main ->> Logger: logInfo("Program finished successfully")
