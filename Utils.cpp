@@ -12,6 +12,11 @@ void clear() {
   #endif
 }
 
+std::string getFileBaseName(const std::string& path) {
+    std::string filename = path.substr(path.find_last_of("/\\") + 1);
+    return filename;
+}
+
 const std::string trim(const std::string& str) {
     size_t first = str.find_first_not_of(" \t\n\r");
     size_t last = str.find_last_not_of(" \t\n\r");

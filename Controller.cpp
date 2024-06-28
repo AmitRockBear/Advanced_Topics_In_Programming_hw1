@@ -3,6 +3,7 @@
 #include "Point.h"
 #include "Logger.h"
 #include "Config.h"
+#include "Utils.h"
 #include <iostream>
 #include <fstream>
 #include <utility>
@@ -24,7 +25,7 @@ void Controller::createOutputFile(const std::string& outputFileName) const {
     bool isEmptyFileName = outputFileName == EMPTY_STRING;
     std::string outputFile;
     if (isEmptyFileName) {
-        std::string filename = inputFilename.substr(inputFilename.find_last_of("/\\") + 1);
+        std::string filename = getFileBaseName(inputFilename);
         outputFile = "output_" + filename;
     }
     
@@ -44,6 +45,7 @@ void Controller::createOutputFile(const std::string& outputFileName) const {
 
     logger.logInfo("Output file created successfully");
 }
+
 
 void Controller::run() {
     try {
