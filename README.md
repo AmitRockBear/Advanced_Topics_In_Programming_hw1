@@ -80,7 +80,7 @@ The input file should contain the following information:
 
 ## Output
 
-The program generates an output file (`output.txt` by default) with the following information:
+The program generates an output file (according to `outputFileName` key in the config file or by default in the format of `output_<inputFileName>`) with the following information:
 
 1. Steps performed.
 2. Total steps taken.
