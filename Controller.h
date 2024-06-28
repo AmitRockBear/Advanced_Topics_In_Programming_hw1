@@ -8,7 +8,7 @@
 
 class Controller {
 public:
-    Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken = 0, bool missionCompleted = false, bool missionFailed = false);
+    Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, std::string inputFilename, int stepsTaken = 0, bool missionCompleted = false, bool missionFailed = false);
     void run();
 
 private:
@@ -16,6 +16,7 @@ private:
     VacuumCleaner vacuumCleaner;
     Algorithm algorithm;
     int maxSteps;
+    std::string inputFilename;
     int stepsTaken;
     bool missionCompleted;
     bool missionFailed;

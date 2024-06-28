@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
         int dockingY = inputData.getDockingY();
         House house(inputData.getHouseMap(), dockingX, dockingY);
         VacuumCleaner vacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps());
-        Controller controller(house, vacuumCleaner, inputData.getMaxSteps());
+        Controller controller(house, vacuumCleaner, inputData.getMaxSteps(), fileName);
         controller.run();
         
         logger.logInfo("Program finished successfully");

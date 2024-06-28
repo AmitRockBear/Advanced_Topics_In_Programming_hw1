@@ -5,14 +5,16 @@
 #include "Config.h"
 #include <iostream>
 #include <fstream>
+#include <utility>
 
-Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken, bool missionCompleted, bool missionFailed)
+Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, std::string inputFilename, int stepsTaken, bool missionCompleted, bool missionFailed)
+
     : house(house), vacuumCleaner(vacuumCleaner),
     algorithm(Algorithm(
-            [=]() { return this->batteryRemaining(); },
-            [=](char direction) { return this->isWall(direction); },
-            [=](char direction) { return this->getDirtLevel(direction); })),
-    maxSteps(maxSteps), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
+            [=, this]() { return this->batteryRemaining(); },
+            [=, this](char direction) { return this->isWall(direction); },
+            [=, this](char direction) { return this->getDirtLevel(direction); })),
+    maxSteps(maxSteps), inputFilename(std::move(inputFilename)), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
         Logger::getInstance().logInfo("Controller successfully initialized with maxSteps: " + std::to_string(maxSteps));
     }
 
@@ -20,13 +22,14 @@ void Controller::createOutputFile(const std::string& outputFileName) const {
     Logger& logger = Logger::getInstance();
     std::ofstream outfile;
     bool isEmptyFileName = outputFileName == EMPTY_STRING;
+    std::string outputFile;
+    if (isEmptyFileName) {
+        std::string filename = inputFilename.substr(inputFilename.find_last_of("/\\") + 1);
+        outputFile = "output_" + filename;
+    }
     
-    logger.logInfo("Creating output file: " + isEmptyFileName ? DEFAULT_OUTPUT_FILE_NAME : outputFileName);
-
-    if (isEmptyFileName) 
-        outfile.open(DEFAULT_OUTPUT_FILE_NAME, std::ios::out);
-    else
-        outfile.open(outputFileName, std::ios::out);
+    logger.logInfo("Creating output file: " + outputFile);
+    outfile.open(outputFile, std::ios::out);
 
 
     outfile << "Steps preformed: ";

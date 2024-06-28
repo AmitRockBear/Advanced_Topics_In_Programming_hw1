@@ -49,7 +49,7 @@ int House::getDirtLevel(Point& location) const {
     int x = location.getX();
     int y = location.getY();
 
-    if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
+    if (x < 0 || x >= (int64_t)houseMap.size() || y < 0 || y >= (int64_t)houseMap[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
 
@@ -64,7 +64,7 @@ void House::decreaseDirtLevel(Point& location, int decreaseBy) {
     int x = location.getX();
     int y = location.getY();
 
-    if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
+    if (x < 0 || x >= (int64_t)houseMap.size() || y < 0 || y >= (int64_t)houseMap[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
 
@@ -79,7 +79,7 @@ bool House::isWall(Point& location) const {
     int x = location.getX();
     int y = location.getY();
 
-    if (x < 0 || x >= houseMap.size() || y < 0 || y >= houseMap[0].size()) {
+    if (x < 0 || x >= (int64_t)houseMap.size() || y < 0 || y >= (int64_t)houseMap[0].size()) {
         return true;
     }
 
@@ -114,11 +114,11 @@ void House::printHouse() const {
 void House::houseVisualization(Point vacuumLocation) const {
     std::this_thread::sleep_for(std::chrono::milliseconds(WAITING_TIME));
     clear();
-    for (size_t i = 0; i < houseMap.size(); i++) {
-        for (size_t j = 0; j < houseMap[i].size(); j++) {
+    for (int i = 0; i < (int64_t)houseMap.size(); i++) {
+        for (int j = 0; j < (int64_t)houseMap[i].size(); j++) {
             int cell = houseMap[i][j];
             if(cell == -1) {
-                if (i == 0 || i == houseMap.size() - 1) {
+                if (i == 0 || i == (int64_t)houseMap.size() - 1) {
                     std::cout << HORIZONTAL_WALL << " ";
                 }
                 else {
