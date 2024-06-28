@@ -38,6 +38,11 @@ void Algorithm::calcValidMoves(std::vector<char>& moves) {
 
     // If battery left is the same as the amount of steps to the docking station, the vacuum should go back
     if (batterySensor() >= stepsAmount && batterySensor() <= stepsAmount + 1) {
+        // In case there are no steps back to perform
+        if (stepsBack.empty()) {
+            moves.push_back(STAY);
+            return;
+        }
         isBacktracking = true;
         moves.push_back(stepsBack.top());
         stepsBack.pop();
