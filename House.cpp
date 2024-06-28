@@ -17,7 +17,6 @@ House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int do
     totalDirt = calcTotalDirt();
 
     logger.logInfo("House initialized successfully with totalDirt: " + std::to_string(totalDirt));
-    printHouse();    
 }
 
 int House::calcTotalDirt() const {
@@ -99,16 +98,6 @@ size_t House::getMaxY(std::vector<std::vector<int>>& houseMap) {
         }
     }
     return maxRowSize;
-}
-
-void House::printHouse() const {
-    Logger::getInstance().logInfo("Printing house map");
-    for (const auto &row: houseMap) {
-        for (const auto &cell: row) {
-            std::cout << cell << " ";
-        }
-        std::cout << std::endl;
-    }
 }
 
 void House::houseVisualization(Point vacuumLocation) const {
