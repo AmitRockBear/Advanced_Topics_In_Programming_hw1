@@ -1,0 +1,5 @@
+Steps preformed: N C C C C C C C C S C N S C E C C E C C C C C W E E C C C C C C C C N C C C C S W E W W N C W S C C C C N N C C C C C S N S S C C N S C N S C N S C E W C E N S N S N S W C N N S S C N E W S C E E E N S W E W E N S N S W W E W W C C E E E N S N S N S W E W E W W W C C N N S E W S C E W C E N W S C E W C N N S N S N S S C N E S E W N W E W N S E W E W E W N S E W S C C C N N S E W E S N S N S E E W W E W W C C N S C E W C N S C E E W N W E W E W E W N S S C C N E W S C N N S E W E S W C E N S E W W C N N S S C E E E W W E E W W N W S C C N E S W C N S C E E W N S N W S C E E W W C N E S W C E E E W W E W N W S C E W C N E W S C N S C E W C N E W E W E S E W E W E W E W N S E W W C C N S C N S C E E W W C E N S E W N S N W E S N S W C C E N W N S N S S C E N W N S E W S C N N S N S N S S C E W C N S C N N S S C N N S S C E N S W C E W C N E W S C E E W N W N S S C E E E N S N S W E W W N W S C C N N S N S S C N N S E W N S E W S C N N S S C E N W S C N S C N N S S C E W C E W C N S C E W 
+Total steps taken: 500
+Dirt remaining in house: 4
+Vacuum cleaner is alive.
+Mission failed.

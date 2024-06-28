@@ -1,0 +1,5 @@
+Steps preformed: W C N C C C C N C W C E W E E C C W W S C C S N N E W S S E N W S S C C C N N S N E W N E W S E W E W N E E W W E E E C C C C C C W E S C N W W S W E S W S N E E C C C C C C C C C C C E C C N N W E S S N S N N S N W E S S W C C C E N S W C E S N N S N N S N W W E W E W E W S N E E W W S S E C C C C W N N W S E N E W S W E N E E S N S S S W C C C C C C C E N S W N 
+Total steps taken: 183
+Dirt remaining in house: 0
+Vacuum cleaner is alive.
+Mission succeeded!
