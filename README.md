@@ -59,7 +59,7 @@ The program handles various errors, such as invalid file format, out-of-bounds c
 1. Ensure you have a C++ compiler installed (e.g., `g++`).
 2. Compile the project using the following command:
    ```sh
-   g++ myrobot.cpp Point.cpp VacuumCleaner.cpp House.cpp Algorithm.cpp FileDataExtractor.cpp Controller.cpp Utils.cpp Config.cpp Logger.cpp -o myrobot
+   make
    ```
 3. Run the executable with an input file:
    ```sh

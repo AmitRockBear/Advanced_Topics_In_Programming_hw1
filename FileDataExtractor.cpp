@@ -8,7 +8,7 @@
 
 FileDataExtractor::FileDataExtractor() {
     Logger::getInstance().logInfo("Initializing FileDataExtractor");
-};
+}
 
 int FileDataExtractor::getDockingX() const {
     return dockingX;
