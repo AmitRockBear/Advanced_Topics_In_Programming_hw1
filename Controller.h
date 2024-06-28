@@ -26,7 +26,7 @@ private:
     int isWall(char direction) const;
     double batteryRemaining() const;
     void handleNextStep(char nextStep);
-    void createOutputFile(const std::string& const outputFileName) const;
+    void createOutputFile(const std::string& outputFileName) const;
 };
 
 #endif
