@@ -66,8 +66,8 @@ char Algorithm::decideNextStep() {
 
      try {
         if (validMoves.empty()) {
-        logger.logInfo("No valid moves, the vacuum cleaner will stay in place.");
-        return STAY; // Stay in place if no valid moves. C stands for clean
+            logger.logInfo("No valid moves, the vacuum cleaner will stay in place.");
+            return STAY; // Stay in place if no valid moves. C stands for clean
         }
         // Choose the next move randomly
         char nextMove = validMoves[std::rand() % validMoves.size()];

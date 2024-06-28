@@ -1,7 +1,7 @@
 #include "VacuumCleaner.h"
+#include "Logger.h"
 #include <stdexcept>
 #include <iostream>
-#include "Logger.h"
 
 VacuumCleaner::VacuumCleaner(int x, int y, int maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
     Logger& logger = Logger::getInstance();
