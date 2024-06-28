@@ -5,6 +5,7 @@
 #include <ctime>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 Algorithm::Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor,
                      std::function<int(char)> dirtSensor) : batterySensor(batterySensor), wallSensor(wallSensor),
@@ -23,6 +24,10 @@ char Algorithm::oppositeMove(char move) const {
 }
 
 void Algorithm::calcValidMoves(std::vector<char>& moves) {
+    Logger& logger = Logger::getInstance();
+
+    logger.logInfo("Calculating valid moves");
+
     int stepsAmount = stepsBack.size();
 
     // If there's not enough battery to make a move, the vacuum can only stay in place
@@ -33,7 +38,7 @@ void Algorithm::calcValidMoves(std::vector<char>& moves) {
     }
 
     // If battery left is the same as the amount of steps to the docking station, the vacuum should go back
-    if (batterySensor() >= stepsAmount && batterySensor() <= stepsAmount + 1) {
+    if (floor(batterySensor()) == stepsAmount) {
         isBacktracking = true;
         moves.push_back(stepsBack.top());
         stepsBack.pop();
@@ -59,16 +64,17 @@ void Algorithm::calcValidMoves(std::vector<char>& moves) {
 char Algorithm::decideNextStep() {
     Logger& logger = Logger::getInstance();
 
-    logger.logInfo("Deciding next step...");
+    logger.logInfo("Deciding next step");
 
     std::vector<char> validMoves = std::vector<char>();
     calcValidMoves(validMoves);
 
      try {
         if (validMoves.empty()) {
-            logger.logInfo("No valid moves, the vacuum cleaner will stay in place.");
+            logger.logInfo("No valid moves, the vacuum cleaner will stay in place");
             return STAY; // Stay in place if no valid moves. C stands for clean
         }
+
         // Choose the next move randomly
         char nextMove = validMoves[std::rand() % validMoves.size()];
         char oppMove = oppositeMove(nextMove);
@@ -76,11 +82,13 @@ char Algorithm::decideNextStep() {
 
         // If the vacuum is moving, and it's not backtracking, we want to save its movement as part of the next backtrack path
         if(oppMove != STAY && (!isBacktracking)) {
+            logger.logInfo("Vacuum cleaner is moving, saving the opposite move to the backtrack path for future use");
             stepsBack.push(oppMove);
         }
 
         // If we're back at the docking station, we'd like to empty the backtrack path
         if (distanceFromDock.getX() == 0 && distanceFromDock.getY() == 0) {
+            logger.logInfo("Back at the docking station, clearing the backtrack path");
             stepsBack = std::stack<char>();
         }
 
