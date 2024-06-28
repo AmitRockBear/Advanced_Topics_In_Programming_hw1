@@ -5,7 +5,6 @@
 #include <ctime>
 #include <algorithm>
 #include <iostream>
-#include <cmath>
 
 Algorithm::Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor,
                      std::function<int(char)> dirtSensor) : batterySensor(batterySensor), wallSensor(wallSensor),
@@ -38,7 +37,7 @@ void Algorithm::calcValidMoves(std::vector<char>& moves) {
     }
 
     // If battery left is the same as the amount of steps to the docking station, the vacuum should go back
-    if (floor(batterySensor()) == stepsAmount) {
+    if (batterySensor() >= stepsAmount && batterySensor() <= stepsAmount + 1) {
         isBacktracking = true;
         moves.push_back(stepsBack.top());
         stepsBack.pop();
