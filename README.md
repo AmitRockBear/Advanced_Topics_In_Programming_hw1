@@ -1,102 +1,113 @@
-## Class Diagram
+# Vacuum Cleaner Robot Project
 
-### House
+## Overview
 
-- **Fields:**
-  - `house_map: vector<vector<int>>`
-  - `docking_x: int`
-  - `docking_y: int`
-  - `max_battery_steps: int`
-  - `max_steps: int`
-- **Methods:**
-  - `House(filename: string)`
-  - `getMaxBatterySteps(): int`
-  - `getMaxSteps(): int`
-  - `getDirtLevel(x: int, y: int): int`
-  - `setDirtLevel(x: int, y: int, level: int)`
-  - `isWall(x: int, y: int): bool`
-  - `getDockingX(): int`
-  - `getDockingY(): int`
-  - `getTotalDirt(): int`
-  - `loadHouse(filename: string)`
+This project simulates a vacuum cleaner robot that navigates through a house, cleans dirt, and returns to its docking station to recharge. The project is implemented in C++ and consists of several key components: the main application logic, a representation of the house, the vacuum cleaner, a controller to manage the cleaning process, and utilities for handling file I/O and logging.
 
-### VacuumCleaner (inherits from Sensors)
+## Files
 
-- **Fields:**
-  - `house: House*`
-  - `x: int`
-  - `y: int`
-  - `battery: int`
-  - `stepsTaken: int`
-  - `missionCompleted: bool`
-  - `dead: bool`
-  - `path: stack<char>`
-- **Methods:**
-  - `VacuumCleaner(house: House*)`
-  - `move(direction: char)`
-  - `clean()`
-  - `charge(steps: int)`
-  - `isMissionCompleted(): bool`
-  - `isDead(): bool`
-  - `getStepsTaken(): int`
-  - `getBatteryLevel(): int`
-  - `getMaxBatterySteps(): int`
-  - `isAtDockingStation(): bool`
-  - `getPathSize(): int`
-  - `backtrack(): char`
-  - `getDirtLevel(): int`
-  - `isWall(direction: char): bool`
-  - `updateMissionStatus()`
+### `myrobot.cpp`
 
-### Algorithm
+This is the main entry point of the program. It initializes the components, starts the cleaning process, and handles any exceptions that occur.
 
-- **Fields:**
-  - `vacuumCleaner: VacuumCleaner*`
-  - `directions: vector<char> {'N', 'E', 'S', 'W'}`
-- **Methods:**
-  - `Algorithm(vacuumCleaner: VacuumCleaner*)`
-  - `decideNextStep(): char`
-  - `getValidMoves(): vector<char>`
+### `Point.h` and `Point.cpp`
 
-### House File Format
+These files define the `Point` class, which represents a point in a 2D coordinate system. It includes methods for moving and comparing points.
 
-The house file format is a text file that represents a grid layout of the house, including dirt levels, walls, and the docking station for the vacuum cleaner. Each character in the file corresponds to a specific element in the grid.
+### `VacuumCleaner.h` and `VacuumCleaner.cpp`
 
-#### File Structure
+These files define the `VacuumCleaner` class, which simulates the behavior of the vacuum cleaner robot. It handles movement, battery management, and location tracking.
 
-- Each line represents a row in the grid.
-- Each character in a line represents a cell in the grid.
-- Valid characters:
-  - `'0'` to `'9'`: Represents the amount of dirt in the cell (0 means no dirt).
-  - `'W'`: Represents a wall.
-  - `'D'`: Represents the docking station for the vacuum cleaner (dirt level is implicitly 0).
-  - Any other character will cause an error when loading the file.
+### `House.h` and `House.cpp`
 
-#### Default Settings
+These files define the `House` class, which represents the house layout and dirt levels. It includes methods for checking walls, managing dirt levels, and visualizing the house.
 
-- The maximum battery steps (`max_battery_steps`) is set to 100 by default.
-- The maximum steps (`max_steps`) is set to 1000 by default.
+### `Algorithm.h` and `Algorithm.cpp`
 
-### Example
+These files define the `Algorithm` component, which encompasses the decision-making process of the vacuum cleaner robot. It determines how the vacuum cleaner moves from one point to another while avoiding obstacles and making sure the vacuum cleaner doesn't run out of battery.
 
-Consider the following house file:
+### `FileDataExtractor.h` and `FileDataExtractor.cpp`
 
-max_battery_steps
+These files define the `FileDataExtractor` class, which reads and extracts data from the input file, needed for initializing the house and vacuum cleaner.
 
-max_steps
+### `Controller.h` and `Controller.cpp`
 
-1 1 2 3
+These files define the `Controller` class, which manages the overall cleaning process. It includes the main loop for the cleaning algorithm, handles battery recharging, and creates an output file with the results.
 
-2 3 W 1
+### `General.h`
 
-0 1 D 2
+This file contains general definitions and constants used throughout the project.
 
-3 W 1 0
+### `Utils.h` and `Utils.cpp`
 
-#### Explanation
+These files consist of small functions that are not directly associated with any class within the project.
 
-- The house grid is a 4x4 matrix.
-- The first row has dirt levels 1, 1, 2, and 3.
-- The second row has dirt levels 2, 3, a wall, and 1.
-- The third row has dirt levels 0, 1, and 2 with the docking station at the third position.
-- The fourth row has dirt levels 3, a wall, 1, and 0.
+### `Config.h` and `Config.cpp`
+
+These files define the `Config` class, implemented as a singleton to centralize and manage program configuration settings effectively. The class provides a single instance accessible through the `getInstance()` method, ensuring consistent access to configuration data throughout the application. It handles the loading and parsing of configuration data from a file named `config.txt`, where each line follows the `<key>=<value>` format strictly. Valid key-value pairs are stored in an unordered map within the singleton instance, allowing efficient access and modification of configuration parameters across different parts of the program. Notably, essential keys such as `outputFileName` and `logFileName` are predefined with default fallback values from `General.h` in cases where these keys are absent or incorrectly formatted in the configuration file.
+
+### `Logger.h` and `Logger.cpp`
+
+These files define the `Logger` class, implemented as a singleton to handle logging functionalities within the program. The class includes methods for logging informational messages (`logInfo`) and error messages (`logError`). It supports logging to standard output (`logToStdout`) and standard error (`logToStderr`), with the exception that logs won't print to `stdout` if `useVisualizer=true` in `config.txt` so the user can see the visualization. Additionally, the logger logs to a file specified in the configuration under the key `logToFile` (in case the key doesn't exist the program has a default fallback value and will log to `application.log`).
+
+## Error Handling
+
+The program handles various errors, such as invalid file format, out-of-bounds coordinates, and runtime exceptions. If an error occurs, it logs the error message and terminates the program gracefully.
+
+## How to Build
+
+1. Ensure you have a C++ compiler installed (e.g., `g++`).
+2. Compile the project using the following command:
+   ```sh
+   g++ myrobot.cpp Point.cpp VacuumCleaner.cpp House.cpp Algorithm.cpp FileDataExtractor.cpp Controller.cpp Utils.cpp Config.cpp Logger.cpp -o myrobot
+   ```
+3. Run the executable with an input file:
+   ```sh
+   ./myrobot inputfile.txt
+   ```
+
+## Input File Format
+
+The input file should contain the following information:
+
+1. Maximum battery steps.
+2. Maximum number of steps.
+3. The house map, where each character represents a cell:
+   - Digits (`0-9`) indicate the dirt level.
+   - `W` indicates a wall.
+   - `-` indicates empty space.
+   - `D` indicates the docking station.
+
+## Output
+
+The program generates an output file (`output.txt` by default) with the following information:
+
+1. Steps performed.
+2. Total steps taken.
+3. Dirt remaining in the house.
+4. Vacuum cleaner status (alive or dead).
+5. Mission status (succeeded or failed).
+
+## Example
+
+### Input File (`inputfile.txt`)
+
+```
+20
+100
+0 0 0 0 0
+0 1 1 1 0
+0 1 D 1 0
+0 1 1 1 0
+0 0 0 0 0
+```
+
+### Output File (`output.txt`)
+
+```
+Steps performed: N E S W
+Total steps taken: 4
+Dirt remaining in house: 0
+Vacuum cleaner is alive.
+Mission succeeded!
+```

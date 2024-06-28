@@ -13,8 +13,8 @@ classDiagram
     }
 
     class Point {
-        int x
-        int y
+        -int x
+        -int y
         +Point(int x, int y)
         +int getX()
         +void setX(int newX)
@@ -22,8 +22,8 @@ classDiagram
         +void setY(int newY)
         +void move(char direction)
         +void moveToNeighbor(char direction)
-        +bool operator==(const Point& other)
-        +std::string toString()
+        +bool operator==(const Point& other) const
+        +std::string toString() const
     }
 
     class VacuumCleaner {
@@ -84,28 +84,16 @@ classDiagram
     }
 
     class Logger {
-        - std::ofstream logFile
-        - Logger()
-        - ~Logger()
-        - Logger(const Logger&) = delete
-        - Logger& operator=(const Logger&) = delete
-        + getInstance(): Logger&
-        + logInfo(message: std::string)
-        + logError(message: std::string)
-        - logToFile(message: std::string)
-        - logToStdout(message: std::string)
-        - logToStderr(message: std::string)
+        -std::ofstream logFile
+        +static Logger& getInstance() 
+        +void logInfo(const std::string &message)
+        +void logError(const std::string& message)
     }
 
     class Config {
-        - std::unordered_map<std::string, std::string> configMap
-        - Config()
-        - ~Config()
-        - Config(const Config&) = delete
-        - Config& operator=(const Config&) = delete
-        - load(filePath: std::string)
-        + getInstance(): Config&
-        + get(key: std::string): const std::string&
+        -std::unordered_map<std::string, std::string> configMap
+        +static Config& getInstance()
+        +std::string& get(key: std::string) const
     }
 
     Algorithm --> Point
@@ -121,3 +109,4 @@ classDiagram
     House --> Logger
     VacuumCleaner --> Point
     VacuumCleaner --> Logger
+    Logger --> Config

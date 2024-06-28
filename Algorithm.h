@@ -1,8 +1,8 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include <functional>
 #include "Point.h"
+#include <functional>
 #include <vector>
 #include <stack>
 

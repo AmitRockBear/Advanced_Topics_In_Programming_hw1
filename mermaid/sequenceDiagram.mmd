@@ -7,7 +7,7 @@ sequenceDiagram
     participant VacuumCleaner as VacuumCleaner
     participant Controller as Controller
 
-    User ->> Main: Start program with file argument
+    User ->> Main: Start program with input file argument
     Main ->> Logger: getInstance()
     Logger ->> Main: logger
     Main ->> Logger: logInfo("Starting the program with file: " + fileName)
@@ -18,7 +18,6 @@ sequenceDiagram
     Main ->> VacuumCleaner: VacuumCleaner(dockingX, dockingY, inputData.getMaxBatterySteps())
     Main ->> Controller: Controller(house, vacuumCleaner, inputData.getMaxSteps())
     
-    Controller ->> Logger: logInfo("Controller successfully initialized with maxSteps: " + std::to_string(maxSteps))
     Main ->> Controller: run()
     Controller ->> Logger: logInfo("Starting vacuum cleaner")
     
@@ -27,29 +26,32 @@ sequenceDiagram
         Controller ->> VacuumCleaner: getBatteryLevel()
         Controller ->> VacuumCleaner: getLocation(currentVacuumLocation)
         Controller ->> Logger: logInfo("Step details...")
-        Controller ->> House: getDockingLocation(dockingLocation)
         alt House.getTotalDirt() == 0 and atDockingStation
-            Controller ->> Logger: logInfo("Mission completed!")
+            Controller ->> Controller: missionCompleted = true
             %% break
         end
         alt (currentBatteryLevel == 0 and !atDockingStation) or maxSteps - stepsTaken == 0
-            Controller ->> Logger: logInfo("Mission failed!")
+            Controller ->> Controller: missionFailed = true
             %% break
         end
         alt currentBatteryLevel < VacuumCleaner.getMaxBatterySteps() and atDockingStation
-            Controller ->> Logger: logInfo("Charging...")
-            Controller ->> VacuumCleaner: increaseChargeBy(steps)
-            Controller ->> House: houseVisualization(vacuumCleanerLocation)
+            Controller ->> VacuumCleaner: increaseChargeBy(1)
+            Controller ->> Controller: stepsTaken++
+            Controller ->> Controller: steps.push_back(STAY)
         else
             Controller ->> Algorithm: decideNextStep()
             Algorithm -->> Controller: nextStep
             Controller ->> VacuumCleaner: move(nextStep)
             Controller ->> House: decreaseDirtLevel(vacuumCleanerLocation, 1)
             Controller ->> VacuumCleaner: decreaseChargeBy(1)
-            Controller ->> House: houseVisualization(vacuumCleanerLocation)
+            Controller ->> VacuumCleaner: getLocation(vacuumCleanerLocation)
+            alt Config::getInstance().get("useVisualizer") == "true"
+                Controller ->> House: houseVisualization(vacuumCleanerLocation)
+            end
         end
-        Controller ->> Logger: logInfo("End of Step")
     end
-    Controller ->> Logger: logInfo("Controller finished running")
+    Controller ->> Config: getInstance().get("outputFileName")
+    Config ->> Controller: outputFileName
+    Controller ->> Controller: createOutputFile(outputFileName)
     Controller ->> Main: Finished
     Main ->> Logger: logInfo("Program finished successfully")

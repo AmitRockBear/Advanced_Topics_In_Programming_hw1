@@ -21,7 +21,6 @@ const std::string trim(const std::string& str) {
     return str.substr(first, last - first + 1);
 }
 
-
 bool isNextCharacterSpaceOrEndOfLine(std::istringstream& iss) {
     int nextCharacter = iss.peek();
 
