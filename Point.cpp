@@ -21,10 +21,10 @@ void Point::setY(int newY) {
 
 void Point::move(char direction) {
     switch (direction) {
-        case 'N': setX(x-1); break;
-        case 'E': setY(y+1); break;
-        case 'S': setX(x+1); break;
-        case 'W': setY(y-1); break;
+        case NORTH: setX(x-1); break;
+        case EAST: setY(y+1); break;
+        case SOUTH: setX(x+1); break;
+        case WEST: setY(y-1); break;
         default: break;
     }
 }

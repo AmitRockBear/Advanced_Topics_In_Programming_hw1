@@ -14,10 +14,10 @@ Algorithm::Algorithm(std::function<double()> batterySensor, std::function<bool(c
 
 char Algorithm::oppositeMove(char move) const {
     switch (move) {
-        case 'N': return 'S';
-        case 'E': return 'W';
-        case 'S': return 'N';
-        case 'W': return 'E';
+        case NORTH: return SOUTH;
+        case EAST: return WEST;
+        case SOUTH: return NORTH;
+        case WEST: return EAST;
         default: return STAY; // In this case, the algorithm will make sure this won't be added to the backtrack path
     }
 }
@@ -49,7 +49,7 @@ void Algorithm::calcValidMoves(std::vector<char>& moves) {
     }
 
     // Checking other possible directions
-    for (auto &&direction : directions) {
+    for (auto &&direction : DIRECTIONS) {
         if(!wallSensor(direction)) {
             moves.push_back(direction);
         }
