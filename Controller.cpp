@@ -6,16 +6,14 @@
 #include "Utils.h"
 #include <iostream>
 #include <fstream>
-#include <utility>
 
-Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, std::string inputFilename, int stepsTaken, bool missionCompleted, bool missionFailed)
-
+Controller::Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, const std::string& inputFilename, int stepsTaken, bool missionCompleted, bool missionFailed)
     : house(house), vacuumCleaner(vacuumCleaner),
     algorithm(Algorithm(
             [=, this]() { return this->batteryRemaining(); },
             [=, this](char direction) { return this->isWall(direction); },
             [=, this](char direction) { return this->getDirtLevel(direction); })),
-    maxSteps(maxSteps), inputFilename(std::move(inputFilename)), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
+    maxSteps(maxSteps), inputFilename(inputFilename), stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
         Logger::getInstance().logInfo("Controller successfully initialized with maxSteps: " + std::to_string(maxSteps));
     }
 
@@ -25,7 +23,7 @@ void Controller::createOutputFile(const std::string& outputFileName) const {
     bool isEmptyFileName = outputFileName == EMPTY_STRING;
     std::string outputFile;
     if (isEmptyFileName) {
-        std::string filename = getFileBaseName(inputFilename);
+        const std::string filename = getFileBaseName(inputFilename);
         outputFile = "output_" + filename;
     }
     

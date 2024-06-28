@@ -12,7 +12,7 @@ void clear() {
   #endif
 }
 
-std::string getFileBaseName(const std::string& path) {
+const std::string getFileBaseName(const std::string& path) {
     std::string filename = path.substr(path.find_last_of("/\\") + 1);
     return filename;
 }

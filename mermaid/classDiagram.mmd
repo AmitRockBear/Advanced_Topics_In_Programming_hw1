@@ -78,7 +78,7 @@ classDiagram
         -int stepsTaken
         -bool missionCompleted
         -bool missionFailed
-        -std::string inputFilename
+        -const std::string& inputFilename
         -std::vector<char> steps
         +Controller(House& house, VacuumCleaner& vacuumCleaner, int maxSteps, int stepsTaken, bool missionCompleted, bool missionFailed)
         +void run()
