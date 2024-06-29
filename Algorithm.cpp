@@ -100,7 +100,7 @@ char Algorithm::decideNextStep() {
         
         return nextMove;
      } catch (const std::exception& e) {
-         std::cerr << "Error deciding next step, the vacuum cleaner will stay in place. The error thrown: " << e.what() << std::endl;
-         return STAY; // Default to staying in place on error
+        logger.logError("Error deciding next step, the vacuum cleaner will stay in place. The error thrown: " + std::string(e.what()));
+        return STAY; // Default to staying in place on error
      }
 }

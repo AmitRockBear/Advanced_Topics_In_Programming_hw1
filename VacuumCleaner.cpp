@@ -10,19 +10,21 @@ VacuumCleaner::VacuumCleaner(int x, int y, int maxBatterySteps) : location(Point
 }
 
 void VacuumCleaner::move(char direction) {
-    Logger::getInstance().logInfo("Moving vacuum cleaner to direction: " + std::string(1, direction));
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Moving vacuum cleaner to direction: " + std::string(1, direction));
     location.move(direction);
-    Logger::getInstance().logInfo("Successfully moved vacuum cleaner to location: " + location.toString());
+    logger.logInfo("Successfully moved vacuum cleaner to location: " + location.toString());
 }
 
 void VacuumCleaner::increaseChargeBy(int steps) {
+    Logger& logger = Logger::getInstance();
     double increaseBy = steps*maxBatterySteps/20.0;
 
-    Logger::getInstance().logInfo("Increasing battery level by: " + std::to_string(increaseBy));
+    logger.logInfo("Increasing battery level by: " + std::to_string(increaseBy));
     
     battery+=increaseBy;
     if (battery > maxBatterySteps){
-        Logger::getInstance().logInfo("Battery level surpassed maxBatterySteps, adjusting to maxBatterySteps");
+        logger.logInfo("Battery level surpassed maxBatterySteps, adjusting to maxBatterySteps");
         battery = maxBatterySteps;
     }
 }

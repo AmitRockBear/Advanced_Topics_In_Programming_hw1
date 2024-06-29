@@ -67,7 +67,8 @@ void FileDataExtractor::readAndExtractMaxBatterySteps(std::ifstream& file) {
 }
 
 void FileDataExtractor::readAndExtractMaxSteps(std::ifstream& file) {
-    Logger::getInstance().logInfo("Reading maxSteps from input file");
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Reading maxSteps from input file");
 
     std::string line;
     if (!std::getline(file, line)) {
@@ -83,11 +84,12 @@ void FileDataExtractor::readAndExtractMaxSteps(std::ifstream& file) {
         throw std::runtime_error("Invalid format: maxSteps must be followed by a space or EOF in input file");
     }
 
-    Logger::getInstance().logInfo("Successfully read maxSteps from input file: " + std::to_string(maxSteps));
+    logger.logInfo("Successfully read maxSteps from input file: " + std::to_string(maxSteps));
 }
 
 void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
-    Logger::getInstance().logInfo("Reading house data from input file");
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Reading house data from input file");
 
     std::string line;
     int row = 0;
@@ -129,5 +131,5 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
         throw std::runtime_error("Invalid house map: no docking station found in input file");
     }
 
-    Logger::getInstance().logInfo("Successfully read house data from input file");
+    logger.logInfo("Successfully read house data from input file");
 }

@@ -21,7 +21,7 @@ void Controller::createOutputFile(const std::string& outputFileName) const {
     Logger& logger = Logger::getInstance();
     std::ofstream outfile;
     bool isEmptyFileName = outputFileName == EMPTY_STRING;
-    std::string outputFile;
+    std::string outputFile = outputFileName;
     if (isEmptyFileName) {
         const std::string filename = getFileBaseName(inputFilename);
         outputFile = "output_" + filename;
