@@ -1,5 +1,10 @@
 # Vacuum Cleaner Robot Project
 
+## Contributors
+
+- Amit Rockach, Id: 322853813
+- Michal Ling, Id:
+
 ## Overview
 
 This project simulates a vacuum cleaner robot that navigates through a house, cleans dirt, and returns to its docking station to recharge. The project is implemented in C++ and consists of several key components: the main application logic, a representation of the house, the vacuum cleaner, a controller to manage the cleaning process, and utilities for handling file I/O and logging.
@@ -65,6 +70,10 @@ The program handles various errors, such as invalid file format, out-of-bounds c
    ```sh
    ./myrobot inputfile.txt
    ```
+
+## Solution Approach
+
+The solution implements a vacuum cleaner robot that autonomously navigates a house, cleans dirt, and returns to its docking station to recharge. The Controller class manages the cleaning process, starting with the initialization of the vacuum cleaner and house layout. Inside the controller's loop, it checks if the vacuum cleaner has completed cleaning the house, is out of battery, or is at the docking station. If not, using the Algorithm class, the vacuum cleaner decides its next move: it randomly selects from available directions to move, clean, or stay in place based on battery levels, obstacle detection, and remaining dirt levels. The algorithm includes a backtracking mechanism that stores previous moves when necessary, ensuring the robot can efficiently return to the docking station for recharging. When the simulation finishes, results are logged and saved to an output file.
 
 ## Input File Format
 
