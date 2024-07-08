@@ -1,22 +1,20 @@
 #include "VacuumCleaner.h"
 #include "Logger.h"
+#include "skeleton.h"
 #include <stdexcept>
 #include <iostream>
 
-VacuumCleaner::VacuumCleaner(int x, int y, int maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
+VacuumCleaner::VacuumCleaner(std::size_t x, std::size_t y, std::size_t maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
     Logger& logger = Logger::getInstance();
     
     logger.logInfo("VacuumCleaner successfully initialized at location: " + location.toString() + " with maxBatterySteps: " + std::to_string(maxBatterySteps));
 }
 
-void VacuumCleaner::move(char direction) {
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Moving vacuum cleaner to direction: " + std::string(1, direction));
+void VacuumCleaner::move(Direction direction) {
     location.move(direction);
-    logger.logInfo("Successfully moved vacuum cleaner to location: " + location.toString());
 }
 
-void VacuumCleaner::increaseChargeBy(int steps) {
+void VacuumCleaner::increaseChargeBy(std::size_t steps) {
     Logger& logger = Logger::getInstance();
     double increaseBy = steps*maxBatterySteps/20.0;
 
@@ -29,7 +27,7 @@ void VacuumCleaner::increaseChargeBy(int steps) {
     }
 }
 
-void VacuumCleaner::decreaseChargeBy(int steps) {
+void VacuumCleaner::decreaseChargeBy(std::size_t steps) {
     Logger::getInstance().logInfo("Decreasing battery level by: " + std::to_string(steps));
     battery-=steps;
     if (battery < 0) {
@@ -41,7 +39,7 @@ double VacuumCleaner::getBatteryLevel() const {
     return battery;
 }
 
-int VacuumCleaner::getMaxBatterySteps() const {
+std::size_t VacuumCleaner::getMaxBatterySteps() const {
     return maxBatterySteps;
 }
 
@@ -49,11 +47,11 @@ bool VacuumCleaner::isAtLocation(Point& otherLocation) const {
     return location == otherLocation;
 }
 
-int VacuumCleaner::getX() const {
+std::size_t VacuumCleaner::getX() const {
     return location.getX();
 }
 
-int VacuumCleaner::getY() const {
+std::size_t VacuumCleaner::getY() const {
     return location.getY();
 }
 

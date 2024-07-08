@@ -1,20 +1,21 @@
 #ifndef POINT_H
 #define POINT_H
 #include "General.h"
+#include "skeleton.h"
 #include <string>
 
 class Point {
 private:
-    int x;
-    int y;
+    std::size_t x;
+    std::size_t y;
 public:
-    Point(int x=0, int y=0);
-    int getX() const;
-    void setX(int newX);
-    int getY() const;
-    void setY(int newY);
-    void moveToNeighbor(char direction=STAY);
-    void move(char direction);
+    Point(std::size_t x=0, std::size_t y=0);
+    std::size_t getX() const;
+    void setX(std::size_t newX);
+    std::size_t getY() const;
+    void setY(std::size_t newY);
+    void moveToNeighbor(Direction direction);
+    void move(Direction direction);
     bool operator==(const Point& other) const;
     std::string toString() const;
 };

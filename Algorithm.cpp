@@ -104,3 +104,23 @@ char Algorithm::decideNextStep() {
         return STAY; // Default to staying in place on error
      }
 }
+
+// Algorithm::Algorithm() : stepsBack(std::stack<char>()), distanceFromDock(Point(0, 0)), isBacktracking(false) {
+//     std::srand(std::time(nullptr));
+// }
+
+// void Algorithm::setMaxSteps(int maxSteps) {
+//     this->maxSteps = maxSteps;
+// }
+
+// void Algorithm::setWallsSensor(const WallsSensor& wallsSensor) {
+//     this->wallsSensor = wallsSensor;
+// }
+
+// void Algorithm::setDirtSensor(const DirtSensor& dirtSensor) {
+//     this->dirtSensor = dirtSensor;
+// }
+
+// void Algorithm::setBatteryMeter(const BatteryMeter& batterySensor) {
+//     this->batterySensor = batterySensor;
+// }

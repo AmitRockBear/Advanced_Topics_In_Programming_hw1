@@ -1,35 +1,36 @@
 #include "Point.h"
+#include "skeleton.h"
 #include <sstream>
 
-Point::Point(int x, int y) : x(x), y(y) {}
+Point::Point(std::size_t x, std::size_t y) : x(x), y(y) {}
 
-int Point::getX() const {
+std::size_t Point::getX() const {
     return x;
 }
 
-void Point::setX(int newX) {
+void Point::setX(std::size_t newX) {
     x = newX;
 }
 
-int Point::getY() const {
+std::size_t Point::getY() const {
     return y;
 }
 
-void Point::setY(int newY) {
+void Point::setY(std::size_t newY) {
     y = newY;
 }
 
-void Point::move(char direction) {
+void Point::move(Direction direction) {
     switch (direction) {
-        case NORTH: setX(x-1); break;
-        case EAST: setY(y+1); break;
-        case SOUTH: setX(x+1); break;
-        case WEST: setY(y-1); break;
+        case Direction::North: setX(x-1); break;
+        case Direction::East: setY(y+1); break;
+        case Direction::South: setX(x+1); break;
+        case Direction::West: setY(y-1); break;
         default: break;
     }
 }
 
-void Point::moveToNeighbor(char direction) {
+void Point::moveToNeighbor(Direction direction) {
     (*this).move(direction);
 }
 
