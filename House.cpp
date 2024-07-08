@@ -12,11 +12,16 @@ House::House(const std::vector<std::vector<int>>& houseMap, int dockingX, int do
     
     logger.logInfo("Initializing House");
 
-    padHouseMap(this->houseMap);
-     
     totalDirt = calcTotalDirt();
 
     logger.logInfo("House initialized successfully with totalDirt: " + std::to_string(totalDirt));
+    //print house
+    for (int i = 0; i < (int64_t)houseMap.size(); i++) {
+        for (int j = 0; j < (int64_t)houseMap[i].size(); j++) {
+            std::cout << houseMap[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 int House::calcTotalDirt() const {
@@ -127,20 +132,4 @@ void House::houseVisualization(Point vacuumLocation) const {
         std::cout << std::endl;
     }
     std::cout << std::endl;
-}
-
-void House::padHouseMap(std::vector<std::vector<int>>& houseMap) {
-    try
-    {
-        size_t maxY = getMaxY(houseMap);
-        for (auto& row : houseMap) {
-            while (row.size() < maxY) {
-                row.push_back(-1);
-            }
-        }
-    }
-    catch(const std::exception& e)
-    {
-        throw std::runtime_error("Error padding house map: " + std::string(e.what()));
-    }
 }

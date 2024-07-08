@@ -38,3 +38,17 @@ bool isNextCharacterSpaceOrEndOfLine(std::istringstream& iss) {
 void handleException(const std::exception& e) {
     Logger::getInstance().logError(std::string(e.what()));
 }
+
+bool extractKeyValue(std::string& line, std::string& key, std::string& value) {
+    std::istringstream lineStream(line);
+    if (std::getline(lineStream, key, '=') && std::getline(lineStream, value)) {
+        key = trim(key);
+        value = trim(value);
+
+        if (key.empty() || value.empty()) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}

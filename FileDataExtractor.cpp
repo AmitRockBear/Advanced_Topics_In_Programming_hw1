@@ -22,8 +22,8 @@ int FileDataExtractor::getMaxSteps() const {
     return maxSteps;
 }
 
-int FileDataExtractor::getMaxBatterySteps() const {
-    return maxBatterySteps;
+int FileDataExtractor::getMaxBattery() const {
+    return maxBattery;
 }
 
 std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() {
@@ -37,54 +37,65 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
     if (!file.is_open()) {
         throw std::runtime_error("Unable to open input file: " + fileName);
     }
-
-    readAndExtractMaxBatterySteps(file);
-    readAndExtractMaxSteps(file);
-    readAndExtractHouseData(file);
+    
+    try {
+        readHouseName(file);
+        const std::vector<std::string> keys = {"MaxSteps", "MaxBattery", "Rows", "Cols"}; 
+        std::vector<std::string> values(keys.size());
+        readAndExtractKeys(file, keys, values);
+        maxSteps = std::stoi(values[0]);
+        maxBattery = std::stoi(values[1]);
+        int rows = std::stoi(values[2]);
+        int cols = std::stoi(values[3]);
+        if (rows < 0 || cols < 0) {
+            throw std::runtime_error("Invalid house dimensions in input file");
+        }
+        houseMap = std::vector<std::vector<int>>(rows, std::vector<int>(cols, 0));
+        readAndExtractHouseData(file);
+    } catch (...) {
+        file.close();
+        throw;
+    }
 
     file.close();
     return true;
 }
 
-void FileDataExtractor::readAndExtractMaxBatterySteps(std::ifstream& file) {
-    Logger::getInstance().logInfo("Reading maxBatterySteps from input file");
-
-    std::string line;
+void FileDataExtractor::readHouseName(std::ifstream& file) {
+    Logger& logger = Logger::getInstance();
+    std::string line, houseName;
     if (!std::getline(file, line)) {
-        throw std::runtime_error("Error reading maxBatterySteps from input file");
+        throw std::runtime_error("Error reading house name from input file");
     }
+    houseName = trim(line);
 
-    std::istringstream iss(line);
-    if (!(iss >> maxBatterySteps)) {
-        throw std::runtime_error("Invalid format for maxBatterySteps in input file");
-    }
-
-    if (!isNextCharacterSpaceOrEndOfLine(iss)) {
-        throw std::runtime_error("Invalid format: maxBatterySteps must be followed by a space or EOF in input file");
-    }
-
-    Logger::getInstance().logInfo("Successfully read maxBatterySteps from input file: " + std::to_string(maxBatterySteps));
+    logger.logInfo("Welcome to house: " + houseName + "!");
 }
 
-void FileDataExtractor::readAndExtractMaxSteps(std::ifstream& file) {
+void FileDataExtractor::readAndExtractKeys(std::ifstream& file, const std::vector<std::string>& keys, std::vector<std::string>& values) {
     Logger& logger = Logger::getInstance();
-    logger.logInfo("Reading maxSteps from input file");
+    logger.logInfo("Reading keys from input file");
 
     std::string line;
-    if (!std::getline(file, line)) {
-        throw std::runtime_error("Error reading maxSteps from input file");
+    for (size_t i = 0; i < keys.size(); i++) {
+        if (!std::getline(file, line)) {
+            throw std::runtime_error("Error reading keys from input file");
+        }
+
+        std::string key = keys[i];
+        std::string value;
+        bool extractedSuccessfully = extractKeyValue(line, key, value);
+        if (!extractedSuccessfully) {
+            throw std::runtime_error("Invalid format for keys in input file");
+        }
+        if (key != keys[i]) {
+            throw std::runtime_error("Invalid format: " + keys[i] + " key not found where expected in input file");
+        }
+
+        values[i] = value;
     }
 
-    std::istringstream iss(line);
-    if (!(iss >> maxSteps)) {
-        throw std::runtime_error("Invalid format for maxSteps in input file");
-    }
-
-    if (!isNextCharacterSpaceOrEndOfLine(iss)) {
-        throw std::runtime_error("Invalid format: maxSteps must be followed by a space or EOF in input file");
-    }
-
-    logger.logInfo("Successfully read maxSteps from input file: " + std::to_string(maxSteps));
+    logger.logInfo("Successfully read keys from input file");
 }
 
 void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
@@ -92,39 +103,29 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
     logger.logInfo("Reading house data from input file");
 
     std::string line;
-    int row = 0;
     int dockingStationCount = 0;
-    while (std::getline(file, line)) {
-        if (!line.empty() && line[0] == ' ') {
-            throw std::runtime_error("Invalid format: house map must not start with a space character in input file");
-        }
-
-        std::vector<int> row_data;
+    for (size_t row = 0; row < houseMap.size(); row++) {
+        if (!std::getline(file, line))
+            continue;
+        
         std::istringstream iss(line);
         char ch;
-        while (iss >> ch) {
+        for (size_t col = 0; col < houseMap[row].size(); col++) {
+            if (!(iss.get(ch))) break;
             if (ch >= '0' && ch <= '9') {
-                row_data.push_back(ch - '0');
-            } else if (ch == 'W' || ch == '-') {
-                row_data.push_back(-1);
+                houseMap[row][col] = ch - '0';
+            } else if (ch == 'W') {
+                houseMap[row][col] = -1;
             } else if (ch == 'D') {
                 if (dockingStationCount > 0) {
                     throw std::runtime_error("Invalid house map: can only have one docking station in input file");
                 }
                 dockingX = row;
-                dockingY = row_data.size();
+                dockingY = col;
                 dockingStationCount++;
-                row_data.push_back(0);
-            } else {
-                throw std::runtime_error("Invalid house map: invalid character found: '" + std::string(1, ch) + "', in input file");
-            }
-
-            if (!isNextCharacterSpaceOrEndOfLine(iss)) {
-                throw std::runtime_error("Invalid format: every character in house map must be followed by a space or EOF in input file");
+                houseMap[row][col] = 0;
             }
         }
-        houseMap.push_back(row_data);
-        row++;
     }
 
     if (dockingStationCount == 0) {

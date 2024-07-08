@@ -14,21 +14,17 @@ void Config::load(const std::string& filePath) {
     if (!configFile) {
         throw std::runtime_error("Unable to open configuration file.");
     }
-
-    std::string line;
-    while (std::getline(configFile, line)) {
-        std::istringstream lineStream(line);
+    try {
+        std::string line;
         std::string key, value;
-        if (std::getline(lineStream, key, '=') && std::getline(lineStream, value)) {
-            key = trim(key);
-            value = trim(value);
-
-            if (key.empty() || value.empty()) {
-                continue;
-            }
-
+        while (std::getline(configFile, line)) {
+            bool extractedSuccessfully = extractKeyValue(line, key, value);
+            if (!extractedSuccessfully) continue;
             configMap[key] = value;
         }
+    } catch (...) {
+        configFile.close();
+        throw;
     }
 }
 
