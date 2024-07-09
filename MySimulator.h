@@ -4,25 +4,28 @@
 #include "House.h"
 #include "VacuumCleaner.h"
 #include "Algorithm.h"
-#include "skeleton.h"
+#include "Direction.h"
 #include <vector>
+#include <memory>
 
 class MySimulator {
 public:
-    MySimulator(std::size_t stepsTaken = 0, bool missionCompleted = false, bool missionFailed = false);
+    MySimulator(bool missionCompleted, bool missionFailed, Algorithm &algorithm,
+                VacuumCleaner vacuumCleaner, House house);
     void run();
     void setAlgorithm(Algorithm& algorithm);
     void readHouseFile(const std::string& fileName);
 private:
     House house;
     VacuumCleaner vacuumCleaner;
-    Algorithm& algorithm;
-    std::size_t maxSteps;
-    std::string& inputFilename;
-    std::size_t stepsTaken;
+    //std::unique_ptr<Algorithm> algorithm;
+    Algorithm* algorithm;
+    std::size_t maxSteps{};
+    std::string inputFilename;
+    std::size_t stepsTaken = 0;
     bool missionCompleted;
     bool missionFailed;
-    std::vector<char> steps;
+    std::vector<Step> steps;
     std::unique_ptr<WallsSensor> wallsSensor;
     std::unique_ptr<DirtSensor> dirtSensor;
     std::unique_ptr<BatteryMeter> batteryMeter;
@@ -32,7 +35,7 @@ private:
     int getDirtLevel() const;
     bool isWall(Direction direction) const;
     double batteryRemaining() const;
-    void handleNextStep(char nextStep);
+    void handleNextStep(Step nextStep);
     void createOutputFile(const std::string &outputFileName) const;
 };
 

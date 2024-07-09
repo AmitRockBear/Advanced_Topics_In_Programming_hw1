@@ -2,6 +2,7 @@
 #define HOUSE_H
 
 #include <vector>
+#include <memory>
 #include "Point.h"
 
 static const char *const HORIZONTAL_WALL = "_";
@@ -16,7 +17,7 @@ static const int WAITING_TIME = 200;
 
 class House {
 public:
-    House(std::shared_ptr<std::vector<std::vector<std::size_t>>> houseMap, std::size_t dockingX, std::size_t dockingY);
+    House(std::shared_ptr<std::vector<std::vector<int>>> houseMap, std::size_t dockingX, std::size_t dockingY);
 
     int getDirtLevel(Point& location) const;
     void decreaseDirtLevel(Point& location, int decreaseBy);
@@ -26,11 +27,11 @@ public:
     void houseVisualization(Point vacuumLocation) const;
 
 private:
-    std::size_t getMaxY(std::vector<std::vector<std::size_t>> &houseMap);
+    std::size_t getMaxY();
     int calcTotalDirt() const;
     
     int totalDirt;
-    std::shared_ptr<std::vector<std::vector<std::size_t>>> houseMap;
+    std::shared_ptr<std::vector<std::vector<int>>> houseMap;
     Point dockingLocation;
 };
 

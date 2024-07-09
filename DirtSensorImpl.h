@@ -2,7 +2,7 @@
 #define DIRTSENSOR_H
 
 #include <functional>
-#include "skeleton.h"
+#include "Sensors.h"
 
 class DirtSensorImpl : public DirtSensor {
 public:

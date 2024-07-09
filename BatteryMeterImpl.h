@@ -2,7 +2,7 @@
 #define BATTERYMETER_H
 
 #include <functional>
-#include "skeleton.h"
+#include "Sensors.h"
 
 class BatteryMeterImpl : public BatteryMeter {
 public:

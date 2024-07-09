@@ -1,5 +1,5 @@
 #include "Point.h"
-#include "skeleton.h"
+#include "Direction.h"
 #include <sstream>
 
 Point::Point(std::size_t x, std::size_t y) : x(x), y(y) {}
@@ -20,18 +20,18 @@ void Point::setY(std::size_t newY) {
     y = newY;
 }
 
-void Point::move(Direction direction) {
+void Point::move(Step direction) {
     switch (direction) {
-        case Direction::North: setX(x-1); break;
-        case Direction::East: setY(y+1); break;
-        case Direction::South: setX(x+1); break;
-        case Direction::West: setY(y-1); break;
+        case Step::North: setX(x-1); break;
+        case Step::East: setY(y+1); break;
+        case Step::South: setX(x+1); break;
+        case Step::West: setY(y-1); break;
         default: break;
     }
 }
 
 void Point::moveToNeighbor(Direction direction) {
-    (*this).move(direction);
+    (*this).move(DirectionToStep(direction));
 }
 
 bool Point::operator==(const Point& other) const {

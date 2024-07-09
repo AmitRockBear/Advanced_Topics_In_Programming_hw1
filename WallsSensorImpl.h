@@ -2,7 +2,8 @@
 #define WALLSSENSOR_H
 
 #include <functional>
-#include "skeleton.h"
+#include "Sensors.h"
+#include "Direction.h"
 
 class WallsSensorImpl : public WallsSensor {
 public:
