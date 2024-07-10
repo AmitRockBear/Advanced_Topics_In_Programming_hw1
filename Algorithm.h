@@ -3,9 +3,6 @@
 
 #include "Point.h"
 #include "Sensors.h"
-#include "WallsSensorImpl.h"
-#include "DirtSensorImpl.h"
-#include "BatteryMeterImpl.h"
 #include <functional>
 #include <vector>
 #include <stack>
@@ -39,6 +36,9 @@ private:
     Point distanceFromDock;
     bool isBacktracking;
 
+    // const WallsSensorImpl wallsSensor;
+    // const DirtSensorImpl dirtSensor;
+    // const BatteryMeterImpl batterySensor;
     std::unique_ptr<WallsSensor> wallsSensor;
     std::unique_ptr<DirtSensor> dirtSensor;
     std::unique_ptr<BatteryMeter> batterySensor;

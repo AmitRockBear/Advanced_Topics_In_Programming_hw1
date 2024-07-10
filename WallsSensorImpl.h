@@ -3,11 +3,12 @@
 
 #include <functional>
 #include "Sensors.h"
-#include "Direction.h"
 
 class WallsSensorImpl : public WallsSensor {
 public:
     WallsSensorImpl(std::function<bool(Direction)> wallSensor);
+    // WallsSensorImpl(const WallsSensorImpl&& otherWallSensor);
+    WallsSensorImpl(const WallsSensorImpl& otherWallSensor);
     bool isWall(Direction d) const override;
 
 private:

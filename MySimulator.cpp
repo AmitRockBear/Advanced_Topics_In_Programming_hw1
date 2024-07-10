@@ -190,7 +190,8 @@ void MySimulator::readHouseFile(const std::string& fileName) {
     inputData.readAndExtract(fileName);
     std::size_t dockingX = inputData.getDockingX();
     std::size_t dockingY = inputData.getDockingY();
-    house = House(inputData.getHouseMap(), dockingX, dockingY);
+    house.setHouseMap(inputData.getHouseMap());
+    house.setDockingLocation(dockingX, dockingY);
     vacuumCleaner = VacuumCleaner(dockingX, dockingY, inputData.getMaxBattery());
     maxSteps = inputData.getMaxSteps();
     inputFilename = fileName;

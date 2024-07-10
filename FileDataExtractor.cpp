@@ -26,7 +26,7 @@ std::size_t FileDataExtractor::getMaxBattery() const {
     return maxBattery;
 }
 
-std::vector<std::vector<std::size_t>>& FileDataExtractor::getHouseMap() {
+std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() {
     return houseMap;
 }
 
@@ -47,7 +47,7 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
         maxBattery = std::stoull(values[1]);
         std::size_t rows = std::stoull(values[2]);
         std::size_t cols = std::stoi(values[3]);
-        houseMap = std::vector<std::vector<std::size_t>>(rows, std::vector<std::size_t>(cols, 0));
+        houseMap = std::vector<std::vector<int>>(rows, std::vector<int>(cols, 0));
         readAndExtractHouseData(file);
     } catch (...) {
         file.close();

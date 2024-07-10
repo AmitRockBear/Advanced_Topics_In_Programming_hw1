@@ -17,7 +17,6 @@ static const int WAITING_TIME = 200;
 
 class House {
 public:
-    House(std::vector<std::vector<std::size_t>>& houseMap, std::size_t dockingX, std::size_t dockingY);
     House();
     int getDirtLevel(Point& location) const;
     void decreaseDirtLevel(Point& location, int decreaseBy);
@@ -25,12 +24,14 @@ public:
     int getTotalDirt() const;
     void getDockingLocation(Point& locationToModify) const;
     void houseVisualization(Point vacuumLocation) const;
+    void setDockingLocation(std::size_t x, std::size_t y);
+    void setHouseMap(std::vector<std::vector<int>>& houseMap);
 
 private:
     int calcTotalDirt() const;
     
     int totalDirt;
-    std::unique_ptr<std::vector<std::vector<std::size_t>>> houseMap;
+    std::unique_ptr<std::vector<std::vector<int>>> houseMap;
     Point dockingLocation;
 };
 

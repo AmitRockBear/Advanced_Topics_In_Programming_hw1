@@ -1,6 +1,9 @@
 #include "Algorithm.h"
 #include "General.h"
 #include "Logger.h"
+#include "BatteryMeterImpl.h"
+#include "DirtSensorImpl.h"
+#include "WallsSensorImpl.h"
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
@@ -99,14 +102,14 @@ Step Algorithm::nextStep() {
  }
 
  void Algorithm::setWallsSensor(const WallsSensor& wallsSensor) {
-     this->wallsSensor = std::make_unique<WallsSensorImpl>(std::move(wallsSensor));
+     this->wallsSensor = std::make_unique<WallsSensorImpl>(static_cast<const WallsSensorImpl&>(wallsSensor));
  }
 
  void Algorithm::setDirtSensor(const DirtSensor& dirtSensor) {
-     this->dirtSensor = std::make_unique<DirtSensorImpl>(std::move(dirtSensor));
+     this->dirtSensor = std::make_unique<DirtSensorImpl>(static_cast<const DirtSensorImpl&>(dirtSensor));
  }
 
  void Algorithm::setBatteryMeter(const BatteryMeter& batterySensor) {
-     this->batterySensor = std::make_unique<BatteryMeterImpl>(std::move(batterySensor));
+    this->batterySensor = std::make_unique<BatteryMeterImpl>(static_cast<const BatteryMeterImpl&>(batterySensor));
  }
 
