@@ -27,7 +27,6 @@ public:
     void houseVisualization(Point vacuumLocation) const;
 
 private:
-    std::size_t getMaxY();
     int calcTotalDirt() const;
     
     int totalDirt;

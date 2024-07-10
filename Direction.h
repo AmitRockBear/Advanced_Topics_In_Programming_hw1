@@ -1,9 +1,8 @@
-#ifndef SKELETON_H
-#define SKELETON_H
+#ifndef DIRECTION_H
+#define DIRECTION_H
 
 #include <iostream>
 
-// [1]
 enum class Direction { North, East, South, West };
 enum class Step { North, East, South, West, Stay, Finish };
 

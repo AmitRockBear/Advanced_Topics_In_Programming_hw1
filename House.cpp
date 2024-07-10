@@ -90,16 +90,6 @@ void House::getDockingLocation(Point& locationToModify) const {
     locationToModify.setY(dockingLocation.getY());
 }
 
-size_t House::getMaxY() {
-    size_t maxRowSize = 0;
-    for (const auto& row : *houseMap) {
-        if (row.size() > maxRowSize) {
-            maxRowSize = row.size();
-        }
-    }
-    return maxRowSize;
-}
-
 void House::houseVisualization(Point vacuumLocation) const {
     std::this_thread::sleep_for(std::chrono::milliseconds(WAITING_TIME));
     clear();
