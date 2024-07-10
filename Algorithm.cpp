@@ -102,14 +102,14 @@ Step Algorithm::nextStep() {
  }
 
  void Algorithm::setWallsSensor(const WallsSensor& wallsSensor) {
-     this->wallsSensor = std::make_unique<WallsSensorImpl>(static_cast<const WallsSensorImpl&>(wallsSensor));
+     this->wallsSensor = std::make_unique<WallsSensorImpl>(std::move(static_cast<const WallsSensorImpl&>(wallsSensor)));
  }
 
  void Algorithm::setDirtSensor(const DirtSensor& dirtSensor) {
-     this->dirtSensor = std::make_unique<DirtSensorImpl>(static_cast<const DirtSensorImpl&>(dirtSensor));
+     this->dirtSensor = std::make_unique<DirtSensorImpl>(std::move(static_cast<const DirtSensorImpl&>(dirtSensor)));
  }
 
  void Algorithm::setBatteryMeter(const BatteryMeter& batterySensor) {
-    this->batterySensor = std::make_unique<BatteryMeterImpl>(static_cast<const BatteryMeterImpl&>(batterySensor));
+    this->batterySensor = std::make_unique<BatteryMeterImpl>(std::move(static_cast<const BatteryMeterImpl&>(batterySensor)));
  }
 
