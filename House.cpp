@@ -5,9 +5,10 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <utility>
 
-House::House(std::shared_ptr<std::vector<std::vector<std::size_t>>> houseMap, std::size_t dockingX, std::size_t dockingY)
-    : houseMap(houseMap), dockingLocation(Point(dockingX, dockingY)) {
+House::House(std::shared_ptr<std::vector<std::vector<int>>> houseMap, std::size_t dockingX, std::size_t dockingY)
+    : houseMap(std::move(houseMap)), dockingLocation(Point(dockingX, dockingY)) {
     Logger& logger = Logger::getInstance();
     
     logger.logInfo("Initializing House");
@@ -44,7 +45,7 @@ int House::getDirtLevel(Point& location) const {
     std::size_t x = location.getX();
     std::size_t y = location.getY();
 
-    if (x < 0 || x >= (*houseMap).size() || y < 0 || y >= (*houseMap)[0].size()) {
+    if (x >= (*houseMap).size() || y >= (*houseMap)[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
 
@@ -59,7 +60,7 @@ void House::decreaseDirtLevel(Point& location, int decreaseBy) {
     std::size_t x = location.getX();
     std::size_t y = location.getY();
 
-    if (x < 0 || x >= (*houseMap).size() || y < 0 || y >= (*houseMap)[0].size()) {
+    if (x >= (*houseMap).size() || y >= (*houseMap)[0].size()) {
         throw std::out_of_range("Invalid coordinates");
     }
 
@@ -77,7 +78,7 @@ bool House::isWall(Point& location) const {
     std::size_t x = location.getX();
     std::size_t y = location.getY();
 
-    if (x < 0 || x >= (*houseMap).size() || y < 0 || y >= (*houseMap)[0].size()) {
+    if (x >= (*houseMap).size() || y >= (*houseMap)[0].size()) {
         return true;
     }
 
@@ -89,9 +90,9 @@ void House::getDockingLocation(Point& locationToModify) const {
     locationToModify.setY(dockingLocation.getY());
 }
 
-size_t House::getMaxY(std::vector<std::vector<std::size_t>>& houseMap) {
+size_t House::getMaxY() {
     size_t maxRowSize = 0;
-    for (const auto& row : houseMap) {
+    for (const auto& row : *houseMap) {
         if (row.size() > maxRowSize) {
             maxRowSize = row.size();
         }

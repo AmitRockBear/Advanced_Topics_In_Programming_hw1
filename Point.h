@@ -1,7 +1,7 @@
 #ifndef POINT_H
 #define POINT_H
 #include "General.h"
-#include "skeleton.h"
+#include "Direction.h"
 #include <string>
 
 class Point {
@@ -15,7 +15,7 @@ public:
     std::size_t getY() const;
     void setY(std::size_t newY);
     void moveToNeighbor(Direction direction);
-    void move(Direction direction);
+    void move(Step direction);
     bool operator==(const Point& other) const;
     std::string toString() const;
 };

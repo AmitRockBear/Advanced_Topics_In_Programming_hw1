@@ -3,14 +3,10 @@
 
 #include <string>
 #include <vector>
+#include "Direction.h"
 
-static const char STAY = 'C';
 static const std::string DEFAULT_LOG_FILE_NAME = "application.log";
 static const std::string EMPTY_STRING = "";
-static const char SOUTH = 'S';
-static const char WEST = 'W';
-static const char NORTH = 'N';
-static const char EAST = 'E';
-static const std::vector<char> DIRECTIONS = {SOUTH, WEST, NORTH, EAST};
+static const std::vector<Direction> DIRECTIONS = {Direction::South, Direction::West, Direction::North, Direction::East};
 
 #endif

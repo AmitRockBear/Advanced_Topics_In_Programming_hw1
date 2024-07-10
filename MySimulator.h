@@ -4,8 +4,9 @@
 #include "House.h"
 #include "VacuumCleaner.h"
 #include "Algorithm.h"
-#include "skeleton.h"
+#include "Direction.h"
 #include <vector>
+#include <memory>
 
 class MySimulator {
 public:
@@ -32,7 +33,7 @@ private:
     int getDirtLevel() const;
     bool isWall(Direction direction) const;
     double batteryRemaining() const;
-    void handleNextStep(char nextStep);
+    void handleNextStep(Step nextStep);
     void createOutputFile(const std::string &outputFileName) const;
 };
 

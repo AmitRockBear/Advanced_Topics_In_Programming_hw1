@@ -5,11 +5,13 @@
 #include "Config.h"
 #include "Utils.h"
 #include "FileDataExtractor.h"
-#include "./Sensors/WallsSensorImpl.h"
-#include "./Sensors/DirtSensorImpl.h"
-#include "./Sensors/BatteryMeterImpl.h"
+#include "WallsSensorImpl.h"
+#include "DirtSensorImpl.h"
+#include "BatteryMeterImpl.h"
 #include <iostream>
 #include <fstream>
+#include <memory>
+#include <utility>
 
 MySimulator::MySimulator(std::size_t stepsTaken, bool missionCompleted, bool missionFailed) 
     : stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
@@ -47,7 +49,7 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
 
         outfile << "Steps: " << std::endl;
         for(auto &&step : steps) {
-            outfile << step << "";
+            outfile << toString(step) << "";
         }
     } catch(const std::exception& e) {
         outfile.close();
@@ -108,17 +110,17 @@ void MySimulator::vacuumLoop() {
             logger.logInfo("Vacuum cleaner is at docking station, charging...");
             handleDockingStation();
             stepsTaken++;
-            steps.push_back(STAY);
+            steps.push_back(Step::Stay);
             continue;
         }
 
         // Handle next step
-        char nextStep = algorithm.decideNextStep();
+        Step nextStep = algorithm.decideNextStep();
         handleNextStep(nextStep);
     }
 }
 
-void MySimulator::handleNextStep(char nextStep) {
+void MySimulator::handleNextStep(Step nextStep) {
     Logger& logger = Logger::getInstance();
     Point vacuumCleanerLocation;
 
@@ -127,13 +129,16 @@ void MySimulator::handleNextStep(char nextStep) {
     steps.push_back(nextStep);
 
     // Clean
-    if (nextStep == STAY) {
+    if (nextStep == Step::Stay) {
         logger.logInfo("Cleaning...");
         house.decreaseDirtLevel(vacuumCleanerLocation, 1);
+    } else if(nextStep == Step::Finish) {
+        logger.logInfo("Finished!");
+        return;
     }
     // Otherwise, move
     else {
-        vacuumCleaner.move(nextStep);
+        vacuumCleaner.move(MovableStepToDirection(nextStep));
     }
 
     vacuumCleaner.decreaseChargeBy(1);
@@ -167,7 +172,7 @@ void MySimulator::handleDockingStation() {
 }
 
 void MySimulator::setAlgorithm(Algorithm& algo) {
-    // MySimulator handles the life time of the sensors so algorithm can use them
+    // MySimulator handles the lifetime of the sensors so algorithm can use them
     wallsSensor = std::make_unique<WallsSensorImpl>([this](Direction direction) { return this->isWall(direction); });
     dirtSensor = std::make_unique<DirtSensorImpl>([this]() { return this->getDirtLevel(); });
     batteryMeter = std::make_unique<BatteryMeterImpl>([this]() { return this->batteryRemaining(); });

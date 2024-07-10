@@ -47,9 +47,10 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
         maxBattery = std::stoull(values[1]);
         std::size_t rows = std::stoull(values[2]);
         std::size_t cols = std::stoi(values[3]);
-        if (rows < 0 || cols < 0) {
-            throw std::runtime_error("Invalid house dimensions in input file");
-        }
+        // TODO: remove - cant happen
+//        if (rows < 0 || cols < 0) {
+//            throw std::runtime_error("Invalid house dimensions in input file");
+//        }
         *houseMap = std::vector<std::vector<std::size_t>>(rows, std::vector<std::size_t>(cols, 0));
         readAndExtractHouseData(file);
     } catch (...) {
