@@ -10,7 +10,7 @@ VacuumCleaner::VacuumCleaner(std::size_t x, std::size_t y, std::size_t maxBatter
     logger.logInfo("VacuumCleaner successfully initialized at location: " + location.toString() + " with maxBatterySteps: " + std::to_string(maxBatterySteps));
 }
 
-void VacuumCleaner::move(Direction direction) {
+void VacuumCleaner::move(Step direction) {
     location.move(direction);
 }
 

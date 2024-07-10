@@ -14,7 +14,7 @@
 #include <utility>
 
 MySimulator::MySimulator(std::size_t stepsTaken, bool missionCompleted, bool missionFailed) 
-    : stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<char>()) {
+    : stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<Step>()) {
         Logger::getInstance().logInfo("MySimulator successfully initialized");
     }
 
@@ -115,7 +115,7 @@ void MySimulator::vacuumLoop() {
         }
 
         // Handle next step
-        Step nextStep = algorithm.decideNextStep();
+        Step nextStep = (*algorithm).nextStep();
         handleNextStep(nextStep);
     }
 }
@@ -124,7 +124,7 @@ void MySimulator::handleNextStep(Step nextStep) {
     Logger& logger = Logger::getInstance();
     Point vacuumCleanerLocation;
 
-    logger.logInfo("Handling next step: " + std::string(1, nextStep));
+    logger.logInfo("Handling next step: " + toString(nextStep));
     vacuumCleaner.getLocation(vacuumCleanerLocation);
     steps.push_back(nextStep);
 
@@ -138,7 +138,7 @@ void MySimulator::handleNextStep(Step nextStep) {
     }
     // Otherwise, move
     else {
-        vacuumCleaner.move(MovableStepToDirection(nextStep));
+        vacuumCleaner.move(nextStep);
     }
 
     vacuumCleaner.decreaseChargeBy(1);
@@ -172,16 +172,17 @@ void MySimulator::handleDockingStation() {
 }
 
 void MySimulator::setAlgorithm(Algorithm& algo) {
-    // MySimulator handles the lifetime of the sensors so algorithm can use them
-    wallsSensor = std::make_unique<WallsSensorImpl>([this](Direction direction) { return this->isWall(direction); });
-    dirtSensor = std::make_unique<DirtSensorImpl>([this]() { return this->getDirtLevel(); });
-    batteryMeter = std::make_unique<BatteryMeterImpl>([this]() { return this->batteryRemaining(); });
+    // wallsSensor = std::make_unique<WallsSensorImpl>([this](Direction direction) { return this->isWall(direction); });
+    // dirtSensor = std::make_unique<DirtSensorImpl>([this]() { return this->getDirtLevel(); });
+    // batteryMeter = std::make_unique<BatteryMeterImpl>([this]() { return this->batteryRemaining(); });
+    WallsSensorImpl wallsSensor = WallsSensorImpl([this](Direction direction) { return this->isWall(direction); });
+    DirtSensorImpl dirtSensor = DirtSensorImpl([this]() { return this->getDirtLevel(); });
+    BatteryMeterImpl batteryMeter = BatteryMeterImpl([this]() { return this->batteryRemaining(); });
     algo.setMaxSteps(maxSteps);
-	algo.setWallsSensor(*wallsSensor);
-	algo.setDirtSensor(*dirtSensor);
-	algo.setBatteryMeter(*batteryMeter);
-    
-    algorithm = algo;
+	algo.setWallsSensor(wallsSensor);
+	algo.setDirtSensor(dirtSensor);
+	algo.setBatteryMeter(batteryMeter);
+    algorithm = std::make_unique<Algorithm>(std::move(algo));
 }
 
 void MySimulator::readHouseFile(const std::string& fileName) {

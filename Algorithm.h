@@ -9,8 +9,8 @@
 #include <functional>
 #include <vector>
 #include <stack>
+#include <memory>
 
-// [5]
 class AbstractAlgorithm {
 public:
     virtual ~AbstractAlgorithm() {}
@@ -24,8 +24,8 @@ public:
 
 class Algorithm : public AbstractAlgorithm {
 public:
-    Algorithm(std::function<double()> batterySensor, std::function<bool(char)> wallSensor, std::function<int(char)> dirtSensor);
-    Step decideNextStep();
+    Algorithm();
+    Step nextStep() override;
 
     void setMaxSteps(std::size_t maxSteps) override;
     void setWallsSensor(const WallsSensor&) override;
@@ -33,27 +33,17 @@ public:
     void setBatteryMeter(const BatteryMeter&) override;
 private:
     void calcValidMoves(std::vector<char>& moves);
-    Step oppositeMove(char move) const;
-    char oppositeMove(char move) const;
+    Step oppositeMove(Step move) const;
     
-    std::function<double()> batterySensor;
-    std::function<bool(char)> wallSensor;
-    std::function<int(char)> dirtSensor;
-    std::stack<char> stepsBack;
     std::stack<Step> stepsBack;
     Point distanceFromDock;
     bool isBacktracking;
 
-    WallsSensor& wallsSensor;
-    DirtSensor& dirtSensor;
-    BatteryMeter& batterySensor;
+    std::unique_ptr<WallsSensor> wallsSensor;
+    std::unique_ptr<DirtSensor> dirtSensor;
+    std::unique_ptr<BatteryMeter> batterySensor;
     int maxSteps{};
     void calcValidMoves(std::vector<Step> &moves);
-
-    Step oppositeMove(Step move) const;
-
 };
-
-
 
 #endif

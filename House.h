@@ -17,8 +17,8 @@ static const int WAITING_TIME = 200;
 
 class House {
 public:
-    House(std::shared_ptr<std::vector<std::vector<int>>> houseMap, std::size_t dockingX, std::size_t dockingY);
-
+    House(std::vector<std::vector<std::size_t>>& houseMap, std::size_t dockingX, std::size_t dockingY);
+    House();
     int getDirtLevel(Point& location) const;
     void decreaseDirtLevel(Point& location, int decreaseBy);
     bool isWall(Point& location) const;
@@ -30,7 +30,7 @@ private:
     int calcTotalDirt() const;
     
     int totalDirt;
-    std::shared_ptr<std::vector<std::vector<int>>> houseMap;
+    std::unique_ptr<std::vector<std::vector<std::size_t>>> houseMap;
     Point dockingLocation;
 };
 

@@ -17,16 +17,13 @@ public:
 private:
     House house;
     VacuumCleaner vacuumCleaner;
-    Algorithm& algorithm;
     std::size_t maxSteps;
-    std::string& inputFilename;
+    std::string inputFilename;
     std::size_t stepsTaken;
     bool missionCompleted;
     bool missionFailed;
-    std::vector<char> steps;
-    std::unique_ptr<WallsSensor> wallsSensor;
-    std::unique_ptr<DirtSensor> dirtSensor;
-    std::unique_ptr<BatteryMeter> batteryMeter;
+    std::vector<Step> steps;
+    std::unique_ptr<Algorithm> algorithm;
 
     void vacuumLoop();
     void handleDockingStation();

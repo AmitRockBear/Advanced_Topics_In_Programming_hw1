@@ -32,6 +32,7 @@ std::string toString(Direction d) {
     }
     return "Unknown Direction";
 }
+
 std::string toString(Step s) {
     switch(s) {
         case Step::North: return "North";
@@ -42,6 +43,16 @@ std::string toString(Step s) {
         case Step::Finish: return "Finish";
     }
     return "Unknown Step";
+}
+
+Step oppositeStep(Step move) {
+    switch (move) {
+        case Step::North: return Step::South;
+        case Step::East: return Step::West;
+        case Step::South: return Step::North;
+        case Step::West: return Step::East;
+        default: return Step::Stay; // In this case, the algorithm will make sure this won't be added to the backtrack path
+    }
 }
 
 #endif

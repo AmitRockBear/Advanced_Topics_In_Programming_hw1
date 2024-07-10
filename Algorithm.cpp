@@ -5,21 +5,10 @@
 #include <ctime>
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
-Algorithm::Algorithm(BatteryMeter &batterySensor, DirtSensor &dirtSensor, WallsSensor &wallsSensor)
-        : stepsBack(std::stack<Step>()), distanceFromDock(Point(0, 0)), isBacktracking(false),
-          wallsSensor(wallsSensor), dirtSensor(dirtSensor), batterySensor(batterySensor) {
+Algorithm::Algorithm(): stepsBack(std::stack<Step>()), distanceFromDock(Point(0, 0)), isBacktracking(false) {
     std::srand(std::time(nullptr));
-}
-
-Step Algorithm::oppositeMove(Step move) const {
-    switch (move) {
-        case Step::North: return Step::South;
-        case Step::East: return Step::West;
-        case Step::South: return Step::North;
-        case Step::West: return Step::East;
-        default: return Step::Stay; // In this case, the algorithm will make sure this won't be added to the backtrack path
-    }
 }
 
 void Algorithm::calcValidMoves(std::vector<Step>& moves) {
@@ -30,14 +19,14 @@ void Algorithm::calcValidMoves(std::vector<Step>& moves) {
     int stepsAmount = stepsBack.size();
 
     // If there's not enough battery to make a move, the vacuum can only stay in place
-    if (batterySensor.getBatteryState() < 1) {
+    if (batterySensor->getBatteryState() < 1) {
         isBacktracking = false;
         moves.push_back(Step::Stay);
         return;
     }
 
     // If battery left is the same as the amount of steps to the docking station, the vacuum should go back
-    if (batterySensor.getBatteryState() >= (size_t) stepsAmount && batterySensor.getBatteryState() <= (size_t) stepsAmount + 1) {
+    if (batterySensor->getBatteryState() >= (size_t) stepsAmount && batterySensor->getBatteryState() <= (size_t) stepsAmount + 1) {
         // In case there are no steps back to perform
         if (stepsBack.empty()) {
             moves.push_back(Step::Stay);
@@ -52,20 +41,20 @@ void Algorithm::calcValidMoves(std::vector<Step>& moves) {
     isBacktracking = false;
 
     // If there's still dirt, the vacuum will stay and clean
-    if(dirtSensor.dirtLevel() > 0) {
+    if(dirtSensor->dirtLevel() > 0) {
         moves.push_back(Step::Stay);
         return;
     }
 
     // Checking other possible directions
     for (auto &&direction : DIRECTIONS) {
-        if(!wallsSensor.isWall(direction)) {
+        if(!wallsSensor->isWall(direction)) {
             moves.push_back(DirectionToStep(direction));
         }
     }
 }
 
-Step Algorithm::decideNextStep() {
+Step Algorithm::nextStep() {
     Logger& logger = Logger::getInstance();
 
     logger.logInfo("Deciding next step");
@@ -81,7 +70,7 @@ Step Algorithm::decideNextStep() {
 
         // Choose the next move randomly
         Step nextMove = validMoves[std::rand() % validMoves.size()];
-         Step oppMove = oppositeMove(nextMove);
+         Step oppMove = oppositeStep(nextMove);
         distanceFromDock.move(nextMove);
 
         // If the vacuum is moving, and it's not backtracking, we want to save its movement as part of the next backtrack path
@@ -110,14 +99,14 @@ Step Algorithm::decideNextStep() {
  }
 
  void Algorithm::setWallsSensor(const WallsSensor& wallsSensor) {
-     this->wallsSensor = wallsSensor;
+     this->wallsSensor = std::make_unique<WallsSensorImpl>(std::move(wallsSensor));
  }
 
  void Algorithm::setDirtSensor(const DirtSensor& dirtSensor) {
-     this->dirtSensor = dirtSensor;
+     this->dirtSensor = std::make_unique<DirtSensorImpl>(std::move(dirtSensor));
  }
 
  void Algorithm::setBatteryMeter(const BatteryMeter& batterySensor) {
-     this->batterySensor = batterySensor;
+     this->batterySensor = std::make_unique<BatteryMeterImpl>(std::move(batterySensor));
  }
 

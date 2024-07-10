@@ -7,8 +7,8 @@
 #include <thread>
 #include <utility>
 
-House::House(std::shared_ptr<std::vector<std::vector<int>>> houseMap, std::size_t dockingX, std::size_t dockingY)
-    : houseMap(std::move(houseMap)), dockingLocation(Point(dockingX, dockingY)) {
+House::House(std::vector<std::vector<std::size_t>>& houseMap, std::size_t dockingX, std::size_t dockingY)
+    : houseMap(std::make_unique<std::vector<std::vector<std::size_t>>>(std::move(houseMap))), dockingLocation(Point(dockingX, dockingY)) {
     Logger& logger = Logger::getInstance();
     
     logger.logInfo("Initializing House");
@@ -17,6 +17,8 @@ House::House(std::shared_ptr<std::vector<std::vector<int>>> houseMap, std::size_
 
     logger.logInfo("House initialized successfully with totalDirt: " + std::to_string(totalDirt));
 }
+
+House::House() : houseMap(std::make_unique<std::vector<std::vector<std::size_t>>>()), dockingLocation(Point(0, 0)), totalDirt(0) {}
 
 int House::calcTotalDirt() const {
     int sum = 0;

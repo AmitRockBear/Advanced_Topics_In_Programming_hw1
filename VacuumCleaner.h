@@ -4,9 +4,9 @@
 
 class VacuumCleaner {
 public:
-    VacuumCleaner(std::size_t x, std::size_t y, std::size_t maxBatterySteps);
+    VacuumCleaner(std::size_t x = 0, std::size_t y = 0, std::size_t maxBatterySteps = 0);
 
-    void move(Direction direction);
+    void move(Step direction);
     void increaseChargeBy(std::size_t steps);
     void decreaseChargeBy(std::size_t steps);
     double getBatteryLevel() const;

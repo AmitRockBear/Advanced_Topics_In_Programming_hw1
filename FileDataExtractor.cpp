@@ -26,7 +26,7 @@ std::size_t FileDataExtractor::getMaxBattery() const {
     return maxBattery;
 }
 
-std::shared_ptr<std::vector<std::vector<std::size_t>>> FileDataExtractor::getHouseMap() {
+std::vector<std::vector<std::size_t>>& FileDataExtractor::getHouseMap() {
     return houseMap;
 }
 
@@ -47,11 +47,7 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
         maxBattery = std::stoull(values[1]);
         std::size_t rows = std::stoull(values[2]);
         std::size_t cols = std::stoi(values[3]);
-        // TODO: remove - cant happen
-//        if (rows < 0 || cols < 0) {
-//            throw std::runtime_error("Invalid house dimensions in input file");
-//        }
-        *houseMap = std::vector<std::vector<std::size_t>>(rows, std::vector<std::size_t>(cols, 0));
+        houseMap = std::vector<std::vector<std::size_t>>(rows, std::vector<std::size_t>(cols, 0));
         readAndExtractHouseData(file);
     } catch (...) {
         file.close();
@@ -105,18 +101,18 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
 
     std::string line;
     int dockingStationCount = 0;
-    for (std::size_t row = 0; row < (*houseMap).size(); row++) {
+    for (std::size_t row = 0; row < houseMap.size(); row++) {
         if (!std::getline(file, line))
             continue;
         
         std::istringstream iss(line);
         char ch;
-        for (std::size_t col = 0; col < (*houseMap)[row].size(); col++) {
+        for (std::size_t col = 0; col < houseMap[row].size(); col++) {
             if (!(iss.get(ch))) break;
             if (ch >= '0' && ch <= '9') {
-                (*houseMap)[row][col] = ch - '0';
+                houseMap[row][col] = ch - '0';
             } else if (ch == 'W') {
-                (*houseMap)[row][col] = -1;
+                houseMap[row][col] = -1;
             } else if (ch == 'D') {
                 if (dockingStationCount > 0) {
                     throw std::runtime_error("Invalid house map: can only have one docking station in input file");
@@ -124,7 +120,7 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
                 dockingX = row;
                 dockingY = col;
                 dockingStationCount++;
-                (*houseMap)[row][col] = 0;
+                houseMap[row][col] = 0;
             }
         }
     }
