@@ -36,9 +36,6 @@ private:
     Point distanceFromDock;
     bool isBacktracking;
 
-    // const WallsSensorImpl wallsSensor;
-    // const DirtSensorImpl dirtSensor;
-    // const BatteryMeterImpl batterySensor;
     std::unique_ptr<WallsSensor> wallsSensor;
     std::unique_ptr<DirtSensor> dirtSensor;
     std::unique_ptr<BatteryMeter> batterySensor;
