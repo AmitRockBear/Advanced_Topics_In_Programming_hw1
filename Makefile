@@ -1,23 +1,87 @@
-# Compiler
-CC = g++
+# executable name
+EXE = myrobot
+SRC = .
+BIN = bin
+OBJ = build
+
+# C compiler
+CC = gcc
+# C++ compiler
+CXX = g++
+# linker
+LD = g++
 
 # Compiler flags
-CFLAGS = -std=c++20 -Wall -Wextra -Werror -pedantic
+CPPFLAGS = -std=c++20 -g -Wall -Wextra -Werror -pedantic
+# linker flags
+LDFLAGS = -g
 
+SOURCES := $(wildcard $(SRC)/*.c $(SRC)/*.cc $(SRC)/*.cpp $(SRC)/*.cxx)
+OBJECTS := \
+	$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(wildcard $(SRC)/*.c)) \
+	$(patsubst $(SRC)/%.cc, $(OBJ)/%.o, $(wildcard $(SRC)/*.cc)) \
+	$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(wildcard $(SRC)/*.cpp)) \
+	$(patsubst $(SRC)/%.cxx, $(OBJ)/%.o, $(wildcard $(SRC)/*.cxx))
 
-# Source files for standalone C program
-C_SRCS = $(wildcard *.cpp)
-C_TARGET = myrobot
+# include compiler-generated dependency rules
+DEPENDS := $(OBJECTS:.o=.d)
 
-all: $(C_TARGET)
+# compile C source
+COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) -c -o $@
+# compile C++ source
+COMPILE.cxx = $(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c -o $@
+# link objects
+LINK.o = $(LD) $(LDFLAGS) $(LDLIBS) $(OBJECTS) -o $@
 
-$(C_TARGET): $(C_OBJS)
-	$(CC) $(CFLAGS) -o $(C_TARGET) $(C_SRCS)
+.DEFAULT_GOAL = all
 
+.PHONY: all
+all: $(BIN)/$(EXE)
 
-# Clean up
+$(BIN)/$(EXE): $(SRC) $(OBJ) $(BIN) $(OBJECTS)
+	$(LINK.o)
+
+$(SRC):
+	mkdir -p $(SRC)
+
+$(OBJ):
+	mkdir -p $(OBJ)
+
+$(BIN):
+	mkdir -p $(BIN)
+
+$(OBJ)/%.o:	$(SRC)/%.c
+	$(COMPILE.c) $<
+
+$(OBJ)/%.o:	$(SRC)/%.cc
+	$(COMPILE.cxx) $<
+
+$(OBJ)/%.o:	$(SRC)/%.cpp
+	$(COMPILE.cxx) $<
+
+$(OBJ)/%.o:	$(SRC)/%.cxx
+	$(COMPILE.cxx) $<
+
+# force rebuild
+.PHONY: remake
+remake:	clean $(BIN)/$(EXE)
+
+# execute the program
+.PHONY: run
+run: $(BIN)/$(EXE)
+	./$(BIN)/$(EXE)
+
+# remove previous build and objects
+.PHONY: clean
 clean:
-	rm -f $(C_OBJS) $(C_TARGET)
+	$(RM) $(OBJECTS)
+	$(RM) $(DEPENDS)
+	$(RM) $(BIN)/$(EXE)
 
-# Phony targets
-.PHONY: all $(C_TARGET) clean
+# remove everything except source
+.PHONY: reset
+reset:
+	$(RM) -r $(OBJ)
+	$(RM) -r $(BIN)
+
+-include $(DEPENDS)

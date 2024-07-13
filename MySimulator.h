@@ -10,7 +10,7 @@
 
 class MySimulator {
 public:
-    MySimulator(std::size_t stepsTaken = 0, bool missionCompleted = false, bool missionFailed = false);
+    explicit MySimulator(std::size_t stepsTaken = 0, bool missionCompleted = false, bool missionFailed = false);
     void run();
     void setAlgorithm(Algorithm& algorithm);
     void readHouseFile(const std::string& fileName);
@@ -23,7 +23,7 @@ private:
     bool missionCompleted;
     bool missionFailed;
     std::vector<Step> steps;
-    std::unique_ptr<Algorithm> algorithm;
+    Algorithm algorithm;
 
     void vacuumLoop();
     void handleDockingStation();

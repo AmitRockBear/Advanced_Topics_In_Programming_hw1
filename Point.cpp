@@ -29,12 +29,36 @@ void Point::move(Step direction) {
     }
 }
 
+Step Point::getStepToGetToNeighborPoint(Point p) const {
+    if (x < p.x)
+        return Step::South;
+    if (x > p.x)
+        return Step::North;
+    if (y < p.y)
+        return Step::East;
+    if (y > p.y)
+        return Step::West;
+    return Step::Stay;
+}
+
 void Point::moveToNeighbor(Direction direction) {
     (*this).move(DirectionToStep(direction));
 }
 
+Point Point::getNeighbor(Direction direction) const {
+    Point neighbor(getX(), getY());
+    neighbor.move(DirectionToStep(direction));
+    return neighbor;
+}
+
 bool Point::operator==(const Point& other) const {
     return (this->x == other.x) && (this->y == other.y);
+}
+
+bool Point::operator<(const Point& other) const {
+    if (this->x < other.x) return true;
+    if (this->x == other.x && this->y < other.y) return true;
+    return false;
 }
 
 std::string Point::toString() const {
@@ -42,3 +66,4 @@ std::string Point::toString() const {
     stringStream << "Point(" << x << ", " << y << ")";
     return stringStream.str();
 }
+

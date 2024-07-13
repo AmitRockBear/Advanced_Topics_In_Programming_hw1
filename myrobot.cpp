@@ -13,10 +13,10 @@ int main(int argc, char *argv[]) {
         if (argc != 2) {
             throw std::runtime_error("The program should get only 1 argument, the file name");
         }
-        MySimulator simulator;        
+        MySimulator simulator;
 
         const std::string& fileName = argv[1];
-        
+
         Logger& logger = Logger::getInstance();
         logger.logInfo("Starting the program with file: " + fileName);
         simulator.readHouseFile(fileName);
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
         Algorithm algorithm;
         simulator.setAlgorithm(algorithm);
         simulator.run();
-        
+
         logger.logInfo("Program finished successfully");
     } catch (const std::exception& e) {
         handleException(e);

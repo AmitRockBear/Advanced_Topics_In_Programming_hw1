@@ -18,6 +18,19 @@ public:
     void move(Step direction);
     bool operator==(const Point& other) const;
     std::string toString() const;
+    bool operator<(const Point& other) const;
+    Point getNeighbor(Direction direction) const;
+    Step getStepToGetToNeighborPoint(Point p) const;
 };
+
+
+// Hash function for Point
+template <>
+struct std::hash<Point> {
+    std::size_t operator()(const Point &p) const {
+        return std::hash<size_t>()(p.getX()) ^ std::hash<size_t>()(p.getY());
+    }
+};
+
 
 #endif

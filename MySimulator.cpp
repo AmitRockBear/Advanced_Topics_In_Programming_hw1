@@ -49,7 +49,7 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
 
         outfile << "Steps: " << std::endl;
         for(auto &&step : steps) {
-            outfile << toString(step) << "";
+            outfile << toString(step) << " ";
         }
     } catch(const std::exception& e) {
         outfile.close();
@@ -88,35 +88,39 @@ void MySimulator::vacuumLoop() {
         logger.logInfo("Battery level: " + std::to_string(vacuumCleaner.getBatteryLevel()));
         logger.logInfo("Vacuum cleaner location: " + currentVacuumLocation.toString());
         
-        double currentBatteryLevel = vacuumCleaner.getBatteryLevel();
+        //double currentBatteryLevel = vacuumCleaner.getBatteryLevel();
         bool atDockingStation = vacuumCleaner.isAtLocation(dockingLocation);
 
-        // Check if Mission completed
-        if (house.getTotalDirt() == 0 && atDockingStation) {
-            missionCompleted = true;
-            logger.logInfo("Mission completed!");
-            continue;
+        Step nextStep = algorithm.nextStep();
+        logger.logInfo("Next step decided: " + toString(nextStep));
+
+        if(nextStep == Step::Finish) {
+            // Check if Mission completed
+            if (house.getTotalDirt() == 0 && atDockingStation) {
+                missionCompleted = true;
+                logger.logInfo("Mission completed!");
+            }
+
+            // Otherwise, mission failed
+            else {
+                missionFailed = true;
+                logger.logInfo("Mission failed!");
+            }
+
+            break;
         }
 
-        // Check if mission failed
-        if ((currentBatteryLevel == 0 && (!atDockingStation)) || maxSteps - stepsTaken == 0) {
-            missionFailed = true;
-            logger.logInfo("Mission failed!");
-            continue;
-        }
-
-        // If vacuumCleaner is at docking station, it loads up until battery is full
-        if (currentBatteryLevel < vacuumCleaner.getMaxBatterySteps() && atDockingStation) {
+        // If vacuumCleaner is at docking station, and we decided to stay, we'll charge
+        if (atDockingStation && nextStep == Step::Stay) {
             logger.logInfo("Vacuum cleaner is at docking station, charging...");
             handleDockingStation();
             stepsTaken++;
             steps.push_back(Step::Stay);
-            continue;
         }
-
-        // Handle next step
-        Step nextStep = (*algorithm).nextStep();
-        handleNextStep(nextStep);
+        else {
+            // Handle next step
+            handleNextStep(nextStep);
+        }
     }
 }
 
@@ -172,9 +176,6 @@ void MySimulator::handleDockingStation() {
 }
 
 void MySimulator::setAlgorithm(Algorithm& algo) {
-    // wallsSensor = std::make_unique<WallsSensorImpl>([this](Direction direction) { return this->isWall(direction); });
-    // dirtSensor = std::make_unique<DirtSensorImpl>([this]() { return this->getDirtLevel(); });
-    // batteryMeter = std::make_unique<BatteryMeterImpl>([this]() { return this->batteryRemaining(); });
     WallsSensorImpl wallsSensor = WallsSensorImpl([this](Direction direction) { return this->isWall(direction); });
     DirtSensorImpl dirtSensor = DirtSensorImpl([this]() { return this->getDirtLevel(); });
     BatteryMeterImpl batteryMeter = BatteryMeterImpl([this]() { return this->batteryRemaining(); });
@@ -182,7 +183,7 @@ void MySimulator::setAlgorithm(Algorithm& algo) {
 	algo.setWallsSensor(wallsSensor);
 	algo.setDirtSensor(dirtSensor);
 	algo.setBatteryMeter(batteryMeter);
-    algorithm = std::make_unique<Algorithm>(std::move(algo));
+    algorithm = std::move(algo);
 }
 
 void MySimulator::readHouseFile(const std::string& fileName) {
