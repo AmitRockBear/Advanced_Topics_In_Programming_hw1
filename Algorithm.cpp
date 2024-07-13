@@ -152,7 +152,7 @@ Step Algorithm::nextStep() {
 
         //DELETE LATER
         if(stepsLeft == 160) {
-            printf("GOT HERE");
+            printf("Got here");
         }
 
         if(stepsLeft == 0) {
