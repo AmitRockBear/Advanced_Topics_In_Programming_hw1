@@ -16,100 +16,6 @@ Algorithm::Algorithm(): dockingStation(Point(0,0)), distanceFromDock(dockingStat
     knownPoints[dockingStation] = PointState::wip;
 }
 
-//void Algorithm::calcValidMoves(std::vector<Step>& moves) {
-//    Logger& logger = Logger::getInstance();
-//
-//    logger.logInfo("Calculating valid moves");
-//
-//    size_t stepsAmount = stepsBack.size();
-//
-//    // If there's not enough battery to make a move, the vacuum can only stay in place
-//    if (batterySensor->getBatteryState() < 1) {
-//        isBacktracking = false;
-//        moves.push_back(Step::Stay);
-//        return;
-//    }
-//
-//    // If the battery level is insufficient relative to the distance to the docking station, the vacuum should go back
-//    if (batterySensor->getBatteryState() >= stepsAmount && batterySensor->getBatteryState() <= stepsAmount + 1) {
-//        // In case there are no steps back to perform
-//        if (stepsBack.empty()) {
-//            moves.push_back(Step::Stay);
-//            return;
-//        }
-//        isBacktracking = true;
-//        moves.push_back(stepsBack.top());
-//        stepsBack.pop();
-//        return;
-//    }
-//
-//    isBacktracking = false;
-//
-//    // If there's still dirt, the vacuum will stay and clean
-//    if(dirtSensor->dirtLevel() > 0) {
-//        moves.push_back(Step::Stay);
-//        return;
-//    }
-//
-//    // Checking other possible directions
-//    for (auto &&direction : DIRECTIONS) {
-//        if(!wallsSensor->isWall(direction)) {
-//            moves.push_back(DirectionToStep(direction));
-//        }
-//    }
-//}
-
-//Step Algorithm::nextStep() {
-//    if (firstMove) {
-//        maxBattery = batterySensor->getBatteryState();
-//        firstMove = false;
-//    }
-//    Logger& logger = Logger::getInstance();
-//    logger.logInfo("Deciding next step");
-//    try {
-//        bool atDockingStation = (distanceFromDock.getX() == 0 && distanceFromDock.getY() == 0);
-//
-//        std::vector<Step> validMoves = std::vector<Step>();
-//        calcValidMoves(validMoves);
-//
-//        if (validMoves.empty()) {
-//            // If we're back at the docking station and there are no valid moves, return Finish
-//            if(atDockingStation) {
-//                return Step::Finish;
-//            }
-//            else {
-//                logger.logInfo("No valid moves, the vacuum cleaner will stay in place");
-//                return Step::Stay; // Remain in place if there are no valid moves
-//            }
-//        }
-//
-//        Step nextMove = validMoves[0]; // If there are multiple smart steps available, we'll choose the first
-//        Step oppMove = oppositeStep(nextMove);
-//        distanceFromDock.move(nextMove);
-//        pointsColors[distanceFromDock] = Color::grey; // Update current node
-//
-//        // If the vacuum is moving, and it's not backtracking, we want to save its movement as part of the next backtrack path
-//        if(oppMove != Step::Stay && (!isBacktracking)) {
-//            logger.logInfo("Vacuum cleaner is moving, saving the opposite move to the backtrack path for future use");
-//            stepsBack.push(oppMove);
-//        }
-//
-//        // If we're back at the docking station, we'd like to empty the backtrack path
-//        if (atDockingStation) {
-//            logger.logInfo("Back at the docking station, clearing the backtrack path");
-//            stepsBack = std::stack<Step>();
-//        }
-//
-//
-//        //logger.logInfo("Next step decided: " + std::string(1, nextMove));
-//
-//        return nextMove;
-//    } catch (const std::exception& e) {
-//        logger.logError("Error deciding next step, the vacuum cleaner will stay in place. The error thrown: " + std::string(e.what()));
-//        return Step::Stay; // Default to staying in place on error
-//    }
-//}
-
 // Fills the vector newMoves with all possible moves to neighbor points that we haven't visited yet
 void Algorithm::calcNewMoves(std::vector<Step>& newMoves) {
     bool isWall, notVisited;
@@ -117,9 +23,8 @@ void Algorithm::calcNewMoves(std::vector<Step>& newMoves) {
     for (auto &&direction : DIRECTIONS) {
         neighbor = distanceFromDock.getNeighbor(direction);
         isWall = wallsSensor->isWall(direction);
-        notVisited = (!visitedPoints.contains(neighbor));
+        notVisited = ((!knownPoints.contains(neighbor)) || (knownPoints[neighbor] == PointState::untouched));
         if((!isWall) && notVisited) {
-            knownPoints.insert(neighbor);
             newMoves.push_back(DirectionToStep(direction));
         }
     }
@@ -151,6 +56,40 @@ Step Algorithm::backToParent() {
     stepsBack.pop();
     distanceFromDock.move(nextStep);
     return nextStep;
+}
+
+// Checks if we're finished with the point. True iff we're finished with all neighbor points
+bool Algorithm::isFinished() {
+    bool isWall;
+    bool isDockingStation;
+    Point neighbor;
+    bool parentExists = !stepsBack.empty();
+    Direction parentDirection;
+
+    // We don't want to check the parent, because by DFS definition it should be wip and not done
+    if(parentExists) {
+        parentDirection = MovableStepToDirection(stepsBack.top());
+    }
+
+    for (auto &&direction : DIRECTIONS) {
+        neighbor = distanceFromDock.getNeighbor(direction);
+        isWall = wallsSensor->isWall(direction);
+        isDockingStation = (neighbor == dockingStation);
+
+        if(isWall ||  (parentExists && direction == parentDirection)) {
+            continue;
+        }
+        // Add neighbor to knownPoints if it isn't already there
+        if(!knownPoints.contains(neighbor)) {
+            knownPoints[neighbor] = PointState::untouched;
+        }
+
+        // If there's even one neighbor that's not done, the point is not finished
+        if((!isDockingStation) && knownPoints[neighbor] != PointState::done) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Returns stack of steps, that combine the shortest path from source to target (based on points we currently know!)
@@ -211,7 +150,28 @@ Step Algorithm::nextStep() {
     try {
         bool atDockingStation = (distanceFromDock == dockingStation);
 
-        // If we're back at the docking station, we'd like to empty the backtrack path
+        //DELETE LATER
+        if(stepsLeft == 160) {
+            printf("U R A MONKEY");
+        }
+
+        if(stepsLeft == 0) {
+            return Step::Finish;
+        }
+
+        // Check if all other neighbors, beside parent, are done
+        if(isFinished()) {
+            // If the point is clean and finished, we'll update its status
+            if((!atDockingStation) && dirtSensor->dirtLevel() == 0) {
+                knownPoints[distanceFromDock] = PointState::done;
+            }
+            // If we're at the docking station and finished, we'll return Finish
+            else if (atDockingStation) {
+                return Step::Finish;
+            }
+        }
+
+        // If we're back at the docking station, and not finished, we'd like to empty the backtrack path
         if (atDockingStation) {
             logger.logInfo("Back at the docking station, clearing the backtrack path");
             stepsBackToDocking = std::stack<Step>();
@@ -223,30 +183,26 @@ Step Algorithm::nextStep() {
         else {
             // Update steps back based on current shortest path - We check it everytime because the path is based on the points we've been to so far
             stepsBackToDocking = findShortestPath(distanceFromDock, dockingStation);
-
         }
 
-        std::vector<Step> newMoves = std::vector<Step>(); // WhiteMoves = Moves to neighboring points we haven't visited yet
+        std::vector<Step> newMoves = std::vector<Step>(); // newMoves = Moves to neighboring points we haven't visited yet
         calcNewMoves(newMoves);
 
         size_t stepsToDockingStation = stepsBackToDocking.size();
         bool batteryInsufficient = (batterySensor->getBatteryState() >= stepsToDockingStation && batterySensor->getBatteryState() <= stepsToDockingStation + 1);
         bool stepsInsufficient = (stepsToDockingStation >= stepsLeft);
 
-        logger.logInfo("Steps left: " +   std::to_string(stepsLeft));
         //DELETE LATER
-        if(stepsLeft == 161) {
-            printf("U R A MONKEY");
-        }
+        logger.logInfo("Point relative to the docking station: " + distanceFromDock.toString());
+        logger.logInfo("Steps left: " +   std::to_string(stepsLeft));
 
 
         stepsLeft--;
 
         // If we're at the docking station and there are no possible next moves, return finish
-        //TODO - FIND WAY TO RETURN FINISH CORRECTLY
-        if(atDockingStation && newMoves.empty() && (!isGoingForward)) {
-            return Step::Finish;
-        }
+//        if(atDockingStation && newMoves.empty() && (!isGoingForward)) {
+//            return Step::Finish;
+//        }
 
         // If we're at the docking station, we didn't return finish, and the battery isn't full, we'll stay and charge
         if(atDockingStation && batterySensor->getBatteryState() < maxBattery) {
@@ -285,19 +241,22 @@ Step Algorithm::nextStep() {
         if(!newMoves.empty()) {
             Step nextStep = newMoves[0]; // If there are multiple smart steps available, we'll choose the first
 
-            // Update current point
+            // Add opposite step to the DFS path for later use
             stepsBack.push(oppositeStep(nextStep));
             logger.logInfo("Vacuum cleaner is moving forward, saving the opposite move to the backtrack path for future use");
 
             // Update new point
             distanceFromDock.move(nextStep);
-            visitedPoints.insert(distanceFromDock);
+            knownPoints[distanceFromDock] = PointState::wip;
 
             return nextStep;
         }
         else {
-            // Go one step back, like in DFS
-            return backToParent();
+            // We're done with the current point, so we go one step back to its "parent", like in DFS
+            knownPoints[distanceFromDock] = PointState::done;
+            if (!stepsBack.empty()) {
+                return backToParent();
+            }
         }
 
         // If no other step is found, we'll stay in place

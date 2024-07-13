@@ -37,6 +37,7 @@ private:
     Step stepBack(); // Take a step back as part of the backtracking to the docking station
     Step stepForward(); // Take a forward step back as part of the path back from the docking station
     Step backToParent(); // Go back to the parent
+    bool isFinished();
 
     //std::unordered_set<Point> visitedPoints; // Points we visited
     std::unordered_map<Point, PointState> knownPoints; // Points we know and their status

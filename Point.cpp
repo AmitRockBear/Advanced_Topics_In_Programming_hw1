@@ -1,7 +1,7 @@
 #include "Point.h"
 #include <sstream>
 
-Point::Point(std::size_t x, std::size_t y) : x(x), y(y) {}
+Point::Point(ssize_t x, ssize_t y) : x(x), y(y) {}
 
 std::size_t Point::getX() const {
     return x;

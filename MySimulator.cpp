@@ -106,7 +106,6 @@ void MySimulator::vacuumLoop() {
                 missionFailed = true;
                 logger.logInfo("Mission failed!");
             }
-
             break;
         }
 
