@@ -29,12 +29,12 @@ std::string toString(Direction d) {
 
 std::string toString(Step s) {
     switch(s) {
-        case Step::North: return "North";
-        case Step::East: return "East";
-        case Step::South: return "South";
-        case Step::West: return "West";
-        case Step::Stay: return "Stay";
-        case Step::Finish: return "Finish";
+        case Step::North: return "N";
+        case Step::East: return "E";
+        case Step::South: return "S";
+        case Step::West: return "W";
+        case Step::Stay: return "s";
+        case Step::Finish: return "F";
     }
     return "Unknown Step";
 }

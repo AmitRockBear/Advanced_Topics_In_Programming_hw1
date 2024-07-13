@@ -14,6 +14,7 @@
 
 Algorithm::Algorithm(): dockingStation(Point(0ll,0ll)), distanceFromDock(dockingStation), maxSteps(0), maxBattery(0), stepsLeft(0), isBacktracking(false), isGoingForward(false), firstMove(true) {
     knownPoints[dockingStation] = PointState::wip;
+    sonToParent[dockingStation] = dockingStation;
 }
 
 // Fills the vector newMoves with all possible moves to neighbor points that we haven't visited yet
@@ -63,12 +64,12 @@ bool Algorithm::isFinished() {
     bool isWall;
     bool isDockingStation;
     Point neighbor;
-    bool parentExists = !stepsBack.empty();
-    Direction parentDirection;
+    bool parentExists = sonToParent.contains(distanceFromDock);
+    Point parent;
 
     // We don't want to check the parent, because by DFS definition it should be wip and not done
     if(parentExists) {
-        parentDirection = MovableStepToDirection(stepsBack.top());
+        parent = sonToParent[distanceFromDock];
     }
 
     for (auto &&direction : DIRECTIONS) {
@@ -76,7 +77,7 @@ bool Algorithm::isFinished() {
         isWall = wallsSensor->isWall(direction);
         isDockingStation = (neighbor == dockingStation);
 
-        if(isWall || (parentExists && direction == parentDirection)) {
+        if(isWall || (parentExists && parent == neighbor)) {
             continue;
         }
         // Add neighbor to knownPoints if it isn't already there
@@ -173,15 +174,6 @@ Step Algorithm::nextStep() {
         bool atDockingStation = (distanceFromDock == dockingStation);
         bool isDirty = dirtSensor->dirtLevel() > 0;
 
-        //DELETE LATER
-        if(isBacktracking)
-            logger.logInfo("BackTracking");
-        if(isGoingForward)
-            logger.logInfo("GoingForward");
-        if(stepsLeft == 339) {
-            printf("Got here");
-        }
-
         if(stepsLeft == 0) {
             return Step::Finish;
         }
@@ -225,10 +217,6 @@ Step Algorithm::nextStep() {
         bool batteryInsufficient = ((batterySensor->getBatteryState() < stepsToDockingStation + 1) || (batterySensor->getBatteryState() == stepsToDockingStation + 1 && (!isDirty)));
         bool stepsInsufficient = (stepsToDockingStation >= stepsLeft);
 
-        //DELETE LATER
-        logger.logInfo("Point relative to the docking station: " + distanceFromDock.toString());
-        logger.logInfo("Steps left: " +   std::to_string(stepsLeft));
-
         stepsLeft--;
 
         // If we're at the docking station, we didn't return finish, and the battery isn't full, we'll stay and charge
@@ -267,6 +255,7 @@ Step Algorithm::nextStep() {
 
         if(!newMoves.empty()) {
             Step nextStep = newMoves[0]; // If there are multiple smart steps available, we'll choose the first
+            sonToParent[distanceFromDock.getNeighbor(MovableStepToDirection(nextStep))] = distanceFromDock; // Current point is the parent of new point
 
             // Add opposite step to the DFS path for later use
             stepsBack.push(oppositeStep(nextStep));
