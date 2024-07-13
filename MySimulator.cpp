@@ -93,6 +93,7 @@ void MySimulator::vacuumLoop() {
 
         Step nextStep = algorithm.nextStep();
         logger.logInfo("Next step decided: " + toString(nextStep));
+        //house.houseVisualization(currentVacuumLocation);
 
         if(nextStep == Step::Finish) {
             // Check if Mission completed

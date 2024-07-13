@@ -38,11 +38,8 @@ private:
     Step stepForward(); // Take a forward step back as part of the path back from the docking station
     Step backToParent(); // Go back to the parent
     bool isFinished();
-
-    //std::unordered_set<Point> visitedPoints; // Points we visited
+    size_t minStepsToUnfinishedPoint();
     std::unordered_map<Point, PointState> knownPoints; // Points we know and their status
-    //std::unordered_set<Point> knownPoints; // Points we know exist
-
     std::stack<Step> stepsBack; // Steps we've taken so far, so that when we're done with a point, we can go back to its "parent"
     std::stack<Step> stepsBackToDocking; // Steps back that combine the shortest path docking station
     std::stack<Step> stepsFromDocking; // Steps from the docking station (also, shortest path)

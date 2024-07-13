@@ -1,0 +1,11 @@
+5-Difficult house
+MaxSteps = 500
+MaxBattery=25
+Rows = 6
+Cols = 7
+123W441
+22D1W52
+4W2W163
+9999974
+1W1W1W1
+W222W22

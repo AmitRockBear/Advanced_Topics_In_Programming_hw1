@@ -2,7 +2,7 @@
 MaxSteps = 200
 MaxBattery=100
 Rows = 4
-Cols = 10
+Cols = 11
 WWWW
 W D
 W 123456789

@@ -43,7 +43,7 @@ Step Algorithm::stepBack() {
 Step Algorithm::stepForward() {
     Step nextStep = stepsFromDocking.top();
     stepsFromDocking.pop();
-    if(stepsBackToDocking.empty()) {
+    if(stepsFromDocking.empty()) {
         isGoingForward = false;
     }
     distanceFromDock.move(nextStep);
@@ -76,7 +76,7 @@ bool Algorithm::isFinished() {
         isWall = wallsSensor->isWall(direction);
         isDockingStation = (neighbor == dockingStation);
 
-        if(isWall ||  (parentExists && direction == parentDirection)) {
+        if(isWall || (parentExists && direction == parentDirection)) {
             continue;
         }
         // Add neighbor to knownPoints if it isn't already there
@@ -90,6 +90,28 @@ bool Algorithm::isFinished() {
         }
     }
     return true;
+}
+
+// Returns number of steps to from the docking station to the closest point that has wip/untouched status
+size_t Algorithm::minStepsToUnfinishedPoint() {
+    size_t currSteps, minSteps;
+    Point point;
+    PointState state;
+    //for(auto it = knownPoints.begin(); it != knownPoints.end(); ++it) {
+    for(auto & knownPoint : knownPoints) {
+        point = knownPoint.first;
+        state = knownPoint.second;
+        if(point == dockingStation) {
+            continue;
+        }
+        if(state != PointState::done) {
+            currSteps = findShortestPath(dockingStation, point).size();
+            if(currSteps < minSteps) {
+                minSteps = currSteps;
+            }
+        }
+    }
+    return minSteps;
 }
 
 // Returns stack of steps, that combine the shortest path from source to target (based on points we currently know!)
@@ -149,9 +171,14 @@ Step Algorithm::nextStep() {
     // Find the next step
     try {
         bool atDockingStation = (distanceFromDock == dockingStation);
+        bool isDirty = dirtSensor->dirtLevel() > 0;
 
         //DELETE LATER
-        if(stepsLeft == 160) {
+        if(isBacktracking)
+            logger.logInfo("BackTracking");
+        if(isGoingForward)
+            logger.logInfo("GoingForward");
+        if(stepsLeft == 339) {
             printf("Got here");
         }
 
@@ -162,7 +189,7 @@ Step Algorithm::nextStep() {
         // Check if all other neighbors, beside parent, are done
         if(isFinished()) {
             // If the point is clean and finished, we'll update its status
-            if((!atDockingStation) && dirtSensor->dirtLevel() == 0) {
+            if((!atDockingStation) && (!isDirty)) {
                 knownPoints[distanceFromDock] = PointState::done;
             }
             // If we're at the docking station and finished, we'll return Finish
@@ -179,6 +206,11 @@ Step Algorithm::nextStep() {
                 isGoingForward = true;
             }
             isBacktracking = false;
+
+            // We'll also make sure we have enough steps to go on. Otherwise, we'll finish
+            size_t minSteps = minStepsToUnfinishedPoint();
+            if(stepsLeft < minSteps || maxBattery < minSteps)
+                return Step::Finish;
         }
         else {
             // Update steps back based on current shortest path - We check it everytime because the path is based on the points we've been to so far
@@ -189,20 +221,15 @@ Step Algorithm::nextStep() {
         calcNewMoves(newMoves);
 
         size_t stepsToDockingStation = stepsBackToDocking.size();
-        bool batteryInsufficient = (batterySensor->getBatteryState() >= stepsToDockingStation && batterySensor->getBatteryState() <= stepsToDockingStation + 1);
+        //bool batteryInsufficient = (batterySensor->getBatteryState() >= stepsToDockingStation && batterySensor->getBatteryState() <= stepsToDockingStation + 1);
+        bool batteryInsufficient = ((batterySensor->getBatteryState() < stepsToDockingStation + 1) || (batterySensor->getBatteryState() == stepsToDockingStation + 1 && (!isDirty)));
         bool stepsInsufficient = (stepsToDockingStation >= stepsLeft);
 
         //DELETE LATER
         logger.logInfo("Point relative to the docking station: " + distanceFromDock.toString());
         logger.logInfo("Steps left: " +   std::to_string(stepsLeft));
 
-
         stepsLeft--;
-
-        // If we're at the docking station and there are no possible next moves, return finish
-//        if(atDockingStation && newMoves.empty() && (!isGoingForward)) {
-//            return Step::Finish;
-//        }
 
         // If we're at the docking station, we didn't return finish, and the battery isn't full, we'll stay and charge
         if(atDockingStation && batterySensor->getBatteryState() < maxBattery) {
@@ -234,7 +261,7 @@ Step Algorithm::nextStep() {
         }
 
         // If there's still dirt, the vacuum will stay and clean
-        if(dirtSensor->dirtLevel() > 0) {
+        if(isDirty) {
             return Step::Stay;
         }
 
