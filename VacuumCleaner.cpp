@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 
-VacuumCleaner::VacuumCleaner(std::size_t x, std::size_t y, std::size_t maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
+VacuumCleaner::VacuumCleaner(ssize_t x, ssize_t y, std::size_t maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
     Logger& logger = Logger::getInstance();
     
     logger.logInfo("VacuumCleaner successfully initialized at location: " + location.toString() + " with maxBatterySteps: " + std::to_string(maxBatterySteps));
@@ -47,11 +47,11 @@ bool VacuumCleaner::isAtLocation(Point& otherLocation) const {
     return location == otherLocation;
 }
 
-std::size_t VacuumCleaner::getX() const {
+ssize_t VacuumCleaner::getX() const {
     return location.getX();
 }
 
-std::size_t VacuumCleaner::getY() const {
+ssize_t VacuumCleaner::getY() const {
     return location.getY();
 }
 

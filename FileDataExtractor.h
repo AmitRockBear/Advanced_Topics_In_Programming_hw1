@@ -9,16 +9,16 @@
 class FileDataExtractor {
 public:
     FileDataExtractor();
-    std::size_t getDockingX() const;
-    std::size_t getDockingY() const;
+    ssize_t getDockingX() const;
+    ssize_t getDockingY() const;
     std::size_t getMaxSteps() const;
     std::size_t getMaxBattery() const;
     std::vector<std::vector<int>>& getHouseMap();
     bool readAndExtract(const std::string& fileName);
 
 private:
-    std::size_t dockingX;
-    std::size_t dockingY;
+    ssize_t dockingX;
+    ssize_t dockingY;
     std::size_t maxSteps;
     std::size_t maxBattery;
     std::vector<std::vector<int>> houseMap;

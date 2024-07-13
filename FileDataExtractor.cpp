@@ -10,11 +10,11 @@ FileDataExtractor::FileDataExtractor() {
     Logger::getInstance().logInfo("Initializing FileDataExtractor");
 }
 
-std::size_t FileDataExtractor::getDockingX() const {
+ssize_t FileDataExtractor::getDockingX() const {
     return dockingX;
 }
 
-std::size_t FileDataExtractor::getDockingY() const {
+ssize_t FileDataExtractor::getDockingY() const {
     return dockingY;
 }
 

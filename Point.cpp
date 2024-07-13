@@ -3,19 +3,19 @@
 
 Point::Point(ssize_t x, ssize_t y) : x(x), y(y) {}
 
-std::size_t Point::getX() const {
+ssize_t Point::getX() const {
     return x;
 }
 
-void Point::setX(std::size_t newX) {
+void Point::setX(ssize_t newX) {
     x = newX;
 }
 
-std::size_t Point::getY() const {
+ssize_t Point::getY() const {
     return y;
 }
 
-void Point::setY(std::size_t newY) {
+void Point::setY(ssize_t newY) {
     y = newY;
 }
 

@@ -12,7 +12,7 @@
 #include <queue>
 #include <unordered_set>
 
-Algorithm::Algorithm(): dockingStation(Point(0,0)), distanceFromDock(dockingStation), maxSteps(0), maxBattery(0), stepsLeft(0), isBacktracking(false), isGoingForward(false), firstMove(true) {
+Algorithm::Algorithm(): dockingStation(Point(0ll,0ll)), distanceFromDock(dockingStation), maxSteps(0), maxBattery(0), stepsLeft(0), isBacktracking(false), isGoingForward(false), firstMove(true) {
     knownPoints[dockingStation] = PointState::wip;
 }
 
@@ -152,7 +152,7 @@ Step Algorithm::nextStep() {
 
         //DELETE LATER
         if(stepsLeft == 160) {
-            printf("U R A MONKEY");
+            printf("GOT HERE");
         }
 
         if(stepsLeft == 0) {

@@ -77,10 +77,10 @@ void House::decreaseDirtLevel(Point& location, int decreaseBy) {
 }
 
 bool House::isWall(Point& location) const {
-    std::size_t x = location.getX();
-    std::size_t y = location.getY();
+    ssize_t x = location.getX();
+    ssize_t y = location.getY();
 
-    if (x >= (*houseMap).size() || y >= (*houseMap)[0].size()) {
+    if (x < 0 || x >= (ssize_t)(*houseMap).size() || y < 0 || y >= (ssize_t)(*houseMap)[0].size()) {
         return true;
     }
 
@@ -95,11 +95,11 @@ void House::getDockingLocation(Point& locationToModify) const {
 void House::houseVisualization(Point vacuumLocation) const {
     std::this_thread::sleep_for(std::chrono::milliseconds(WAITING_TIME));
     clear();
-    for (std::size_t i = 0; i < (*houseMap).size(); i++) {
-        for (std::size_t j = 0; j < (*houseMap)[i].size(); j++) {
+    for (ssize_t i = 0; i < (ssize_t)(*houseMap).size(); i++) {
+        for (ssize_t j = 0; j < (ssize_t)(*houseMap)[i].size(); j++) {
             int cell = (*houseMap)[i][j];
             if(cell == -1) {
-                if (i == 0 || i == (*houseMap).size() - 1) {
+                if (i == 0 || i == (ssize_t)(*houseMap).size() - 1) {
                     std::cout << HORIZONTAL_WALL << " ";
                 }
                 else {
