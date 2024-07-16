@@ -1,13 +1,12 @@
-#ifndef DIRTSENSOR_H
-#define DIRTSENSOR_H
+#ifndef DIRTSENSORIMPL_H
+#define DIRTSENSORIMPL_H
 
 #include <functional>
-#include "Sensors.h"
+#include "dirt_sensor.h"
 
 class DirtSensorImpl : public DirtSensor {
 public:
     DirtSensorImpl(std::function<int()> dirtSensor);
-    DirtSensorImpl(const DirtSensorImpl&& otherWallSensor);
     int dirtLevel() const override;
 
 private:

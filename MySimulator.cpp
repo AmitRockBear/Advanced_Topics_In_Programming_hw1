@@ -14,7 +14,11 @@
 #include <utility>
 
 MySimulator::MySimulator(std::size_t stepsTaken, bool missionCompleted, bool missionFailed) 
-    : stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<Step>()) {
+    : stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<Step>()), 
+    wallsSensor(WallsSensorImpl([this](Direction direction) { return this->isWall(direction); })),
+    dirtSensor(DirtSensorImpl([this]() { return this->getDirtLevel(); })),
+    batteryMeter(BatteryMeterImpl([this]() { return this->batteryRemaining(); }))
+    {
         Logger::getInstance().logInfo("MySimulator successfully initialized");
     }
 
@@ -91,7 +95,7 @@ void MySimulator::vacuumLoop() {
         //double currentBatteryLevel = vacuumCleaner.getBatteryLevel();
         bool atDockingStation = vacuumCleaner.isAtLocation(dockingLocation);
 
-        Step nextStep = algorithm.nextStep();
+        Step nextStep = algorithm->nextStep();
         logger.logInfo("Next step decided: " + toString(nextStep));
         //house.houseVisualization(currentVacuumLocation);
 
@@ -176,14 +180,11 @@ void MySimulator::handleDockingStation() {
 }
 
 void MySimulator::setAlgorithm(Algorithm& algo) {
-    WallsSensorImpl wallsSensor = WallsSensorImpl([this](Direction direction) { return this->isWall(direction); });
-    DirtSensorImpl dirtSensor = DirtSensorImpl([this]() { return this->getDirtLevel(); });
-    BatteryMeterImpl batteryMeter = BatteryMeterImpl([this]() { return this->batteryRemaining(); });
     algo.setMaxSteps(maxSteps);
 	algo.setWallsSensor(wallsSensor);
 	algo.setDirtSensor(dirtSensor);
 	algo.setBatteryMeter(batteryMeter);
-    algorithm = std::move(algo);
+    algorithm = &algo;
 }
 
 void MySimulator::readHouseFile(const std::string& fileName) {
@@ -191,9 +192,8 @@ void MySimulator::readHouseFile(const std::string& fileName) {
     inputData.readAndExtract(fileName);
     ssize_t dockingX = inputData.getDockingX();
     ssize_t dockingY = inputData.getDockingY();
-    house.setHouseMap(inputData.getHouseMap());
-    house.setDockingLocation(dockingX, dockingY);
-    vacuumCleaner = VacuumCleaner(dockingX, dockingY, inputData.getMaxBattery());
+    house.initHouse(inputData.getHouseMap(), dockingX, dockingY);
+    vacuumCleaner.initVacuumCleaner(dockingX, dockingY, inputData.getMaxBattery());
     maxSteps = inputData.getMaxSteps();
     inputFilename = fileName;
     Logger::getInstance().logInfo("MySimulator successfully initialized from file " + fileName);

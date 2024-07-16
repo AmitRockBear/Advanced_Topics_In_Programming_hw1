@@ -291,14 +291,14 @@ void Algorithm::setMaxSteps(std::size_t maxSteps) {
 }
 
 void Algorithm::setWallsSensor(const WallsSensor& wallsSensor) {
-    this->wallsSensor = std::make_unique<WallsSensorImpl>(std::move(static_cast<const WallsSensorImpl&>(wallsSensor)));
+    this->wallsSensor = &wallsSensor; 
 }
 
 void Algorithm::setDirtSensor(const DirtSensor& dirtSensor) {
-    this->dirtSensor = std::make_unique<DirtSensorImpl>(std::move(static_cast<const DirtSensorImpl&>(dirtSensor)));
+    this->dirtSensor = &dirtSensor;
 }
 
 void Algorithm::setBatteryMeter(const BatteryMeter& batterySensor) {
-    this->batterySensor = std::make_unique<BatteryMeterImpl>(std::move(static_cast<const BatteryMeterImpl&>(batterySensor)));
+    this->batterySensor = &batterySensor;
 }
 

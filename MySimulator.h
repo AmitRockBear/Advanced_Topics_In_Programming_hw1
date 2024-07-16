@@ -5,6 +5,10 @@
 #include "VacuumCleaner.h"
 #include "Algorithm.h"
 #include "Direction.h"
+#include "enums.h"
+#include "WallsSensorImpl.h"
+#include "DirtSensorImpl.h"
+#include "BatteryMeterImpl.h"
 #include <vector>
 #include <memory>
 
@@ -14,6 +18,11 @@ public:
     void run();
     void setAlgorithm(Algorithm& algorithm);
     void readHouseFile(const std::string& fileName);
+
+    MySimulator(const MySimulator&) = delete;
+    MySimulator& operator=(const MySimulator&) = delete;
+    MySimulator(MySimulator&&) = delete;
+    MySimulator& operator=(MySimulator&&) = delete;
 private:
     House house;
     VacuumCleaner vacuumCleaner;
@@ -23,7 +32,11 @@ private:
     bool missionCompleted;
     bool missionFailed;
     std::vector<Step> steps;
-    Algorithm algorithm;
+    Algorithm* algorithm = nullptr;
+
+    const WallsSensorImpl wallsSensor;
+    const DirtSensorImpl dirtSensor;
+    const BatteryMeterImpl batteryMeter;
 
     void vacuumLoop();
     void handleDockingStation();

@@ -1,10 +1,8 @@
 #ifndef DIRECTION_H
 #define DIRECTION_H
 
+#include "enums.h"
 #include <iostream>
-
-enum class Direction { North, East, South, West };
-enum class Step { North, East, South, West, Stay, Finish };
 
 Step DirectionToStep(Direction direction);
 Direction MovableStepToDirection(Step step);

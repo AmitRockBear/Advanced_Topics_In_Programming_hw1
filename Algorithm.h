@@ -2,7 +2,10 @@
 #define ALGORITHM_H
 
 #include "Point.h"
-#include "Sensors.h"
+#include "dirt_sensor.h"
+#include "wall_sensor.h"
+#include "battery_meter.h"
+#include "abstract_algorithm.h"
 #include <functional>
 #include <vector>
 #include <stack>
@@ -12,17 +15,6 @@
 
 enum class PointState { done, wip, untouched }; // We use it for the DFS algorithm
 
-class AbstractAlgorithm {
-public:
-    virtual ~AbstractAlgorithm() = default;
-    virtual void setMaxSteps(std::size_t maxSteps) = 0;
-    virtual void setWallsSensor(const WallsSensor&) = 0;
-    virtual void setDirtSensor(const DirtSensor&) = 0;
-    virtual void setBatteryMeter(const BatteryMeter&) = 0;
-    virtual Step nextStep() = 0;
-};
-
-
 class Algorithm : public AbstractAlgorithm {
 public:
     Algorithm();
@@ -31,6 +23,11 @@ public:
     void setWallsSensor(const WallsSensor&) override;
     void setDirtSensor(const DirtSensor&) override;
     void setBatteryMeter(const BatteryMeter&) override;
+
+    Algorithm(const Algorithm&) = delete;
+    Algorithm& operator=(const Algorithm&) = delete;
+    Algorithm(Algorithm&&) = delete;
+    Algorithm& operator=(Algorithm&&) = delete;
 private:
     Point dockingStation;
     void calcNewMoves(std::vector<Step>& newMoves);
@@ -45,9 +42,9 @@ private:
     std::stack<Step> stepsBackToDocking; // Steps back that combine the shortest path docking station
     std::stack<Step> stepsFromDocking; // Steps from the docking station (also, shortest path)
     Point distanceFromDock;
-    std::unique_ptr<WallsSensor> wallsSensor;
-    std::unique_ptr<DirtSensor> dirtSensor;
-    std::unique_ptr<BatteryMeter> batterySensor;
+    const WallsSensor* wallsSensor = nullptr;
+    const DirtSensor* dirtSensor = nullptr;
+    const BatteryMeter* batterySensor = nullptr;
     std::stack<Step> findShortestPath(Point source, Point target);
     size_t maxSteps;
     size_t maxBattery;

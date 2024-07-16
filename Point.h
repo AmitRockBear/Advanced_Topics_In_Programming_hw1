@@ -21,6 +21,12 @@ public:
     bool operator<(const Point& other) const;
     Point getNeighbor(Direction direction) const;
     Step getStepToGetToNeighborPoint(Point p) const;
+    
+    // Point() = delete;
+    // Point(const Point&) = delete;
+    // Point& operator=(const Point&) = delete;
+    // Point(Point&&) = delete;
+    // Point& operator=(Point&&) = delete;
 };
 
 

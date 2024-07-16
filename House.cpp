@@ -120,3 +120,8 @@ void House::houseVisualization(Point vacuumLocation) const {
     }
     std::cout << std::endl;
 }
+
+void House::initHouse(std::vector<std::vector<int>>& houseMap, ssize_t dockingX, ssize_t dockingY) {
+    setHouseMap(houseMap);
+    setDockingLocation(dockingX, dockingY);
+}

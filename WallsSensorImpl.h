@@ -1,13 +1,12 @@
-#ifndef WALLSSENSOR_H
-#define WALLSSENSOR_H
+#ifndef WALLSSENSORIMPL_H
+#define WALLSSENSORIMPL_H
 
 #include <functional>
-#include "Sensors.h"
+#include "wall_sensor.h"
 
 class WallsSensorImpl : public WallsSensor {
 public:
     WallsSensorImpl(std::function<bool(Direction)> wallSensor);
-    WallsSensorImpl(const WallsSensorImpl&& otherWallSensor);
     bool isWall(Direction d) const override;
 
 private:

@@ -26,7 +26,12 @@ public:
     void houseVisualization(Point vacuumLocation) const;
     void setDockingLocation(std::size_t x, std::size_t y);
     void setHouseMap(std::vector<std::vector<int>>& houseMap);
+    void initHouse(std::vector<std::vector<int>>& houseMap, ssize_t dockingX, ssize_t dockingY);
 
+    House(const House&) = delete;
+    House& operator=(const House&) = delete;
+    House(House&&) = delete;
+    House& operator=(House&&) = delete;
 private:
     int calcTotalDirt() const;
     

@@ -16,6 +16,10 @@ public:
     std::vector<std::vector<int>>& getHouseMap();
     bool readAndExtract(const std::string& fileName);
 
+    FileDataExtractor(const FileDataExtractor&) = delete;
+    FileDataExtractor& operator=(const FileDataExtractor&) = delete;
+    FileDataExtractor(FileDataExtractor&&) = delete;
+    FileDataExtractor& operator=(FileDataExtractor&&) = delete;
 private:
     ssize_t dockingX;
     ssize_t dockingY;

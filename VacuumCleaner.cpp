@@ -59,3 +59,19 @@ void VacuumCleaner::getLocation(Point& locationToModify) const {
     locationToModify.setX(location.getX());
     locationToModify.setY(location.getY());
 }
+
+void VacuumCleaner::setLocation(ssize_t x, ssize_t y) {
+    location.setX(x);
+    location.setY(y);
+}
+
+void VacuumCleaner::initBattery(std::size_t newMaxBatterySteps) {
+    Logger::getInstance().logInfo("Init battery with new maximum charge: " + std::to_string(newMaxBatterySteps));
+    battery = newMaxBatterySteps;
+    maxBatterySteps = newMaxBatterySteps;
+}
+
+void VacuumCleaner::initVacuumCleaner(ssize_t x, ssize_t y, std::size_t maxBattery) {
+    setLocation(x, y);
+    initBattery(maxBattery);
+}
