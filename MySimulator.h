@@ -4,13 +4,11 @@
 #include "House.h"
 #include "VacuumCleaner.h"
 #include "Algorithm.h"
-#include "Direction.h"
 #include "enums.h"
 #include "WallsSensorImpl.h"
 #include "DirtSensorImpl.h"
 #include "BatteryMeterImpl.h"
 #include <vector>
-#include <memory>
 
 class MySimulator {
 public:

@@ -1,4 +1,5 @@
 #include "Point.h"
+#include "Direction.h"
 #include <sstream>
 
 Point::Point(ssize_t x, ssize_t y) : x(x), y(y) {}

@@ -6,7 +6,6 @@
 #include "wall_sensor.h"
 #include "battery_meter.h"
 #include "abstract_algorithm.h"
-#include <functional>
 #include <vector>
 #include <stack>
 #include <memory>

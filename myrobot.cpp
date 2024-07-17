@@ -1,7 +1,5 @@
-#include "House.h"
-#include "VacuumCleaner.h"
 #include "MySimulator.h"
-#include "FileDataExtractor.h"
+#include "Algorithm.h"
 #include "Logger.h"
 #include "Utils.h"
 #include <iostream>

@@ -1,7 +1,7 @@
 #ifndef POINT_H
 #define POINT_H
 #include "General.h"
-#include "Direction.h"
+#include "enums.h"
 #include <string>
 
 class Point {
@@ -22,7 +22,6 @@ public:
     Point getNeighbor(Direction direction) const;
     Step getStepToGetToNeighborPoint(Point p) const;
     
-    // Point() = delete;
     // Point(const Point&) = delete;
     // Point& operator=(const Point&) = delete;
     // Point(Point&&) = delete;

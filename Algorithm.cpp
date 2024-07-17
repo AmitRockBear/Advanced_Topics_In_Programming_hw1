@@ -4,13 +4,10 @@
 #include "BatteryMeterImpl.h"
 #include "DirtSensorImpl.h"
 #include "WallsSensorImpl.h"
-#include "Point.h"
+#include "Direction.h"
 #include <ctime>
 #include <iostream>
-#include <memory>
-#include <unordered_map>
 #include <queue>
-#include <unordered_set>
 
 Algorithm::Algorithm(): dockingStation(Point(0ll,0ll)), distanceFromDock(dockingStation), maxSteps(0), maxBattery(0), stepsLeft(0), isBacktracking(false), isGoingForward(false), firstMove(true) {
     knownPoints[dockingStation] = PointState::wip;
@@ -151,7 +148,7 @@ std::stack<Step> Algorithm::findShortestPath(Point source, Point target) {
         return {};
     }
     std::stack<Step> steps;
-    while (true) {
+    while (true) { // Why not while (current != source)?
         if (current == source)
             break;
         steps.push(oppositeStep(current.getStepToGetToNeighborPoint(prev[current])));

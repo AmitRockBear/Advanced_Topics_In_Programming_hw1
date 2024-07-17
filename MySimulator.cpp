@@ -5,9 +5,7 @@
 #include "Config.h"
 #include "Utils.h"
 #include "FileDataExtractor.h"
-#include "WallsSensorImpl.h"
-#include "DirtSensorImpl.h"
-#include "BatteryMeterImpl.h"
+#include "Direction.h"
 #include <iostream>
 #include <fstream>
 #include <memory>

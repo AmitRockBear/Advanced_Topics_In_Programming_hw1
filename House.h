@@ -1,9 +1,9 @@
 #ifndef HOUSE_H
 #define HOUSE_H
 
+#include "Point.h"
 #include <vector>
 #include <memory>
-#include "Point.h"
 
 static const char *const HORIZONTAL_WALL = "_";
 
