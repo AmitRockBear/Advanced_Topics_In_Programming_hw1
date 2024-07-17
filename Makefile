@@ -1,7 +1,7 @@
 # executable name
 EXE = myrobot
 SRC = .
-BIN = bin
+BIN = .
 OBJ = build
 
 # C compiler

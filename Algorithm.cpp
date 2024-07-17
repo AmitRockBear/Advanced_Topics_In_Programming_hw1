@@ -148,9 +148,7 @@ std::stack<Step> Algorithm::findShortestPath(Point source, Point target) {
         return {};
     }
     std::stack<Step> steps;
-    while (true) { // Why not while (current != source)?
-        if (current == source)
-            break;
+    while (current != source) {
         steps.push(oppositeStep(current.getStepToGetToNeighborPoint(prev[current])));
         current = prev[current];
     }
