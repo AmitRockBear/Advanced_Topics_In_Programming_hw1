@@ -35,14 +35,16 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
     if (!outfile.is_open()) {
         throw std::runtime_error("Unable to open output file: " + outputFile);
     }
-
     try {
+        Point dockingLocation;
+        house.getDockingLocation(dockingLocation);
+
         outfile << "NumSteps = " << stepsTaken << std::endl;
         outfile << "DirtLeft = " << house.getTotalDirt() << std::endl;
-        if (vacuumCleaner.getBatteryLevel() == 0) {
+        if (vacuumCleaner.getBatteryLevel() == 0 && !vacuumCleaner.isAtLocation(dockingLocation)) {
             outfile << "Status = DEAD" << std::endl;
         } else {
-        if (missionCompleted) {
+            if (missionCompleted) {
                 outfile << "Status = FINISHED" << std::endl;
             } else {
                 outfile << "Status = WORKING" << std::endl;
