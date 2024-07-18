@@ -27,17 +27,33 @@ These files define the `VacuumCleaner` class, which simulates the behavior of th
 
 These files define the `House` class, which represents the house layout and dirt levels. It includes methods for checking walls, managing dirt levels, and visualizing the house.
 
-### `Algorithm.h` and `Algorithm.cpp`
+### `Algorithm.h`, `Algorithm.cpp` (and `abstract_algorithm.h`)
 
-These files define the `Algorithm` component, which encompasses the decision-making process of the vacuum cleaner robot. It determines how the vacuum cleaner moves from one point to another while avoiding obstacles and making sure the vacuum cleaner doesn't run out of battery.
+These files define the `Algorithm` component, which is an implementation of the `AbstractAlgorithm` abstract class. It encompasses the decision-making process of the vacuum cleaner robot. It determines how the vacuum cleaner moves from one point to another while avoiding obstacles and making sure the vacuum cleaner doesn't run out of battery.
 
 ### `FileDataExtractor.h` and `FileDataExtractor.cpp`
 
 These files define the `FileDataExtractor` class, which reads and extracts data from the input file, needed for initializing the house and vacuum cleaner.
 
-### `Controller.h` and `Controller.cpp`
+### `MySimulator.h` and `MySimulator.cpp`
 
-These files define the `Controller` class, which manages the overall cleaning process. It includes the main loop for the cleaning algorithm, handles battery recharging, and creates an output file with the results.
+These files define the `MySimulator` class, which manages the overall cleaning process. It includes the main loop for the cleaning algorithm, handles battery recharging, and creates an output file with the results.
+
+### `BatteryMeterImpl.h`, `BatteryMeterImpl.cpp` (and `battery_meter.h`)
+
+This file defines the `BatteryMeterImpl` class, which is an implementation of the `BatteryMeter` abstract class. The class is used by the Algorithm class as a sensor providing the state of the vacuum cleaner's battery.
+
+### `DirtSensorImpl.h`, `DirtSensorImpl.cpp` (and `dirt_sensor.h`)
+
+This file defines the `DirtSensorImpl` class, which is an implementation of the `DirtSensor` abstract class. The class is responsible for detecting the level of dirt at the vacuum cleaner's current location.
+
+### `WallsSensorImpl.h`, `WallsSensorImpl.cpp` (and `wall_sensor.h`)
+
+This file defines the `WallsSensorImpl` class, which is an implementation of the `WallsSensor` abstract class. The class is responsible for detecting the presence of walls in different directions around the vacuum cleaner.
+
+### `Direction.h`, `Direction.cpp` and `enums.h`
+
+This file contains utility functions for converting between `Direction` and `Step` enumerations, as well as functions for obtaining string representations of these enums defined in `enums.h`.
 
 ### `General.h`
 
@@ -59,7 +75,7 @@ These files define the `Logger` class, implemented as a singleton to handle logg
 
 The program handles various errors, such as invalid file format, out-of-bounds coordinates, and runtime exceptions. If an error occurs, it logs the error message and terminates the program gracefully.
 
-## How to Build
+## How to Build - Linux
 
 1. Ensure you have a C++ compiler installed (e.g., `g++`).
 2. Compile the project using the following command:
@@ -73,50 +89,8 @@ The program handles various errors, such as invalid file format, out-of-bounds c
 
 ## Solution Approach
 
-The solution implements a vacuum cleaner robot that autonomously navigates a house, cleans dirt, and returns to its docking station to recharge. The Controller class manages the cleaning process, starting with the initialization of the vacuum cleaner and house layout. Inside the controller's loop, it checks if the vacuum cleaner has completed cleaning the house, is out of battery, or is at the docking station. If not, using the Algorithm class, the vacuum cleaner decides its next move: it randomly selects from available directions to move, clean, or stay in place based on battery levels, obstacle detection, and remaining dirt levels. The algorithm includes a backtracking mechanism that stores previous moves when necessary, ensuring the robot can efficiently return to the docking station for recharging. When the simulation finishes, results are logged and saved to an output file.
+The solution implements a vacuum cleaner robot that autonomously navigates a house, cleans dirt, and returns to its docking station to recharge. MySimulator class manages the cleaning process, starting with the initialization of the vacuum cleaner and house layout. Inside MySimulator's loop, it checks if the vacuum cleaner has completed cleaning the house, or is at the docking station. If not, using the Algorithm class, the vacuum cleaner decides its next move using DFS based on battery levels, obstacle detection, and remaining dirt levels. The algorithm includes a backtracking mechanism, ensuring the robot can efficiently return to the docking station for recharging. When the simulation finishes, results are logged and saved to an output file.
 
-## Input File Format
+## Input and Output File Format
 
-The input file should contain the following information:
-
-1. Maximum battery steps.
-2. Maximum number of steps.
-3. The house map, where each character represents a cell:
-   - Digits (`0-9`) indicate the dirt level.
-   - `W` indicates a wall.
-   - `-` indicates empty space.
-   - `D` indicates the docking station.
-
-## Output
-
-The program generates an output file (according to `outputFileName` key in the config file or by default in the format of `output_<inputFileName>`) with the following information:
-
-1. Steps performed.
-2. Total steps taken.
-3. Dirt remaining in the house.
-4. Vacuum cleaner status (alive or dead).
-5. Mission status (succeeded or failed).
-
-## Example
-
-### Input File (`inputfile.txt`)
-
-```
-20
-100
-0 0 0 0 0
-0 1 1 1 0
-0 1 D 1 0
-0 1 1 1 0
-0 0 0 0 0
-```
-
-### Output File (`output.txt`)
-
-```
-Steps performed: N E S W
-Total steps taken: 4
-Dirt remaining in house: 0
-Vacuum cleaner is alive.
-Mission succeeded!
-```
+According to Assignment 2's instructions
