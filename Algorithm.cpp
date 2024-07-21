@@ -6,7 +6,6 @@
 #include "WallsSensorImpl.h"
 #include "Direction.h"
 #include <ctime>
-#include <iostream>
 #include <queue>
 
 Algorithm::Algorithm(): dockingStation(Point(0ll,0ll)), distanceFromDock(dockingStation), maxSteps(0), maxBattery(0), stepsLeft(0), isBacktracking(false), isGoingForward(false), firstMove(true) {
@@ -92,7 +91,8 @@ bool Algorithm::isFinished() {
 
 // Returns number of steps to from the docking station to the closest point that has wip/untouched status
 size_t Algorithm::minStepsToUnfinishedPoint() {
-    size_t currSteps, minSteps;
+    size_t currSteps;
+    size_t minSteps = maxSteps;
     Point point;
     PointState state;
     //for(auto it = knownPoints.begin(); it != knownPoints.end(); ++it) {
@@ -187,8 +187,10 @@ Step Algorithm::nextStep() {
 
         // If we're back at the docking station, and not finished, we'd like to empty the backtrack path
         if (atDockingStation) {
-            logger.logInfo("Back at the docking station, clearing the backtrack path");
-            stepsBackToDocking = std::stack<Step>();
+            if(!stepsBackToDocking.empty()) {
+                logger.logInfo("Back at the docking station, clearing the backtrack path");
+                stepsBackToDocking = std::stack<Step>();
+            }
             if (isBacktracking) {
                 isGoingForward = true;
             }

@@ -51,7 +51,7 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
             }
         }
 
-        outfile << "Steps: " << std::endl;
+        outfile << "Steps: ";
         for(auto &&step : steps) {
             outfile << toString(step);
         }
