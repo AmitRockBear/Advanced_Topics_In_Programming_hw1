@@ -12,7 +12,7 @@
 
 class MySimulator {
 public:
-    explicit MySimulator(std::size_t stepsTaken = 0, bool missionCompleted = false, bool missionFailed = false);
+    explicit MySimulator(std::size_t stepsTaken = 0);
     void run();
     void setAlgorithm(Algorithm& algorithm);
     void readHouseFile(const std::string& fileName);
@@ -27,8 +27,7 @@ private:
     std::size_t maxSteps;
     std::string inputFilename;
     std::size_t stepsTaken;
-    bool missionCompleted;
-    bool missionFailed;
+    bool finished;
     std::vector<Step> steps;
     Algorithm* algorithm = nullptr;
 

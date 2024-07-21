@@ -11,8 +11,8 @@
 #include <memory>
 #include <utility>
 
-MySimulator::MySimulator(std::size_t stepsTaken, bool missionCompleted, bool missionFailed) 
-    : stepsTaken(stepsTaken), missionCompleted(missionCompleted), missionFailed(missionFailed), steps(std::vector<Step>()), 
+MySimulator::MySimulator(std::size_t stepsTaken) 
+    : stepsTaken(stepsTaken), finished(false), steps(std::vector<Step>()), 
     wallsSensor(WallsSensorImpl([this](Direction direction) { return this->isWall(direction); })),
     dirtSensor(DirtSensorImpl([this]() { return this->getDirtLevel(); })),
     batteryMeter(BatteryMeterImpl([this]() { return this->batteryRemaining(); }))
@@ -44,7 +44,7 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
         if (vacuumCleaner.getBatteryLevel() == 0 && !vacuumCleaner.isAtLocation(dockingLocation)) {
             outfile << "Status = DEAD" << std::endl;
         } else {
-            if (missionCompleted) {
+            if (finished) {
                 outfile << "Status = FINISHED" << std::endl;
             } else {
                 outfile << "Status = WORKING" << std::endl;
@@ -84,7 +84,7 @@ void MySimulator::vacuumLoop() {
     Point dockingLocation, currentVacuumLocation;
     house.getDockingLocation(dockingLocation);
 
-    while (!missionCompleted && !missionFailed) {
+    while (!finished) {
         vacuumCleaner.getLocation(currentVacuumLocation);
 
         logger.logInfo("---------------------------------Step: " + std::to_string(stepsTaken) + "---------------------------------");
@@ -100,17 +100,8 @@ void MySimulator::vacuumLoop() {
         //house.houseVisualization(currentVacuumLocation);
 
         if(nextStep == Step::Finish) {
-            // Check if Mission completed
-            if (house.getTotalDirt() == 0 && atDockingStation) {
-                missionCompleted = true;
-                logger.logInfo("Mission completed!");
-            }
-
-            // Otherwise, mission failed
-            else {
-                missionFailed = true;
-                logger.logInfo("Mission failed!");
-            }
+            finished = true;
+            logger.logInfo("Finished mission!");
             break;
         }
 
