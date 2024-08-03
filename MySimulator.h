@@ -14,7 +14,7 @@ class MySimulator {
 public:
     explicit MySimulator(std::size_t stepsTaken = 0);
     void run();
-    void setAlgorithm(Algorithm& algorithm);
+    void setAlgorithm(std::unique_ptr<AbstractAlgorithm> algo);
     void readHouseFile(const std::string& fileName);
 
     MySimulator(const MySimulator&) = delete;
@@ -29,7 +29,7 @@ private:
     std::size_t stepsTaken;
     bool finished;
     std::vector<Step> steps;
-    Algorithm* algorithm = nullptr;
+    std::unique_ptr<AbstractAlgorithm> algorithm = nullptr;
 
     const WallsSensorImpl wallsSensor;
     const DirtSensorImpl dirtSensor;

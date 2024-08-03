@@ -1,10 +1,8 @@
 #include "MySimulator.h"
-#include "Algorithm.h"
+#include "AlgorithmRegistrar.h"
 #include "Logger.h"
 #include "Utils.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
 
 int main(int argc, char *argv[]) {
     try {
@@ -19,10 +17,23 @@ int main(int argc, char *argv[]) {
         logger.logInfo("Starting the program with file: " + fileName);
         simulator.readHouseFile(fileName);
 
-        Algorithm algorithm;
-        simulator.setAlgorithm(algorithm);
-        simulator.run();
+        //auto handle = dlopen("RandomAlgorithm.so", RTLD_LAZY);
+        auto registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
+        for(const auto& algo: registrar) {
+            auto algorithm = algo.create();
+            simulator.setAlgorithm(std::move(algorithm));
+            break;
+        }
 
+        simulator.run();
+        //dlclose(handle);
+
+        //Algorithm algorithm;
+        //RandomAlgorithm myalg;
+        //Algorithm myalg = RandomAlgorithm();
+        //simulator.setAlgorithm(static_cast<Algorithm>(myalg));
+        //simulator.run();
+//        AlgorithmRegistrar::getAlgorithmRegistrar().clear();
         logger.logInfo("Program finished successfully");
     } catch (const std::exception& e) {
         handleException(e);

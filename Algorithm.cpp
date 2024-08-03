@@ -7,6 +7,7 @@
 #include "Direction.h"
 #include <ctime>
 #include <queue>
+#include "AlgorithmRegistration.h"
 
 Algorithm::Algorithm(): dockingStation(Point(0ll,0ll)), distanceFromDock(dockingStation), maxSteps(0), maxBattery(0), stepsLeft(0), isBacktracking(false), isGoingForward(false), firstMove(true) {
     knownPoints[dockingStation] = PointState::wip;
@@ -155,6 +156,11 @@ std::stack<Step> Algorithm::findShortestPath(Point source, Point target) {
     return steps;
 }
 
+// By Default - If there are multiple smart steps available, we'll choose the first
+Step Algorithm::ChooseStep(std::vector<Step> &moves) {
+    return moves[0];
+}
+
 Step Algorithm::nextStep() {
     if (firstMove) {
         maxBattery = batterySensor->getBatteryState();
@@ -251,7 +257,7 @@ Step Algorithm::nextStep() {
         }
 
         if(!newMoves.empty()) {
-            Step nextStep = newMoves[0]; // If there are multiple smart steps available, we'll choose the first
+            Step nextStep = ChooseStep(newMoves);
             sonToParent[distanceFromDock.getNeighbor(MovableStepToDirection(nextStep))] = distanceFromDock; // Current point is the parent of new point
 
             // Add opposite step to the DFS path for later use

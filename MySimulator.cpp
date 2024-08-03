@@ -170,12 +170,12 @@ void MySimulator::handleDockingStation() {
     vacuumCleaner.increaseChargeBy(1);
 }
 
-void MySimulator::setAlgorithm(Algorithm& algo) {
-    algo.setMaxSteps(maxSteps);
-	algo.setWallsSensor(wallsSensor);
-	algo.setDirtSensor(dirtSensor);
-	algo.setBatteryMeter(batteryMeter);
-    algorithm = &algo;
+void MySimulator::setAlgorithm(std::unique_ptr<AbstractAlgorithm> algo) {
+    algo->setMaxSteps(maxSteps);
+	algo->setWallsSensor(wallsSensor);
+	algo->setDirtSensor(dirtSensor);
+	algo->setBatteryMeter(batteryMeter);
+    algorithm = std::move(algo);
 }
 
 void MySimulator::readHouseFile(const std::string& fileName) {

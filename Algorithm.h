@@ -51,6 +51,7 @@ private:
     bool isBacktracking;
     bool isGoingForward;
     bool firstMove;
+    virtual Step ChooseStep(std::vector<Step> &moves);
 };
 
 #endif
