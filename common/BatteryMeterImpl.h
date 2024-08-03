@@ -1,7 +1,7 @@
 #ifndef BATTERYMETERIMPL_H
 #define BATTERYMETERIMPL_H
 
-#include "battery_meter.h"
+#include "../simulator/battery_meter.h"
 #include <functional>
 
 class BatteryMeterImpl : public BatteryMeter {

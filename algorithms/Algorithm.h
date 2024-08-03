@@ -1,11 +1,11 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "Point.h"
-#include "dirt_sensor.h"
-#include "wall_sensor.h"
-#include "battery_meter.h"
-#include "abstract_algorithm.h"
+#include "../common/Point.h"
+#include "../simulator/dirt_sensor.h"
+#include "../simulator/wall_sensor.h"
+#include "../simulator/battery_meter.h"
+#include "../common/abstract_algorithm.h"
 #include <vector>
 #include <stack>
 #include <memory>

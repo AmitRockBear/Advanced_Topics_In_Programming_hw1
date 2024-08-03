@@ -3,11 +3,11 @@
 
 #include "House.h"
 #include "VacuumCleaner.h"
-#include "Algorithm.h"
-#include "enums.h"
-#include "WallsSensorImpl.h"
-#include "DirtSensorImpl.h"
-#include "BatteryMeterImpl.h"
+#include "../algorithms/Algorithm.h"
+#include "../common/enums.h"
+#include "../common/WallsSensorImpl.h"
+#include "../common/DirtSensorImpl.h"
+#include "../common/BatteryMeterImpl.h"
 #include <vector>
 
 class MySimulator {

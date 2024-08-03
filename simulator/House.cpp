@@ -1,6 +1,6 @@
 #include "House.h"
-#include "Logger.h"
-#include "Utils.h"
+#include "../common/Logger.h"
+#include "../common/Utils.h"
 #include <fstream>
 #include <iostream>
 #include <chrono>

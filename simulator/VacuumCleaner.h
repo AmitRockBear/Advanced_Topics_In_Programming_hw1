@@ -1,6 +1,6 @@
 #ifndef VACUUMCLEANER_H
 #define VACUUMCLEANER_H
-#include "Point.h"
+#include "../common/Point.h"
 
 class VacuumCleaner {
 public:

@@ -1,7 +1,7 @@
 #ifndef HOUSE_H
 #define HOUSE_H
 
-#include "Point.h"
+#include "../common/Point.h"
 #include <vector>
 #include <memory>
 

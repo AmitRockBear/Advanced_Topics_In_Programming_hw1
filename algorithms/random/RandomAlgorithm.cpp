@@ -1,6 +1,6 @@
 #include "RandomAlgorithm.h"
 #include <ctime>
-#include "AlgorithmRegistration.h"
+#include "../AlgorithmRegistration.h"
 
 RandomAlgorithm::RandomAlgorithm() : Algorithm::Algorithm() {
     std::srand(std::time(nullptr));

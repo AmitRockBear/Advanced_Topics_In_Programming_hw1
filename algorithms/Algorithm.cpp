@@ -1,10 +1,10 @@
 #include "Algorithm.h"
-#include "General.h"
-#include "Logger.h"
-#include "BatteryMeterImpl.h"
-#include "DirtSensorImpl.h"
-#include "WallsSensorImpl.h"
-#include "Direction.h"
+#include "../common/General.h"
+#include "../common/Logger.h"
+#include "../common/BatteryMeterImpl.h"
+#include "../common/DirtSensorImpl.h"
+#include "../common/WallsSensorImpl.h"
+#include "../common/Direction.h"
 #include <ctime>
 #include <queue>
 #include "AlgorithmRegistration.h"

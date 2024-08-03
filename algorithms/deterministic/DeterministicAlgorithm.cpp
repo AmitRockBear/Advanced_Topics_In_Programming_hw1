@@ -1,5 +1,5 @@
 #include "DeterministicAlgorithm.h"
-#include "AlgorithmRegistration.h"
+#include "../AlgorithmRegistration.h"
 
 DeterministicAlgorithm::DeterministicAlgorithm() : Algorithm::Algorithm() {
 }

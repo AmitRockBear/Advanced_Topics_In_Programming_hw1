@@ -1,6 +1,6 @@
 #include "FileDataExtractor.h"
-#include "Logger.h"
-#include "Utils.h"
+#include "../common/Logger.h"
+#include "../common/Utils.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

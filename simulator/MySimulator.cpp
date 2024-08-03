@@ -1,11 +1,11 @@
 #include "MySimulator.h"
-#include "General.h"
-#include "Point.h"
-#include "Logger.h"
-#include "Config.h"
-#include "Utils.h"
+#include "../common/General.h"
+#include "../common/Point.h"
+#include "../common/Logger.h"
+#include "../common/Config.h"
+#include "../common/Utils.h"
 #include "FileDataExtractor.h"
-#include "Direction.h"
+#include "../common/Direction.h"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -69,6 +69,9 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
 
 
 void MySimulator::run() {
+    if (!algorithm) {
+        throw std::runtime_error("Algorithm not set!");
+    }
     try {
         Logger::getInstance().logInfo("Starting vacuum cleaner");
         vacuumLoop();

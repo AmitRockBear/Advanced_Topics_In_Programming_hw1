@@ -2,7 +2,7 @@
 #define WALLSSENSORIMPL_H
 
 #include <functional>
-#include "wall_sensor.h"
+#include "../simulator/wall_sensor.h"
 
 class WallsSensorImpl : public WallsSensor {
 public:

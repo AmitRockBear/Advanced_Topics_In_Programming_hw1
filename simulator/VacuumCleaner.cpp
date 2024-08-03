@@ -1,7 +1,7 @@
 #include "VacuumCleaner.h"
-#include "Logger.h"
-#include "Direction.h"
-#include "enums.h"
+#include "../common/Logger.h"
+#include "../common/Direction.h"
+#include "../common/enums.h"
 #include <stdexcept>
 #include <iostream>
 

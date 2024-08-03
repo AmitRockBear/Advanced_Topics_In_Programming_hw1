@@ -2,7 +2,7 @@
 #define DIRTSENSORIMPL_H
 
 #include <functional>
-#include "dirt_sensor.h"
+#include "../simulator/dirt_sensor.h"
 
 class DirtSensorImpl : public DirtSensor {
 public:

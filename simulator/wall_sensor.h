@@ -1,7 +1,7 @@
 #ifndef WALL_SENSOR_H_
 #define WALL_SENSOR_H_
 
-#include "enums.h"
+#include "../common/enums.h"
 
 class WallsSensor {
 public:

@@ -1,10 +1,13 @@
 #include "MySimulator.h"
-#include "AlgorithmRegistrar.h"
-#include "Logger.h"
-#include "Utils.h"
+#include "../common/AlgorithmRegistrar.h"
+#include "../common/Logger.h"
+#include "../common/Utils.h"
 #include <iostream>
+#include <dlfcn.h>
 
 int main(int argc, char *argv[]) {
+    void * deterministic_handle = nullptr;
+    void * random_handle = nullptr;
     try {
         if (argc != 2) {
             throw std::runtime_error("The program should get only 1 argument, the file name");
@@ -17,23 +20,26 @@ int main(int argc, char *argv[]) {
         logger.logInfo("Starting the program with file: " + fileName);
         simulator.readHouseFile(fileName);
 
-        //auto handle = dlopen("RandomAlgorithm.so", RTLD_LAZY);
+        deterministic_handle = dlopen("./lib206507923_322853813_DeterministicAlgorithm.so", RTLD_LAZY | RTLD_GLOBAL);
+        if (deterministic_handle == nullptr)
+        {
+            throw std::runtime_error(dlerror());
+        }
+        random_handle = dlopen("./lib206507923_322853813_RandomAlgorithm.so", RTLD_LAZY | RTLD_GLOBAL);
+        if (random_handle == nullptr)
+        {
+            dlclose(deterministic_handle);
+            throw std::runtime_error(dlerror());
+        }
+
         auto registrar = AlgorithmRegistrar::getAlgorithmRegistrar();
         for(const auto& algo: registrar) {
             auto algorithm = algo.create();
             simulator.setAlgorithm(std::move(algorithm));
-            break;
+            // break; // to choose algorithm TODO delete later
         }
 
         simulator.run();
-        //dlclose(handle);
-
-        //Algorithm algorithm;
-        //RandomAlgorithm myalg;
-        //Algorithm myalg = RandomAlgorithm();
-        //simulator.setAlgorithm(static_cast<Algorithm>(myalg));
-        //simulator.run();
-//        AlgorithmRegistrar::getAlgorithmRegistrar().clear();
         logger.logInfo("Program finished successfully");
     } catch (const std::exception& e) {
         handleException(e);
@@ -42,7 +48,6 @@ int main(int argc, char *argv[]) {
         handleException(std::runtime_error("An unknown unrecoverable error occurred."));
         return 1;
     }
-
     return 0;
 
 }

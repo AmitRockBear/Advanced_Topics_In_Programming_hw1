@@ -4,9 +4,9 @@
 #include <cstddef>
 
 #include "enums.h"
-#include "battery_meter.h"
-#include "wall_sensor.h"
-#include "dirt_sensor.h"
+#include "../simulator/battery_meter.h"
+#include "../simulator/wall_sensor.h"
+#include "../simulator/dirt_sensor.h"
 
 
 class AbstractAlgorithm {
