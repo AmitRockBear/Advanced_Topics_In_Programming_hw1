@@ -6,8 +6,6 @@
 #include <dlfcn.h>
 
 int main(int argc, char *argv[]) {
-    void * deterministic_handle = nullptr;
-    void * random_handle = nullptr;
     try {
         if (argc != 2) {
             throw std::runtime_error("The program should get only 1 argument, the file name");
@@ -20,12 +18,12 @@ int main(int argc, char *argv[]) {
         logger.logInfo("Starting the program with file: " + fileName);
         simulator.readHouseFile(fileName);
 
-        deterministic_handle = dlopen("./lib206507923_322853813_DeterministicAlgorithm.so", RTLD_LAZY | RTLD_GLOBAL);
+        void *deterministic_handle = dlopen("./lib206507923_322853813_DeterministicAlgorithm.so", RTLD_LAZY | RTLD_GLOBAL);
         if (deterministic_handle == nullptr)
         {
             throw std::runtime_error(dlerror());
         }
-        random_handle = dlopen("./lib206507923_322853813_RandomAlgorithm.so", RTLD_LAZY | RTLD_GLOBAL);
+        void *random_handle = dlopen("./lib206507923_322853813_RandomAlgorithm.so", RTLD_LAZY | RTLD_GLOBAL);
         if (random_handle == nullptr)
         {
             dlclose(deterministic_handle);
