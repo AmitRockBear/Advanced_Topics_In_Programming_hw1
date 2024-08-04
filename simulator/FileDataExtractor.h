@@ -14,6 +14,7 @@ public:
     std::size_t getMaxBattery() const;
     std::vector<std::vector<int>>& getHouseMap();
     bool readAndExtract(const std::string& fileName);
+    std::string getHouseName() const;
 
     FileDataExtractor(const FileDataExtractor&) = delete;
     FileDataExtractor& operator=(const FileDataExtractor&) = delete;
@@ -25,6 +26,7 @@ private:
     std::size_t maxSteps;
     std::size_t maxBattery;
     std::vector<std::vector<int>> houseMap;
+    std::string houseName;
 
     void readHouseName(std::ifstream& file);
     void readAndExtractHouseData(std::ifstream& file);

@@ -3,6 +3,7 @@
 
 #include "House.h"
 #include "VacuumCleaner.h"
+#include "FileDataExtractor.h"
 #include "../algorithms/Algorithm.h"
 #include "../common/enums.h"
 #include "../common/WallsSensorImpl.h"
@@ -14,22 +15,28 @@ class MySimulator {
 public:
     explicit MySimulator(std::size_t stepsTaken = 0);
     void run();
-    void setAlgorithm(std::unique_ptr<AbstractAlgorithm> algo);
-    void readHouseFile(const std::string& fileName);
+    void setAlgorithm(AbstractAlgorithm& algo, const std::string& algoName);
+    void initSimulator(FileDataExtractor& inputData, const std::string& fileName, bool isSummary);
+    std::size_t getTotalDirt() const;
+    std::size_t getMaxSteps() const;
+    std::size_t getScore() const;
 
     MySimulator(const MySimulator&) = delete;
     MySimulator& operator=(const MySimulator&) = delete;
     MySimulator(MySimulator&&) = delete;
     MySimulator& operator=(MySimulator&&) = delete;
 private:
+    std::size_t score;
     House house;
     VacuumCleaner vacuumCleaner;
     std::size_t maxSteps;
-    std::string inputFilename;
+    std::string houseName;
+    std::string algorithmName;
     std::size_t stepsTaken;
     bool finished;
     std::vector<Step> steps;
-    std::unique_ptr<AbstractAlgorithm> algorithm = nullptr;
+    AbstractAlgorithm* algorithm = nullptr;
+    bool isSummaryOnly = false;
 
     const WallsSensorImpl wallsSensor;
     const DirtSensorImpl dirtSensor;
@@ -41,7 +48,8 @@ private:
     bool isWall(Direction direction) const;
     double batteryRemaining() const;
     void handleNextStep(Step nextStep);
-    void createOutputFile(const std::string &outputFileName) const;
+    void createOutputFile(const std::string &outputFileName);
+    void initHouse(FileDataExtractor& inputData, const std::string& fileName);
 };
 
 #endif

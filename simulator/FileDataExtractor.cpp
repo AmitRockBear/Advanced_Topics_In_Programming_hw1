@@ -30,6 +30,10 @@ std::vector<std::vector<int>>& FileDataExtractor::getHouseMap() {
     return houseMap;
 }
 
+std::string FileDataExtractor::getHouseName() const {
+    return houseName;
+}
+
 bool FileDataExtractor::readAndExtract(const std::string& fileName) {
     Logger::getInstance().logInfo("Starting to read and extract data from file: " + fileName);
 
@@ -51,7 +55,8 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
         readAndExtractHouseData(file);
     } catch (...) {
         file.close();
-        throw;
+        // TODO: should we throw
+        return false;
     }
 
     file.close();
@@ -60,7 +65,7 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
 
 void FileDataExtractor::readHouseName(std::ifstream& file) {
     Logger& logger = Logger::getInstance();
-    std::string line, houseName;
+    std::string line;
     if (!std::getline(file, line)) {
         throw std::runtime_error("Error reading house name from input file");
     }

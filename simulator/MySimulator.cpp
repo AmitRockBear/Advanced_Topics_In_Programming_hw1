@@ -20,16 +20,15 @@ MySimulator::MySimulator(std::size_t stepsTaken)
         Logger::getInstance().logInfo("MySimulator successfully initialized");
     }
 
-void MySimulator::createOutputFile(const std::string& outputFileName) const {
+void MySimulator::createOutputFile(const std::string& outputFileName) {
     Logger& logger = Logger::getInstance();
     std::ofstream outfile;
     bool isEmptyFileName = outputFileName == EMPTY_STRING;
     std::string outputFile = outputFileName;
     if (isEmptyFileName) {
-        const std::string filename = getFileBaseName(inputFilename);
-        outputFile = "output_" + filename;
+        outputFile = houseName + "-" + algorithmName + ".txt";
     }
-    
+
     logger.logInfo("Creating output file: " + outputFile);
     outfile.open(outputFile, std::ios::out);
     if (!outfile.is_open()) {
@@ -38,20 +37,33 @@ void MySimulator::createOutputFile(const std::string& outputFileName) const {
     try {
         Point dockingLocation;
         house.getDockingLocation(dockingLocation);
+        bool isVacuumAtDocking = vacuumCleaner.isAtLocation(dockingLocation);
+        bool isDead = vacuumCleaner.getBatteryLevel() == 0 && !isVacuumAtDocking;
+        std::size_t dirtLeft = getTotalDirt();
+        score = stepsTaken + dirtLeft * 300 + (isVacuumAtDocking ? 0 : 1000);
 
         outfile << "NumSteps = " << stepsTaken << std::endl;
-        outfile << "DirtLeft = " << house.getTotalDirt() << std::endl;
-        if (vacuumCleaner.getBatteryLevel() == 0 && !vacuumCleaner.isAtLocation(dockingLocation)) {
+        outfile << "DirtLeft = " << dirtLeft << std::endl;
+        if (isDead) {
+            score = maxSteps + dirtLeft * 300 + 2000;
             outfile << "Status = DEAD" << std::endl;
         } else {
             if (finished) {
+                if (!isVacuumAtDocking) {
+                    score = maxSteps + dirtLeft * 300 + 3000;
+                }
                 outfile << "Status = FINISHED" << std::endl;
             } else {
                 outfile << "Status = WORKING" << std::endl;
             }
         }
-
-        outfile << "Steps: ";
+        if (vacuumCleaner.isAtLocation(dockingLocation)) {
+            outfile << "InDock = TRUE" << std::endl;
+        } else {
+            outfile << "InDock = FALSE" << std::endl;
+        }
+        outfile << "Score = " << score << std::endl;
+        outfile << "Steps: " << std::endl;
         for(auto &&step : steps) {
             outfile << toString(step);
         }
@@ -75,8 +87,10 @@ void MySimulator::run() {
     try {
         Logger::getInstance().logInfo("Starting vacuum cleaner");
         vacuumLoop();
-        const std::string& outputFileName = Config::getInstance().get("outputFileName");
-        createOutputFile(outputFileName);
+        if (!isSummaryOnly) {
+            const std::string& outputFileName = Config::getInstance().get("outputFileName");
+            createOutputFile(outputFileName);
+        }
     } catch (const std::exception& e) {
         throw std::runtime_error("Unrecoverable error has occured in step: " + std::to_string(stepsTaken) + ". The error is: " + e.what());
     }
@@ -91,7 +105,7 @@ void MySimulator::vacuumLoop() {
         vacuumCleaner.getLocation(currentVacuumLocation);
 
         logger.logInfo("---------------------------------Step: " + std::to_string(stepsTaken) + "---------------------------------");
-        logger.logInfo("Dirt level: " + std::to_string(house.getTotalDirt()));
+        logger.logInfo("Dirt level: " + std::to_string(getTotalDirt()));
         logger.logInfo("Battery level: " + std::to_string(vacuumCleaner.getBatteryLevel()));
         logger.logInfo("Vacuum cleaner location: " + currentVacuumLocation.toString());
         
@@ -173,22 +187,36 @@ void MySimulator::handleDockingStation() {
     vacuumCleaner.increaseChargeBy(1);
 }
 
-void MySimulator::setAlgorithm(std::unique_ptr<AbstractAlgorithm> algo) {
-    algo->setMaxSteps(maxSteps);
-	algo->setWallsSensor(wallsSensor);
-	algo->setDirtSensor(dirtSensor);
-	algo->setBatteryMeter(batteryMeter);
-    algorithm = std::move(algo);
+void MySimulator::setAlgorithm(AbstractAlgorithm& algo, const std::string& algoName) {
+    algo.setMaxSteps(maxSteps);
+	algo.setWallsSensor(wallsSensor);
+	algo.setDirtSensor(dirtSensor);
+	algo.setBatteryMeter(batteryMeter);
+    algorithm = &algo;
+    algorithmName = getFileBaseName(algoName);
 }
 
-void MySimulator::readHouseFile(const std::string& fileName) {
-    FileDataExtractor inputData = FileDataExtractor();
-    inputData.readAndExtract(fileName);
-    ssize_t dockingX = inputData.getDockingX();
-    ssize_t dockingY = inputData.getDockingY();
-    house.initHouse(inputData.getHouseMap(), dockingX, dockingY);
-    vacuumCleaner.initVacuumCleaner(dockingX, dockingY, inputData.getMaxBattery());
+std::size_t MySimulator::getTotalDirt() const {
+    return house.getTotalDirt();
+}
+
+std::size_t MySimulator::getMaxSteps() const {
+    return maxSteps;
+}
+
+std::size_t MySimulator::getScore() const {
+    return score;
+}
+
+void MySimulator::initHouse(FileDataExtractor& inputData, const std::string& fileName) {
+    house.initHouse(inputData.getHouseMap(), inputData.getDockingX(), inputData.getDockingY());
+    houseName = getFileBaseName(fileName);
+}
+
+void MySimulator::initSimulator(FileDataExtractor& inputData, const std::string& fileName, bool isSummary) {
+    initHouse(inputData, fileName);
+    vacuumCleaner.initVacuumCleaner(inputData.getDockingX(), inputData.getDockingY(), inputData.getMaxBattery());
     maxSteps = inputData.getMaxSteps();
-    inputFilename = fileName;
+    isSummaryOnly = isSummary;
     Logger::getInstance().logInfo("MySimulator successfully initialized from file " + fileName);
 }

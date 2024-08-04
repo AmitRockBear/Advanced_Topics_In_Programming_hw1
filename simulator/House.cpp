@@ -23,8 +23,8 @@ void House::setHouseMap(std::vector<std::vector<int>>& houseMap) {
     totalDirt = calcTotalDirt();
 }
 
-int House::calcTotalDirt() const {
-    int sum = 0;
+std::size_t House::calcTotalDirt() const {
+    std::size_t sum = 0;
 
     try {
         for (const auto& row : (*houseMap)) {
@@ -42,7 +42,7 @@ int House::calcTotalDirt() const {
     return sum;
 }
 
-int House::getTotalDirt() const {
+std::size_t House::getTotalDirt() const {
     return totalDirt;
 }
 

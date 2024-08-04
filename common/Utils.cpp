@@ -13,9 +13,19 @@ void clear() {
 }
 
 const std::string getFileBaseName(const std::string& path) {
-    std::string filename = path.substr(path.find_last_of("/\\") + 1);
+    if (path.empty()) return ""; // Handle empty path
+
+    size_t sep_pos = path.find_last_of("/\\");
+    if (sep_pos == std::string::npos) return path; // No separator, return as is
+
+    std::string filename = path.substr(sep_pos + 1);
+    size_t last_dot = filename.find_last_of('.');
+    if (last_dot != std::string::npos) {
+        return filename.substr(0, last_dot);
+    }
     return filename;
 }
+
 
 const std::string trim(const std::string& str) {
     size_t first = str.find_first_not_of(" \t\n\r");
@@ -51,4 +61,15 @@ bool extractKeyValue(std::string& line, std::string& key, std::string& value) {
         return true;
     }
     return false;
+}
+
+bool createErrorFile(const std::string& fileName, const std::string& message) {
+    const std::string errorFileName = fileName + ".error";
+    std::ofstream errorFile(errorFileName);
+    if (!errorFile.is_open()) {
+        return false;
+    }
+    errorFile << message << std::endl;
+    errorFile.close();
+    return true;
 }

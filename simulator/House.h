@@ -21,7 +21,7 @@ public:
     int getDirtLevel(Point& location) const;
     void decreaseDirtLevel(Point& location, int decreaseBy);
     bool isWall(Point& location) const;
-    int getTotalDirt() const;
+    std::size_t getTotalDirt() const;
     void getDockingLocation(Point& locationToModify) const;
     void houseVisualization(Point vacuumLocation) const;
     void setDockingLocation(std::size_t x, std::size_t y);
@@ -33,9 +33,9 @@ public:
     House(House&&) = delete;
     House& operator=(House&&) = delete;
 private:
-    int calcTotalDirt() const;
+    std::size_t calcTotalDirt() const;
     
-    int totalDirt;
+    std::size_t totalDirt;
     std::unique_ptr<std::vector<std::vector<int>>> houseMap;
     Point dockingLocation;
 };

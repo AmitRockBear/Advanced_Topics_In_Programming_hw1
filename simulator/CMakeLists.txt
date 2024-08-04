@@ -19,3 +19,5 @@ add_executable(myrobot
 
 set_target_properties(myrobot PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
 target_link_options(myrobot PUBLIC "-rdynamic")
+
+target_link_libraries(myrobot PRIVATE dl)
