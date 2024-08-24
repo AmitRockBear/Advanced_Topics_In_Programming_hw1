@@ -51,7 +51,7 @@ private:
     bool isWall(Direction direction) const;
     double batteryRemaining() const;
     void handleNextStep(Step nextStep);
-    void createOutputFile(const std::string &outputFileName);
+    void createOutputFile();
     void initHouse(FileDataExtractor& inputData, const std::string& fileName);
     void calculateScore();
     bool isVacuumDead() const;

@@ -36,14 +36,9 @@ void MySimulator::calculateScore() {
     else if (finished && !isAtDocking) score = maxSteps + dirtLeft * 300 + 3000;
 }
 
-void MySimulator::createOutputFile(const std::string& outputFileName) {
+void MySimulator::createOutputFile() {
     std::ofstream outfile;
-    bool isEmptyFileName = outputFileName == EMPTY_STRING;
-    std::string outputFile = outputFileName;
-    if (isEmptyFileName) {
-        outputFile = houseName + "-" + algorithmName + ".txt";
-    }
-
+    const std::string& outputFile = houseName + "-" + algorithmName + ".txt";
     outfile.open(outputFile, std::ios::out);
     if (!outfile.is_open()) {
         throw std::runtime_error("Unable to open output file: " + outputFile);
@@ -93,8 +88,7 @@ void MySimulator::run() {
         vacuumLoop();
         calculateScore();
         if (!isSummaryOnly) {
-            const std::string& outputFileName = Config::getInstance().get("outputFileName");
-            createOutputFile(outputFileName);
+            createOutputFile();
         }
     } catch (const std::exception& e) {
         throw std::runtime_error("Unrecoverable error has occured in step: " + std::to_string(stepsTaken) + ". The error is: " + e.what());
