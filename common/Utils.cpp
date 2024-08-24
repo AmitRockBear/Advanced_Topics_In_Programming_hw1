@@ -45,7 +45,7 @@ bool isNextCharacterSpaceOrEndOfLine(std::istringstream& iss) {
     return true;
 }
 
-void handleException(const std::exception& e) {
+void handleMainThreadException(const std::exception& e) {
     Logger::getInstance().logError(std::string(e.what()));
 }
 
@@ -63,9 +63,9 @@ bool extractKeyValue(std::string& line, std::string& key, std::string& value) {
     return false;
 }
 
-bool createErrorFile(const std::string& fileName, const std::string& message) {
+bool appendToErrorFile(const std::string& fileName, const std::string& message) {
     const std::string errorFileName = fileName + ".error";
-    std::ofstream errorFile(errorFileName);
+    std::ofstream errorFile(errorFileName, std::ios::app);
     if (!errorFile.is_open()) {
         return false;
     }

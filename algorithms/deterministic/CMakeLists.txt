@@ -3,7 +3,6 @@ project(DeterministicAlgorithm CXX)
 add_library(206507923_322853813_DeterministicAlgorithm SHARED
         DeterministicAlgorithm.cpp
         ../Algorithm.cpp
-        ../../common/Logger.cpp
         ../../common/BatteryMeterImpl.cpp
         ../../common/DirtSensorImpl.cpp
         ../../common/WallsSensorImpl.cpp

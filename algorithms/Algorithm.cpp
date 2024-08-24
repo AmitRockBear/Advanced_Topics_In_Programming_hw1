@@ -1,6 +1,5 @@
 #include "Algorithm.h"
 #include "../common/General.h"
-#include "../common/Logger.h"
 #include "../common/BatteryMeterImpl.h"
 #include "../common/DirtSensorImpl.h"
 #include "../common/WallsSensorImpl.h"
@@ -118,7 +117,6 @@ std::stack<Step> Algorithm::findShortestPath(Point source, Point target) {
     std::queue<Point> q = std::queue<Point>();
     std::unordered_set<Point> visited = std::unordered_set<Point>();
     std::unordered_map<Point, Point> prev = std::unordered_map<Point, Point>();
-    Logger& logger = Logger::getInstance();
     Point current;
     q.push(source);
     visited.insert(source);
@@ -143,9 +141,8 @@ std::stack<Step> Algorithm::findShortestPath(Point source, Point target) {
             }
         }
     }
-    // No path found
+    // No path found - failed to find shortest path
     if (!(current == target)) {
-        logger.logError("Error finding shortest path");
         return {};
     }
     std::stack<Step> steps;
@@ -166,9 +163,6 @@ Step Algorithm::nextStep() {
         maxBattery = batterySensor->getBatteryState();
         firstMove = false;
     }
-
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Deciding next step");
 
     // Find the next step
     try {
@@ -194,7 +188,6 @@ Step Algorithm::nextStep() {
         // If we're back at the docking station, and not finished, we'd like to empty the backtrack path
         if (atDockingStation) {
             if(!stepsBackToDocking.empty()) {
-                logger.logInfo("Back at the docking station, clearing the backtrack path");
                 stepsBackToDocking = std::stack<Step>();
             }
             if (isBacktracking) {
@@ -216,7 +209,6 @@ Step Algorithm::nextStep() {
         calcNewMoves(newMoves);
 
         size_t stepsToDockingStation = stepsBackToDocking.size();
-        //bool batteryInsufficient = (batterySensor->getBatteryState() >= stepsToDockingStation && batterySensor->getBatteryState() <= stepsToDockingStation + 1);
         bool batteryInsufficient = ((batterySensor->getBatteryState() < stepsToDockingStation + 1) || (batterySensor->getBatteryState() == stepsToDockingStation + 1 && (!isDirty)));
         bool stepsInsufficient = (stepsToDockingStation >= stepsLeft);
 
@@ -262,7 +254,6 @@ Step Algorithm::nextStep() {
 
             // Add opposite step to the DFS path for later use
             stepsBack.push(oppositeStep(nextStep));
-            logger.logInfo("Vacuum cleaner is moving forward, saving the opposite move to the backtrack path for future use");
 
             // Update new point
             distanceFromDock.move(nextStep);
@@ -279,12 +270,11 @@ Step Algorithm::nextStep() {
         }
 
         // If no other step is found, we'll stay in place
-        logger.logInfo("No valid moves, the vacuum cleaner will stay in place");
         return Step::Stay;
 
     } catch (const std::exception& e) {
-        logger.logError("Error deciding next step, the vacuum cleaner will stay in place. The error thrown: " + std::string(e.what()));
-        return Step::Stay; // Default to staying in place on error
+        // Error deciding next step, the vacuum cleaner will stay in place
+        return Step::Stay;
     }
 }
 

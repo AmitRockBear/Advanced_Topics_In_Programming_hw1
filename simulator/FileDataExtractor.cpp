@@ -1,14 +1,11 @@
 #include "FileDataExtractor.h"
-#include "../common/Logger.h"
 #include "../common/Utils.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <cctype>
 
-FileDataExtractor::FileDataExtractor() {
-    Logger::getInstance().logInfo("Initializing FileDataExtractor");
-}
+FileDataExtractor::FileDataExtractor() {}
 
 ssize_t FileDataExtractor::getDockingX() const {
     return dockingX;
@@ -34,9 +31,7 @@ std::string FileDataExtractor::getHouseName() const {
     return houseName;
 }
 
-bool FileDataExtractor::readAndExtract(const std::string& fileName) {
-    Logger::getInstance().logInfo("Starting to read and extract data from file: " + fileName);
-
+void FileDataExtractor::readAndExtract(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
         throw std::runtime_error("Unable to open input file: " + fileName);
@@ -55,29 +50,20 @@ bool FileDataExtractor::readAndExtract(const std::string& fileName) {
         readAndExtractHouseData(file);
     } catch (...) {
         file.close();
-        // TODO: should we throw
-        return false;
+        throw;
     }
-
     file.close();
-    return true;
 }
 
 void FileDataExtractor::readHouseName(std::ifstream& file) {
-    Logger& logger = Logger::getInstance();
     std::string line;
     if (!std::getline(file, line)) {
         throw std::runtime_error("Error reading house name from input file");
     }
     houseName = trim(line);
-
-    logger.logInfo("Welcome to house: " + houseName + "!");
 }
 
 void FileDataExtractor::readAndExtractKeys(std::ifstream& file, const std::vector<std::string>& keys, std::vector<std::string>& values) {
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Reading keys from input file");
-
     std::string line;
     for (size_t i = 0; i < keys.size(); i++) {
         if (!std::getline(file, line)) {
@@ -96,14 +82,9 @@ void FileDataExtractor::readAndExtractKeys(std::ifstream& file, const std::vecto
 
         values[i] = value;
     }
-
-    logger.logInfo("Successfully read keys from input file");
 }
 
 void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Reading house data from input file");
-
     std::string line;
     int dockingStationCount = 0;
     for (std::size_t row = 0; row < houseMap.size(); row++) {
@@ -133,6 +114,4 @@ void FileDataExtractor::readAndExtractHouseData(std::ifstream& file) {
     if (dockingStationCount == 0) {
         throw std::runtime_error("Invalid house map: no docking station found in input file");
     }
-
-    logger.logInfo("Successfully read house data from input file");
 }

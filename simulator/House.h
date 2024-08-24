@@ -23,7 +23,6 @@ public:
     bool isWall(Point& location) const;
     std::size_t getTotalDirt() const;
     void getDockingLocation(Point& locationToModify) const;
-    void houseVisualization(Point vacuumLocation) const;
     void setDockingLocation(std::size_t x, std::size_t y);
     void setHouseMap(std::vector<std::vector<int>>& houseMap);
     void initHouse(std::vector<std::vector<int>>& houseMap, ssize_t dockingX, ssize_t dockingY);

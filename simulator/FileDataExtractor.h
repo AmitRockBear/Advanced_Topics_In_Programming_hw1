@@ -13,7 +13,7 @@ public:
     std::size_t getMaxSteps() const;
     std::size_t getMaxBattery() const;
     std::vector<std::vector<int>>& getHouseMap();
-    bool readAndExtract(const std::string& fileName);
+    void readAndExtract(const std::string& fileName);
     std::string getHouseName() const;
 
     FileDataExtractor(const FileDataExtractor&) = delete;

@@ -16,10 +16,13 @@ public:
     explicit MySimulator(std::size_t stepsTaken = 0);
     void run();
     void setAlgorithm(AbstractAlgorithm& algo, const std::string& algoName);
-    void initSimulator(FileDataExtractor& inputData, const std::string& fileName, bool isSummary);
+    void initSimulator(FileDataExtractor& inputData, const std::string& fileName);
+    void setIsSummaryOnly(bool isSummary);
     std::size_t getTotalDirt() const;
     std::size_t getMaxSteps() const;
     std::size_t getScore() const;
+    std::string getHouseName() const;
+    std::string getAlgorithmName() const;
 
     MySimulator(const MySimulator&) = delete;
     MySimulator& operator=(const MySimulator&) = delete;

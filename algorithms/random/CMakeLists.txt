@@ -3,7 +3,6 @@ project(RandomAlgorithm CXX)
 add_library(206507923_322853813_RandomAlgorithm SHARED
         RandomAlgorithm.cpp
         ../Algorithm.cpp
-        ../../common/Logger.cpp
         ../../common/BatteryMeterImpl.cpp
         ../../common/DirtSensorImpl.cpp
         ../../common/WallsSensorImpl.cpp

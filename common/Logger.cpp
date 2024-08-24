@@ -28,10 +28,7 @@ Logger& Logger::getInstance() {
 }
 
 void Logger::logToStdout(const std::string& message) {
-    Config& config = Config::getInstance();
-    if (config.get("useVisualizer") != "true") {
-        std::cout << message << std::endl;
-    }
+    std::cout << message << std::endl;
 }
 
 void Logger::logToStderr(const std::string& message) {

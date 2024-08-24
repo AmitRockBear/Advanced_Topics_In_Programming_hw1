@@ -69,7 +69,7 @@ These files define the `Config` class, implemented as a singleton to centralize 
 
 ### `Logger.h` and `Logger.cpp`
 
-These files define the `Logger` class, implemented as a singleton to handle logging functionalities within the program. The class includes methods for logging informational messages (`logInfo`) and error messages (`logError`). It supports logging to standard output (`logToStdout`) and standard error (`logToStderr`), with the exception that logs won't print to `stdout` if `useVisualizer=true` in `config.txt` so the user can see the visualization. Additionally, the logger logs to a file specified in the configuration under the key `logToFile` (in case the key doesn't exist the program has a default fallback value and will log to `application.log`).
+These files define the `Logger` class, implemented as a singleton to handle logging functionalities within the program. The class includes methods for logging informational messages (`logInfo`) and error messages (`logError`). It supports logging to standard output (`logToStdout`) and standard error (`logToStderr`). Additionally, the logger logs to a file specified in the configuration under the key `logToFile` (in case the key doesn't exist the program has a default fallback value and will log to `application.log`).
 
 ## Error Handling
 

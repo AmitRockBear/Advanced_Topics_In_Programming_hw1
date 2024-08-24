@@ -1,35 +1,24 @@
 #include "VacuumCleaner.h"
-#include "../common/Logger.h"
 #include "../common/Direction.h"
 #include "../common/enums.h"
 #include <stdexcept>
 #include <iostream>
 
-VacuumCleaner::VacuumCleaner(ssize_t x, ssize_t y, std::size_t maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {
-    Logger& logger = Logger::getInstance();
-    
-    logger.logInfo("VacuumCleaner successfully initialized at location: " + location.toString() + " with maxBatterySteps: " + std::to_string(maxBatterySteps));
-}
+VacuumCleaner::VacuumCleaner(ssize_t x, ssize_t y, std::size_t maxBatterySteps) : location(Point(x, y)), battery(maxBatterySteps), maxBatterySteps(maxBatterySteps) {}
 
 void VacuumCleaner::move(Step direction) {
     location.move(direction);
 }
 
 void VacuumCleaner::increaseChargeBy(std::size_t steps) {
-    Logger& logger = Logger::getInstance();
     double increaseBy = steps*maxBatterySteps/20.0;
-
-    logger.logInfo("Increasing battery level by: " + std::to_string(increaseBy));
-    
     battery+=increaseBy;
     if (battery > maxBatterySteps){
-        logger.logInfo("Battery level surpassed maxBatterySteps, adjusting to maxBatterySteps");
         battery = maxBatterySteps;
     }
 }
 
 void VacuumCleaner::decreaseChargeBy(std::size_t steps) {
-    Logger::getInstance().logInfo("Decreasing battery level by: " + std::to_string(steps));
     battery-=steps;
     if (battery < 0) {
         battery = 0;
@@ -67,7 +56,6 @@ void VacuumCleaner::setLocation(ssize_t x, ssize_t y) {
 }
 
 void VacuumCleaner::initBattery(std::size_t newMaxBatterySteps) {
-    Logger::getInstance().logInfo("Init battery with new maximum charge: " + std::to_string(newMaxBatterySteps));
     battery = newMaxBatterySteps;
     maxBatterySteps = newMaxBatterySteps;
 }
