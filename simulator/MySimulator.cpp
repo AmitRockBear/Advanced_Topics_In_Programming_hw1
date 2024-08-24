@@ -20,6 +20,25 @@ MySimulator::MySimulator(std::size_t stepsTaken)
         Logger::getInstance().logInfo("MySimulator successfully initialized");
     }
 
+bool MySimulator::isVacuumAtDocking() const {
+    Point dockingLocation;
+    house.getDockingLocation(dockingLocation);
+    return vacuumCleaner.isAtLocation(dockingLocation);
+}
+
+bool MySimulator::isVacuumDead() const {
+    return vacuumCleaner.getBatteryLevel() == 0 && !isVacuumAtDocking();
+}
+
+void MySimulator::calculateScore() {
+    bool isAtDocking = isVacuumAtDocking();
+    bool isDead = isVacuumDead();
+    std::size_t dirtLeft = getTotalDirt();
+    score = stepsTaken + dirtLeft * 300 + (isAtDocking ? 0 : 1000);
+    if (isDead) score = maxSteps + dirtLeft * 300 + 2000;
+    else if (finished && !isAtDocking) score = maxSteps + dirtLeft * 300 + 3000;
+}
+
 void MySimulator::createOutputFile(const std::string& outputFileName) {
     Logger& logger = Logger::getInstance();
     std::ofstream outfile;
@@ -35,29 +54,22 @@ void MySimulator::createOutputFile(const std::string& outputFileName) {
         throw std::runtime_error("Unable to open output file: " + outputFile);
     }
     try {
-        Point dockingLocation;
-        house.getDockingLocation(dockingLocation);
-        bool isVacuumAtDocking = vacuumCleaner.isAtLocation(dockingLocation);
-        bool isDead = vacuumCleaner.getBatteryLevel() == 0 && !isVacuumAtDocking;
+        bool isAtDocking = isVacuumAtDocking();
+        bool isDead = isVacuumDead();
         std::size_t dirtLeft = getTotalDirt();
-        score = stepsTaken + dirtLeft * 300 + (isVacuumAtDocking ? 0 : 1000);
 
         outfile << "NumSteps = " << stepsTaken << std::endl;
         outfile << "DirtLeft = " << dirtLeft << std::endl;
         if (isDead) {
-            score = maxSteps + dirtLeft * 300 + 2000;
             outfile << "Status = DEAD" << std::endl;
         } else {
             if (finished) {
-                if (!isVacuumAtDocking) {
-                    score = maxSteps + dirtLeft * 300 + 3000;
-                }
                 outfile << "Status = FINISHED" << std::endl;
             } else {
                 outfile << "Status = WORKING" << std::endl;
             }
         }
-        if (vacuumCleaner.isAtLocation(dockingLocation)) {
+        if (isAtDocking) {
             outfile << "InDock = TRUE" << std::endl;
         } else {
             outfile << "InDock = FALSE" << std::endl;
@@ -87,6 +99,7 @@ void MySimulator::run() {
     try {
         Logger::getInstance().logInfo("Starting vacuum cleaner");
         vacuumLoop();
+        calculateScore();
         if (!isSummaryOnly) {
             const std::string& outputFileName = Config::getInstance().get("outputFileName");
             createOutputFile(outputFileName);

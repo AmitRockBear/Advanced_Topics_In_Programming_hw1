@@ -12,6 +12,7 @@
 #include <sched.h>
 #include <dlfcn.h>
 #include <future>
+#include <semaphore>
 
 namespace fs = std::filesystem;
 
@@ -31,14 +32,12 @@ struct AlgorithmWrapper {
 };
 
 struct Result {
-    std::string houseFileName;
-    std::string algorithmFileName;
     std::size_t score;
     bool joined = false;
 };
 
-std::tuple<std::size_t, bool> parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
-    std::size_t numThreads = DEFAULT_NUM_THREADS_VALUE;
+std::tuple<std::ptrdiff_t, bool> parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
+    std::ptrdiff_t numThreads = DEFAULT_NUM_THREADS_VALUE;
     bool isSummaryOnly = false;
 
     for (int i = 1; i < argc; ++i) {
@@ -77,20 +76,6 @@ void runSimulation(MySimulator& simulator) {
     simulator.run();
 }
 
-void setThreadPriorityToIdle(std::thread& thread) {
-    pthread_t handle = thread.native_handle();
-    sched_param sch_params;
-    sch_params.sched_priority = 0; // Lower priority
-
-    int policy;
-    pthread_getschedparam(handle, &policy, &sch_params);
-    policy = SCHED_IDLE;
-
-    if (pthread_setschedparam(handle, policy, &sch_params)) {
-        std::cerr << "Failed to set thread priority to IDLE." << std::endl;
-    }
-}
-
 void createHouseWrappers(const std::vector<std::string>& houseFilePaths, std::vector<HouseWrapper>& houseWrappers) {
     for (std::size_t i = 0; i < houseFilePaths.size(); i++) {
         houseWrappers[i].houseFileName = houseFilePaths[i];
@@ -113,6 +98,8 @@ bool createAlgorithm(AlgorithmWrapper& algorithmWrapper) {
 bool registerAlgorithm(AlgorithmWrapper& algorithmWrapper) {
     const std::string& algoFilePath = algorithmWrapper.algorithmFileName;
     algorithmWrapper.dlOpenPointer = dlopen(algoFilePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+    // std::cout << "algoFilePath: " << algoFilePath << std::endl;
+    // std::cout << "dlOpenPointer: " << algorithmWrapper.dlOpenPointer << std::endl;
     if (!algorithmWrapper.dlOpenPointer) {
         const std::string errorMessage = "Failed to dlopen algorithm: " + getFileBaseName(algoFilePath) + " " + std::string(dlerror());
         createErrorFile(algoFilePath, errorMessage);
@@ -147,7 +134,10 @@ void createAlgorithmWrappers(const std::vector<std::string>& algoFilePaths, std:
     }
 }
 
-void generateSummaryCSV(const std::vector<Result>& runResults, size_t numHouses, size_t numAlgos) {
+void generateSummaryCSV(const std::vector<Result>& runResults, std::vector<HouseWrapper>& houseWrappers, std::vector<AlgorithmWrapper>& algorithmWrappers) {
+    size_t numHouses = houseWrappers.size();
+    size_t numAlgos = algorithmWrappers.size();
+    
     std::ofstream csvFile(DEFAULT_SUMMARY_FILE_NAME);
 
     if (!csvFile.is_open()) {
@@ -155,20 +145,25 @@ void generateSummaryCSV(const std::vector<Result>& runResults, size_t numHouses,
         Logger::getInstance().logError("Failed to open " + DEFAULT_SUMMARY_FILE_NAME + " for writing.");
         return;
     }
-    try
-    {
+    try {
         csvFile << "Algorithm/House";
-        for (std::size_t i = 0; i < runResults.size(); i += numAlgos) {
-            csvFile << "," << runResults[i].houseFileName;
+        for (std::size_t i = 0; i < numHouses; i++) {
+            if (houseWrappers[i].isValid) {
+                csvFile << "," << getFileBaseName(houseWrappers[i].houseFileName);
+            }
         }
         csvFile << "\n";
 
         for (size_t i = 0; i < numAlgos; i++) {
-            csvFile << runResults[i * numHouses].algorithmFileName;
-            for (size_t j = 0; j < numHouses; j++) {
-                csvFile << "," << runResults[i * numHouses + j].score;
+            if (algorithmWrappers[i].isValid) {
+                csvFile << getFileBaseName(algorithmWrappers[i].algorithmFileName);
+                for (size_t j = 0; j < numHouses; j++) {
+                    if (houseWrappers[j].isValid) {
+                        csvFile << "," << runResults[i * numHouses + j].score;
+                    }
+                }
+                csvFile << "\n"; 
             }
-            csvFile << "\n";
         }
 
         csvFile.close();
@@ -185,16 +180,19 @@ void workerWrapper(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
     std::lock_guard<std::mutex> lockAlgo(algorithmWrapper.mtx);
     bool isCreated = createAlgorithm(algorithmWrapper);
     if (!isCreated) {
+        // std::cout << "ERROR: Algorithm" << algorithmWrapper.algorithmFileName << " is not created" << std::endl;
         result.score = THREAD_ERROR_CODE;
         return;
     }
 
     std::lock_guard<std::mutex> lockSim(houseWrapper.mtx);
+    // std::cout << "Locked both locks house name is" << houseWrapper.houseFileName << " algorithm name is " << algorithmWrapper.algorithmFileName << std::endl;
     const std::string& houseFilePath = houseWrapper.houseFileName;
     MySimulator simulator;  
     FileDataExtractor inputData = FileDataExtractor();
     bool isValidHouse = inputData.readAndExtract(houseWrapper.houseFileName);
     if (!isValidHouse) {
+        // std::cout << "ERROR: House is not valid" << houseWrapper.houseFileName << std::endl;
         houseWrapper.isValid = false;
         const std::string errorMessage = "House file is not valid: " + getFileBaseName(houseFilePath);
         createErrorFile(houseFilePath, errorMessage);
@@ -205,8 +203,10 @@ void workerWrapper(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
     try {
         simulator.initSimulator(inputData, houseFilePath, isSummaryOnly);
         result.score = simulator.getMaxSteps() * 2 + simulator.getTotalDirt() * 300 + 2000;
+        // std::cout << "House is " << houseWrapper.houseFileName << " Algorithm is " << algorithmWrapper.algorithmFileName <<  "My result.score is " << result.score << std::endl;
         simulator.setAlgorithm(*algorithmWrapper.createdAlgorithmPointer, algorithmWrapper.algorithmFileName);
         auto worker = [&simulator]() {
+            while(1) {}
             runSimulation(simulator);
         };
 
@@ -217,10 +217,11 @@ void workerWrapper(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
         std::thread workerThread(std::move(task));
 
         if (future.wait_for(timeout) == std::future_status::timeout) {
-            setThreadPriorityToIdle(workerThread);
-            workerThread.join();
+            workerThread.detach();
             return;
         }
+
+        // std::cout << "Thread " << workerThread.get_id() << " is has finished House is " << houseWrapper.houseFileName << " Algorithm is " << algorithmWrapper.algorithmFileName << std::endl;
         workerThread.join();
         result.score = simulator.getScore();
     }
@@ -232,7 +233,7 @@ void workerWrapper(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
 int main(int argc, char *argv[]) {
     std::string housePath = DEFAULT_HOUSE_DIR_PATH;
     std::string algoPath = DEFAULT_ALGORITHM_DIR_PATH;
-    std::size_t numThreads;
+    std::ptrdiff_t numThreads;
     std::size_t threadNumber = 0;
     std::vector<std::string> houseFilePaths;
     std::vector<std::string> algoFilePaths;
@@ -255,12 +256,11 @@ int main(int argc, char *argv[]) {
 
         std::vector<std::thread> workerWrapperThreads;
         std::vector<Result> runResults(numHouses * numAlgos);
+        std::counting_semaphore semaphore{numThreads};
 
         for (size_t j = 0; j < numAlgos; j++) {
             for (size_t i = 0; i < numHouses; i++) {
                 threadNumber = j * numHouses + i;
-                runResults[threadNumber].houseFileName = getFileBaseName(houseWrappers[i].houseFileName);
-                runResults[threadNumber].algorithmFileName = getFileBaseName(algorithmWrappers[j].algorithmFileName);
                 runResults[threadNumber].score = THREAD_ERROR_CODE;
 
                 if (!houseWrappers[i].isValid || !algorithmWrappers[j].isValid) {
@@ -268,16 +268,13 @@ int main(int argc, char *argv[]) {
                     runResults[threadNumber].joined = true;
                     continue;
                 }
-
-                workerWrapperThreads.emplace_back(workerWrapper, std::ref(houseWrappers[i]), std::ref(algorithmWrappers[j]), std::ref(runResults[threadNumber]), isSummaryOnly);
                 
-                // Limit the number of concurrent threads to numThreads
-                if ((threadNumber + 1) % numThreads == 0) {
-                    for (std::size_t l = numThreads - 1;; l--) {
-                        workerWrapperThreads[threadNumber - l].join();
-                        runResults[threadNumber - l].joined = true;
-                    }
-                }
+                semaphore.acquire();
+
+                workerWrapperThreads.emplace_back([&semaphore, &houseWrappers, &algorithmWrappers, &runResults, i, j, threadNumber, isSummaryOnly]() {
+                    workerWrapper(houseWrappers[i], algorithmWrappers[j], runResults[threadNumber], isSummaryOnly);
+                    semaphore.release();
+                });
             }
         }
         
@@ -289,17 +286,26 @@ int main(int argc, char *argv[]) {
             runResults[i].joined = true;
         }
 
-        generateSummaryCSV(runResults, numHouses, numAlgos);
+        generateSummaryCSV(runResults, houseWrappers, algorithmWrappers);
 
-        
-        // for (auto& algoWrapper : algorithmWrappers) {
-        //     if (algoWrapper.dlOpenPointer) {
-        //         std::cout << "dlOpenPointer: " << algoWrapper.dlOpenPointer << " createdAlgorithmPointer: " << &algoWrapper.createdAlgorithmPointer << " algorithmFileName: " << algoWrapper.algorithmFileName << std::endl;
-        //         std::cout << "before dlclose" << std::endl;
-        //         dlclose(algoWrapper.dlOpenPointer);
-        //         std::cout << "after dlclose" << std::endl;
-        //     }
-        // }
+        AlgorithmRegistrar::getAlgorithmRegistrar().clear();
+
+        for (auto& algoWrapper : algorithmWrappers) {
+            if (algoWrapper.dlOpenPointer) {
+                // std::cout << "dlOpenPointer: " << algoWrapper.dlOpenPointer 
+                        // << " createdAlgorithmPointer: " << &algoWrapper.createdAlgorithmPointer 
+                        // << " algorithmFileName: " << algoWrapper.algorithmFileName << std::endl;
+
+                // std::cout << "Resetting createdAlgorithmPointer..." << std::endl;
+                algoWrapper.createdAlgorithmPointer.reset();
+                // std::cout << "Reset complete." << std::endl;
+
+                // std::cout << "before dlclose" << std::endl;
+                dlclose(algoWrapper.dlOpenPointer);
+                // std::cout << "after dlclose" << std::endl;
+                break;
+            }
+        }
     } catch (const std::exception& e) {
         handleException(e);
         return 1;

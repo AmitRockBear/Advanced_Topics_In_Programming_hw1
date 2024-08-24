@@ -50,6 +50,9 @@ private:
     void handleNextStep(Step nextStep);
     void createOutputFile(const std::string &outputFileName);
     void initHouse(FileDataExtractor& inputData, const std::string& fileName);
+    void calculateScore();
+    bool isVacuumDead() const;
+    bool isVacuumAtDocking() const;
 };
 
 #endif
