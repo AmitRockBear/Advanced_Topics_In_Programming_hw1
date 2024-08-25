@@ -101,10 +101,15 @@ The program handles various errors, such as invalid file format, out-of-bounds c
 ## How to Build - Linux
 
 1. Ensure you have a C++ compiler installed (e.g., `g++`).
-2. Compile the project using the following command:
+2. Compile the whole project using the following command:
    ```sh
    ./build.sh
    ```
+   * To build only specific algorithms, use these commands:
+     * for the deterministic algorithm:
+       * ```./build.sh 206507923_322853813_DeterministicAlgorithm```
+     * for the random algorithm:
+       * ```./build.sh 206507923_322853813_RandomAlgorithm```
 3. Run the executable with an input file:
    ```sh
    ./myrobot -house_path=<house folder path> -algo_path=<algo folder path>
