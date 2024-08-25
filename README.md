@@ -63,13 +63,9 @@ This file contains general definitions and constants used throughout the project
 
 These files consist of small functions that are not directly associated with any class within the project.
 
-### `Config.h` and `Config.cpp`
-
-These files define the `Config` class, implemented as a singleton to centralize and manage program configuration settings effectively. The class provides a single instance accessible through the `getInstance()` method, ensuring consistent access to configuration data throughout the application. It handles the loading and parsing of configuration data from a file named `config.txt`, where each line follows the `<key>=<value>` format strictly. Valid key-value pairs are stored in an unordered map within the singleton instance, allowing efficient access and modification of configuration parameters across different parts of the program. Notably, essential keys such as `logFileName` are predefined with default fallback values from `General.h` in cases where these keys are absent or incorrectly formatted in the configuration file.
-
 ### `Logger.h` and `Logger.cpp`
 
-These files define the `Logger` class, implemented as a singleton to handle logging functionalities within the program. The class includes methods for logging informational messages (`logInfo`) and error messages (`logError`). It supports logging to standard output (`logToStdout`) and standard error (`logToStderr`). Additionally, the logger logs to a file specified in the configuration under the key `logToFile` (in case the key doesn't exist the program has a default fallback value and will log to `application.log`).
+These files define the `Logger` class, implemented as a singleton to handle logging functionalities within the program. The class includes methods for logging informational messages (`logInfo`) and error messages (`logError`). It supports logging to standard output (`logToStdout`) and standard error (`logToStderr`). The program log file is `application.log`.
 
 ## Error Handling
 

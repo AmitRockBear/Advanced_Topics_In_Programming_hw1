@@ -9,7 +9,6 @@ add_library(206507923_322853813_DeterministicAlgorithm SHARED
         ../../common/Direction.cpp
         ../../common/Point.cpp
         ../../common/Utils.cpp
-        ../../common/Config.cpp
 )
 
 set_target_properties(206507923_322853813_DeterministicAlgorithm PROPERTIES

@@ -23,29 +23,43 @@
 
 namespace fs = std::filesystem;
 
-std::tuple<std::ptrdiff_t, bool> parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
+struct ParseResult {
+    std::ptrdiff_t numThreads;
+    bool isSummaryOnly;
+};
+
+ParseResult parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
     Logger& logger = Logger::getInstance();
     logger.logInfo("Parsing arguments");
 
     std::ptrdiff_t numThreads = DEFAULT_NUM_THREADS_VALUE;
     bool isSummaryOnly = false;
+    ParseResult result{numThreads, isSummaryOnly};
 
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if (arg.rfind(DEFAULT_HOUSE_ARG, 0) == 0) {
-            housePath = arg.substr(DEFAULT_HOUSE_ARG.length());
-        } else if (arg.rfind(DEFAULT_ALGORITHM_ARG, 0) == 0) {
-            algoPath = arg.substr(DEFAULT_ALGORITHM_ARG.length());
-        } else if (arg.rfind(DEFAULT_NUM_THREADS_ARG, 0) == 0) {
-            numThreads = std::stoul(arg.substr(DEFAULT_NUM_THREADS_ARG.length()));
-        } else if (arg.rfind(DEFAULT_SUMMARY_ARG, 0) == 0) {
-            isSummaryOnly = true;
+    try {
+        for (int i = 1; i < argc; ++i) {
+            std::string arg = argv[i];
+            if (arg.rfind(DEFAULT_HOUSE_ARG, 0) == 0) {
+                housePath = arg.substr(DEFAULT_HOUSE_ARG.length());
+            } else if (arg.rfind(DEFAULT_ALGORITHM_ARG, 0) == 0) {
+                algoPath = arg.substr(DEFAULT_ALGORITHM_ARG.length());
+            } else if (arg.rfind(DEFAULT_NUM_THREADS_ARG, 0) == 0) {
+                result.numThreads = static_cast<std::ptrdiff_t>(std::stoul(arg.substr(DEFAULT_NUM_THREADS_ARG.length())));
+            } else if (arg.rfind(DEFAULT_SUMMARY_ARG, 0) == 0) {
+                result.isSummaryOnly = true;
+            }
         }
+    }
+    catch (const std::exception& e) {
+        throw std::runtime_error("Error during parsing arguments: " + std::string(e.what()));
+    }
+    catch (...) {
+        throw std::runtime_error("Unknown error during parsing arguments");
     }
 
     logger.logInfo("Arguments parsed successfully");
 
-    return std::make_tuple(numThreads, isSummaryOnly);
+    return result;
 }
 
 void findHouseFiles(const std::string& housePath, std::vector<std::string>& houseFilePaths) {
@@ -128,19 +142,26 @@ void writeErrorsToFiles(const std::vector<ThreadController>& threadControllers, 
     size_t numAlgos = algorithmWrappers.size();
     logger.logInfo("Start writing errors to files");
 
-    for (size_t i = 0; i < numAlgos; i++) {
-        for (size_t j = 0; j < numHouses; j++) {
-            index = i * numHouses + j;
-            const std::string houseError = threadControllers[index].getHouseError();
-            const std::string algorithmError = threadControllers[index].getAlgorithmError();
-            
-            if (!houseError.empty()) {
-                appendToErrorFile(threadControllers[index].getHouseFileBaseName(), houseError);
-            }
-            if (!algorithmError.empty()) {
-                appendToErrorFile(threadControllers[index].getAlgorithmFileBaseName(), algorithmError);
+    try {
+        for (size_t i = 0; i < numAlgos; i++) {
+            for (size_t j = 0; j < numHouses; j++) {
+                index = i * numHouses + j;
+                const std::string houseError = threadControllers[index].getHouseError();
+                const std::string algorithmError = threadControllers[index].getAlgorithmError();
+                
+                if (!houseError.empty()) {
+                    appendToErrorFile(threadControllers[index].getHouseFileBaseName(), houseError);
+                }
+                if (!algorithmError.empty()) {
+                    appendToErrorFile(threadControllers[index].getAlgorithmFileBaseName(), algorithmError);
+                }
             }
         }
+    } catch (const std::exception& e) {
+        throw std::runtime_error("Error during writing errors to files: " + std::string(e.what()));
+    }
+    catch (...) {
+        throw std::runtime_error("Unknown error during writing errors to files");
     }
 
     logger.logInfo("All errors were written to files successfully");
@@ -218,10 +239,13 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> houseFilePaths;
     std::vector<std::string> algoFilePaths;
     bool isSummaryOnly = false;
+    ParseResult parseResult;
 
     try {
-        std::tie(numThreads, isSummaryOnly) = parseArguments(argc, argv, housePath, algoPath);
-
+        parseResult = parseArguments(argc, argv, housePath, algoPath);
+        numThreads = parseResult.numThreads;
+        isSummaryOnly = parseResult.isSummaryOnly;
+        
         findHouseFiles(housePath, houseFilePaths);
         findAlgoFiles(algoPath, algoFilePaths);
 

@@ -1,7 +1,6 @@
 #include "MySimulator.h"
 #include "../common/General.h"
 #include "../common/Point.h"
-#include "../common/Config.h"
 #include "../common/Utils.h"
 #include "FileDataExtractor.h"
 #include "../common/Direction.h"

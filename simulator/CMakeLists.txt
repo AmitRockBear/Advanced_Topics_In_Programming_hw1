@@ -3,7 +3,6 @@ project(Simulator CXX)
 add_executable(myrobot
         ../common/AlgorithmRegistrar.cpp
         ../common/BatteryMeterImpl.cpp
-        ../common/Config.cpp
         ../common/Direction.cpp
         ../common/DirtSensorImpl.cpp
         FileDataExtractor.cpp
