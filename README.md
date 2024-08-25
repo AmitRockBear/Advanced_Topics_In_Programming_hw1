@@ -112,7 +112,8 @@ The program handles various errors, such as invalid file format, out-of-bounds c
 
 ## Input and Output File Format
 
-According to Assignment 3's instructions
+According to Assignment 3's instructions.
+In case the program reaches timeout, the letter `T` will represent it in the output file. 
 
 ## Example inputs and output
 
