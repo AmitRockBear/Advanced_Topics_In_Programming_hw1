@@ -19,6 +19,9 @@
 #include <dlfcn.h>
 #include <future>
 #include <semaphore>
+#include <condition_variable>
+#include <atomic>
+#include <mutex>
 
 
 namespace fs = std::filesystem;
@@ -211,10 +214,11 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
 
         std::packaged_task<void()> task(worker);
         std::future<void> future = task.get_future();
-        std::thread workerThread(std::move(task));
+        std::jthread workerThread(std::move(task));
         if (future.wait_for(timeout) == std::future_status::timeout) {
             if (!isSummaryOnly) simulator.createOutputFile(true);
-            workerThread.detach();
+            workerThread.request_stop();
+            workerThread.join();
             return;
         }
         workerThread.join();
@@ -287,7 +291,15 @@ int main(int argc, char *argv[]) {
                 logger.logInfo("House file: " + threadControllers[threadNumber].getHouseFileBaseName());
                 logger.logInfo("Algorithm file: " + threadControllers[threadNumber].getAlgorithmFileBaseName());
                 workerMonitorThreads.emplace_back([&semaphore, &houseWrappers, &algorithmWrappers, &threadControllers, i, j, threadNumber, isSummaryOnly]() {
+                    {
+                        std::lock_guard<std::mutex> lock(algorithmWrappers[j].getMtx());
+                        algorithmWrappers[j].incrementUsageCounter();
+                    }
                     workerMonitor(houseWrappers[i], algorithmWrappers[j], threadControllers[threadNumber], isSummaryOnly);
+                    {
+                        std::lock_guard<std::mutex> lock(algorithmWrappers[j].getMtx());
+                        algorithmWrappers[j].decrementUsageCounter();
+                    }
                     semaphore.release();
                 });
             }
@@ -310,6 +322,7 @@ int main(int argc, char *argv[]) {
         logger.logInfo("Clearing algorithm registrar");
         AlgorithmRegistrar::getAlgorithmRegistrar().clear();
 
+        logger.logInfo("Resetting created algorithm pointers");
         for (auto& threadController : threadControllers) {
             if (threadController.getCreatedAlgorithmPointer()) {
                 threadController.resetCreatedAlgorithmPointer();
@@ -319,12 +332,11 @@ int main(int argc, char *argv[]) {
         logger.logInfo("Start dlclose algorithm files");
         for (auto& algoWrapper : algorithmWrappers) {
             void* dlOpenPointer = algoWrapper.getDlOpenPointer();
-            if (dlOpenPointer) {
+            if (dlOpenPointer && algoWrapper.getUsageCounter() == 0) {
                 dlclose(dlOpenPointer);
-                break;
             }
         }
-        logger.logInfo("All algorithm files dlclosed successfully");
+        logger.logInfo("All algorithm files that were allowed for dlclose, dlclosed successfully");
 
     } catch (const std::exception& e) {
         handleMainThreadException(e);
