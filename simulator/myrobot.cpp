@@ -20,6 +20,60 @@
 #include <future>
 #include <semaphore>
 
+
+namespace fs = std::filesystem;
+
+std::tuple<std::ptrdiff_t, bool> parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Parsing arguments");
+
+    std::ptrdiff_t numThreads = DEFAULT_NUM_THREADS_VALUE;
+    bool isSummaryOnly = false;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg.rfind(DEFAULT_HOUSE_ARG, 0) == 0) {
+            housePath = arg.substr(DEFAULT_HOUSE_ARG.length());
+        } else if (arg.rfind(DEFAULT_ALGORITHM_ARG, 0) == 0) {
+            algoPath = arg.substr(DEFAULT_ALGORITHM_ARG.length());
+        } else if (arg.rfind(DEFAULT_NUM_THREADS_ARG, 0) == 0) {
+            numThreads = std::stoul(arg.substr(DEFAULT_NUM_THREADS_ARG.length()));
+        } else if (arg.rfind(DEFAULT_SUMMARY_ARG, 0) == 0) {
+            isSummaryOnly = true;
+        }
+    }
+
+    logger.logInfo("Arguments parsed successfully");
+
+    return std::make_tuple(numThreads, isSummaryOnly);
+}
+
+void findHouseFiles(const std::string& housePath, std::vector<std::string>& houseFilePaths) {
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Finding house files");
+
+    for (const auto& entry : fs::directory_iterator(housePath)) {
+        if (entry.is_regular_file() && entry.path().extension() == DEFAULT_HOUSE_FILE_EXTENSION) {
+            houseFilePaths.push_back(entry.path().string());
+        }
+    }
+    
+    logger.logInfo("All house files found successfully");
+}
+
+void findAlgoFiles(const std::string& algoPath, std::vector<std::string>& algoFilePaths) {
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Finding algorithm files");
+
+    for (const auto& entry : fs::directory_iterator(algoPath)) {
+        if (entry.is_regular_file() && entry.path().extension() == DEFAULT_ALGORITHM_FILE_EXTENSION) {
+            algoFilePaths.push_back(entry.path().string());
+        }
+    }
+
+    logger.logInfo("All algorithm files found successfully");
+}
+
 void generateSummaryCSV(const std::vector<ThreadController>& threadControllers, std::vector<HouseWrapper>& houseWrappers, std::vector<AlgorithmWrapper>& algorithmWrappers) {
     Logger& logger = Logger::getInstance();    
     size_t numHouses = houseWrappers.size();
@@ -92,37 +146,10 @@ void writeErrorsToFiles(const std::vector<ThreadController>& threadControllers, 
     logger.logInfo("All errors were written to files successfully");
 }
 
-bool initSimulatorFromHouse(MySimulator& simulator, ThreadController& threadController, HouseWrapper& houseWrapper, FileDataExtractor& inputData) {
-    const std::string houseFileName = houseWrapper.getHouseFileName();
-    try {
-        inputData.readAndExtract(houseFileName);
-        simulator.initSimulator(inputData, houseFileName);
-    } catch(const std::exception& e) {
-        houseWrapper.setIsValid(false);
-        const std::string errorMessage = "House file is not valid: " + houseFileName + " Due to error: " + e.what();
-        threadController.setHouseError(errorMessage);
-        threadController.setScore(THREAD_ERROR_CODE);
-        return false;
-    }
-    return true;
-}
-
-bool setSimulatorAlgorithm(MySimulator& simulator, ThreadController& threadController, const std::string& algorithmFileName) {
-    try {
-        simulator.setAlgorithm(*threadController.getCreatedAlgorithmPointer(), algorithmFileName);
-    } catch(const std::exception& e) {
-        const std::string errorMessage = "Failed to set algorithm: " + algorithmFileName + "Due to error: " + e.what();
-        threadController.setAlgorithmError(errorMessage);
-        threadController.setScore(THREAD_ERROR_CODE);
-        return false;
-    }
-    return true;
-}
-
 void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrapper, ThreadController& threadController, bool isSummaryOnly) {
     MySimulator simulator;  
     FileDataExtractor inputData = FileDataExtractor();
-    bool isValidHouse = initSimulatorFromHouse(simulator, threadController, houseWrapper, inputData);
+    bool isValidHouse = simulator.initSimulatorFromHouse(threadController, houseWrapper, inputData);
     if (!isValidHouse) {
         return;
     }
@@ -133,7 +160,7 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
     }
 
     const std::string algorithmFileName = algorithmWrapper.getAlgorithmFileName();
-    bool isSet = setSimulatorAlgorithm(simulator, threadController, algorithmFileName);
+    bool isSet = simulator.setSimulatorAlgorithm(threadController, algorithmFileName);
     if (!isSet) {
         return;
     }
@@ -236,7 +263,6 @@ int main(int argc, char *argv[]) {
                 });
             }
         }
-
         logger.logInfo("All threads created successfully");
         
         logger.logInfo("Start joining threads");

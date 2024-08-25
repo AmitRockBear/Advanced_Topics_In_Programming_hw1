@@ -208,3 +208,30 @@ std::string MySimulator::getHouseName() const {
 std::string MySimulator::getAlgorithmName() const {
     return algorithmName;
 }
+
+bool MySimulator::initSimulatorFromHouse(ThreadController& threadController, HouseWrapper& houseWrapper, FileDataExtractor& inputData) {
+    const std::string houseFileName = houseWrapper.getHouseFileName();
+    try {
+        inputData.readAndExtract(houseFileName);
+        initSimulator(inputData, houseFileName);
+    } catch(const std::exception& e) {
+        houseWrapper.setIsValid(false);
+        const std::string errorMessage = "House file is not valid: " + houseFileName + " Due to error: " + e.what();
+        threadController.setHouseError(errorMessage);
+        threadController.setScore(THREAD_ERROR_CODE);
+        return false;
+    }
+    return true;
+}
+
+bool MySimulator::setSimulatorAlgorithm(ThreadController& threadController, const std::string& algorithmFileName) {
+    try {
+        setAlgorithm(*threadController.getCreatedAlgorithmPointer(), algorithmFileName);
+    } catch(const std::exception& e) {
+        const std::string errorMessage = "Failed to set algorithm: " + algorithmFileName + "Due to error: " + e.what();
+        threadController.setAlgorithmError(errorMessage);
+        threadController.setScore(THREAD_ERROR_CODE);
+        return false;
+    }
+    return true;
+}

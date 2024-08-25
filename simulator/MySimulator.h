@@ -9,13 +9,14 @@
 #include "../common/WallsSensorImpl.h"
 #include "../common/DirtSensorImpl.h"
 #include "../common/BatteryMeterImpl.h"
+#include "HouseWrapper.h"
+#include "ThreadController.h"
 #include <vector>
 
 class MySimulator {
 public:
     explicit MySimulator(std::size_t stepsTaken = 0);
     void run();
-    void setAlgorithm(AbstractAlgorithm& algo, const std::string& algoName);
     void initSimulator(FileDataExtractor& inputData, const std::string& fileName);
     void setIsSummaryOnly(bool isSummary);
     std::size_t getTotalDirt() const;
@@ -23,6 +24,8 @@ public:
     std::size_t getScore() const;
     std::string getHouseName() const;
     std::string getAlgorithmName() const;
+    bool initSimulatorFromHouse(ThreadController& threadController, HouseWrapper& houseWrapper, FileDataExtractor& inputData);
+    bool setSimulatorAlgorithm(ThreadController& threadController, const std::string& algorithmFileName);
 
     MySimulator(const MySimulator&) = delete;
     MySimulator& operator=(const MySimulator&) = delete;
@@ -56,6 +59,7 @@ private:
     void calculateScore();
     bool isVacuumDead() const;
     bool isVacuumAtDocking() const;
+    void setAlgorithm(AbstractAlgorithm& algo, const std::string& algoName);
 };
 
 #endif
