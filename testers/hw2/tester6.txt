@@ -1,8 +1,0 @@
-6-Impossible house (not enough steps)
-MaxSteps = 50
-MaxBattery=30
-Rows = 3
-Cols = 5
-123W44
-22D1W5
-4W2216
