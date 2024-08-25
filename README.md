@@ -11,49 +11,37 @@ This project simulates a vacuum cleaner robot that navigates through a house, cl
 
 ## Files
 
-### `myrobot.cpp`
+### algorithms
+### `Algorithm.h`, `Algorithm.cpp` (and `AlgorithmRegistration.h`)
 
-This is the main entry point of the program. It initializes the components, starts the cleaning process, and handles any exceptions that occur.
+These files define the `Algorithm` component, which implements the core logic of how the vacuum cleaner robot navigates the house. `Algorithm.h` and `Algorithm.cpp` contain the implementation of the `Algorithm` class, derived from the `AbstractAlgorithm` interface. `AlgorithmRegistration.h` handles the registration of different algorithm implementations with the system.
 
-### `Point.h` and `Point.cpp`
+### `DeterministicAlgorithm.h`, `DeterministicAlgorithm.cpp`
 
-These files define the `Point` class, which represents a point in a 2D coordinate system. It includes methods for moving and comparing points.
+These files define the `DeterministicAlgorithm` class, which implements a deterministic algorithm based on DFS search. If there's more than one step possible at a time, the algorithm will choose the first. 
 
-### `VacuumCleaner.h` and `VacuumCleaner.cpp`
+### `RandomAlgorithm.h`, `RandomAlgorithm.cpp`
+These files define the `RandomAlgorithm` class, which implements a random algorithm based on DFS search. If there's more than one step possible at a time, the algorithm will choose randomly.
 
-These files define the `VacuumCleaner` class, which simulates the behavior of the vacuum cleaner robot. It handles movement, battery management, and location tracking.
+### common
+### `AlgorithmRegistrar.h`, `AlgorithmRegistrar.cpp`
+These files implement the `AlgorithmRegistrar` class, which is responsible for registering and managing different algorithm implementations. It allows dynamic loading and switching of algorithms during the simulation.
 
-### `House.h` and `House.cpp`
-
-These files define the `House` class, which represents the house layout and dirt levels. It includes methods for checking walls and managing dirt levels.
-
-### `Algorithm.h`, `Algorithm.cpp` (and `abstract_algorithm.h`)
-
-These files define the `Algorithm` component, which is an implementation of the `AbstractAlgorithm` abstract class. It encompasses the decision-making process of the vacuum cleaner robot. It determines how the vacuum cleaner moves from one point to another while avoiding obstacles and making sure the vacuum cleaner doesn't run out of battery.
-
-### `FileDataExtractor.h` and `FileDataExtractor.cpp`
-
-These files define the `FileDataExtractor` class, which reads and extracts data from the input file, needed for initializing the house and vacuum cleaner.
-
-### `MySimulator.h` and `MySimulator.cpp`
-
-These files define the `MySimulator` class, which manages the overall cleaning process. It includes the main loop for the cleaning algorithm, handles battery recharging, and creates an output file with the results.
-
-### `BatteryMeterImpl.h`, `BatteryMeterImpl.cpp` (and `battery_meter.h`)
+### `BatteryMeterImpl.h`, `BatteryMeterImpl.cpp` (and `battery_meter.h` from simulator folder)
 
 This file defines the `BatteryMeterImpl` class, which is an implementation of the `BatteryMeter` abstract class. The class is used by the Algorithm class as a sensor providing the state of the vacuum cleaner's battery.
-
-### `DirtSensorImpl.h`, `DirtSensorImpl.cpp` (and `dirt_sensor.h`)
-
-This file defines the `DirtSensorImpl` class, which is an implementation of the `DirtSensor` abstract class. The class is responsible for detecting the level of dirt at the vacuum cleaner's current location.
-
-### `WallsSensorImpl.h`, `WallsSensorImpl.cpp` (and `wall_sensor.h`)
-
-This file defines the `WallsSensorImpl` class, which is an implementation of the `WallsSensor` abstract class. The class is responsible for detecting the presence of walls in different directions around the vacuum cleaner.
 
 ### `Direction.h`, `Direction.cpp` and `enums.h`
 
 This file contains utility functions for converting between `Direction` and `Step` enumerations, as well as functions for obtaining string representations of these enums defined in `enums.h`.
+
+### `DirtSensorImpl.h`, `DirtSensorImpl.cpp` (and `dirt_sensor.h` from simulator folder)
+
+This file defines the `DirtSensorImpl` class, which is an implementation of the `DirtSensor` abstract class. The class is responsible for detecting the level of dirt at the vacuum cleaner's current location.
+
+### `WallsSensorImpl.h`, `WallsSensorImpl.cpp` (and `wall_sensor.h` from simulator folder)
+
+This file defines the `WallsSensorImpl` class, which is an implementation of the `WallsSensor` abstract class. The class is responsible for detecting the presence of walls in different directions around the vacuum cleaner.
 
 ### `General.h`
 
@@ -67,6 +55,45 @@ These files consist of small functions that are not directly associated with any
 
 These files define the `Logger` class, implemented as a singleton to handle logging functionalities within the program. The class includes methods for logging informational messages (`logInfo`) and error messages (`logError`). It supports logging to standard output (`logToStdout`) and standard error (`logToStderr`). The program log file is `application.log`.
 
+### `Point.h` and `Point.cpp`
+
+These files define the `Point` class, which represents a point in a 2D coordinate system. It includes methods for moving and comparing points.
+
+### simulator
+
+### `myrobot.cpp`
+
+This is the main entry point of the program. It initializes the components, starts the cleaning process, and handles any exceptions that occur.
+
+### `AlgorithmWrapper.h`, `AlgorithmWrapper.cpp` 
+
+These files define the `AlgorithmWrapper` class, which serves as an interface between the core simulation logic and the specific algorithm implementations. It abstracts away the details of the algorithms and ensures they can be interchanged seamlessly.
+
+### `VacuumCleaner.h` and `VacuumCleaner.cpp`
+
+These files define the `VacuumCleaner` class, which simulates the behavior of the vacuum cleaner robot. It handles movement, battery management, and location tracking.
+
+### `House.h` and `House.cpp`
+
+These files define the `House` class, which represents the house layout and dirt levels. It includes methods for checking walls and managing dirt levels.
+
+### `HouseWrapper.h`, `HouseWrapper.cpp`
+
+These files define the `HouseWrapper` class, which abstracts away the details of house files.
+
+### `FileDataExtractor.h` and `FileDataExtractor.cpp`
+
+These files define the `FileDataExtractor` class, which reads and extracts data from the input file, needed for initializing the house and vacuum cleaner.
+
+### `MySimulator.h` and `MySimulator.cpp`
+
+These files define the `MySimulator` class, which manages the overall cleaning process. It includes the main loop for the cleaning algorithm, handles battery recharging, and creates an output file with the results.
+
+### `ThreadController.h` and `ThreadController.cpp`
+
+These files define the `ThreadController` class, which manages multithreading within the simulation. It ensures that different components of the simulation, such as the vacuum cleaner and sensor updates, run concurrently and efficiently, improving the overall performance of the system.
+
+
 ## Error Handling
 
 The program handles various errors, such as invalid file format, out-of-bounds coordinates, and runtime exceptions. If an error occurs, it logs the error message and terminates the program gracefully.
@@ -76,17 +103,19 @@ The program handles various errors, such as invalid file format, out-of-bounds c
 1. Ensure you have a C++ compiler installed (e.g., `g++`).
 2. Compile the project using the following command:
    ```sh
-   make
+   ./build.sh
    ```
 3. Run the executable with an input file:
    ```sh
-   ./myrobot inputfile.txt
+   ./myrobot -house_path=<house folder path> -algo_path=<algo folder path>
    ```
-
-## Solution Approach
-
-The solution implements a vacuum cleaner robot that autonomously navigates a house, cleans dirt, and returns to its docking station to recharge. MySimulator class manages the cleaning process, starting with the initialization of the vacuum cleaner and house layout. Inside MySimulator's loop, it checks if the vacuum cleaner has completed cleaning the house, or is at the docking station. If not, using the Algorithm class, the vacuum cleaner decides its next move using DFS based on battery levels, obstacle detection, and remaining dirt levels. The algorithm includes a backtracking mechanism, ensuring the robot can efficiently return to the docking station for recharging. When the simulation finishes, results are logged and saved to an output file.
 
 ## Input and Output File Format
 
-According to Assignment 2's instructions
+According to Assignment 3's instructions.
+In case the program reaches timeout, the letter `T` will represent it in the output file. 
+
+## Example inputs and output
+
+In the folder `tests` there is an `inputs` folder with house files (`*.house` files), and a matching `outputs` folder.
+Additionally, you can see an example `summary.csv` under the same `tests` directory

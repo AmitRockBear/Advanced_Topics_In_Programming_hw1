@@ -1,0 +1,7 @@
+NumSteps = 246
+DirtLeft = 0
+Status = FINISHED
+InDock = TRUE
+Score = 246
+Steps: 
+SssSsssssssssSsSssWssEEssWNNWsssssssssWsssssssssSsNNssssNssNsEssSssNEsssWWSSNEEssssssssssssssssssssWWSSEEEsssssssssEsssssssssSsNNsEssssssSsssssssEssssSsSssWssENNNsssNssWsssSSWWWNNssssssssssssssssssssSSEEENNssNssssWssssEEsWSESSWNWSWWNNsssssssssEsWF
