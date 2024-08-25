@@ -217,6 +217,7 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
         std::thread workerThread(std::move(task));
         if (future.wait_for(timeout) == std::future_status::timeout) {
             threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to timeout.");
+            simulator.setScore(threadController.getScore());
             if (!isSummaryOnly) simulator.createOutputFile(true);
             workerThread.detach();
             return;
