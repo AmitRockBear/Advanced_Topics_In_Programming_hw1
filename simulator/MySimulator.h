@@ -18,7 +18,6 @@ public:
     explicit MySimulator(std::size_t stepsTaken = 0);
     void run();
     void initSimulator(FileDataExtractor& inputData, const std::string& fileName);
-    void setIsSummaryOnly(bool isSummary);
     std::size_t getTotalDirt() const;
     std::size_t getMaxSteps() const;
     std::size_t getScore() const;
@@ -26,6 +25,7 @@ public:
     std::string getAlgorithmName() const;
     bool initSimulatorFromHouse(ThreadController& threadController, HouseWrapper& houseWrapper, FileDataExtractor& inputData);
     bool setSimulatorAlgorithm(ThreadController& threadController, const std::string& algorithmFileName);
+    void createOutputFile(bool isTimedOut);
 
     MySimulator(const MySimulator&) = delete;
     MySimulator& operator=(const MySimulator&) = delete;
@@ -42,7 +42,6 @@ private:
     bool finished;
     std::vector<Step> steps;
     AbstractAlgorithm* algorithm = nullptr;
-    bool isSummaryOnly = false;
 
     const WallsSensorImpl wallsSensor;
     const DirtSensorImpl dirtSensor;
@@ -54,7 +53,6 @@ private:
     bool isWall(Direction direction) const;
     double batteryRemaining() const;
     void handleNextStep(Step nextStep);
-    void createOutputFile();
     void initHouse(FileDataExtractor& inputData, const std::string& fileName);
     void calculateScore();
     bool isVacuumDead() const;

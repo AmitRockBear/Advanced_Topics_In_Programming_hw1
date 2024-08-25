@@ -35,7 +35,7 @@ void MySimulator::calculateScore() {
     else if (finished && !isAtDocking) score = maxSteps + dirtLeft * 300 + 3000;
 }
 
-void MySimulator::createOutputFile() {
+void MySimulator::createOutputFile(bool isTimedOut) {
     std::ofstream outfile;
     const std::string& outputFile = houseName + "-" + algorithmName + ".txt";
     outfile.open(outputFile, std::ios::out);
@@ -68,8 +68,12 @@ void MySimulator::createOutputFile() {
         for(auto &&step : steps) {
             outfile << toString(step);
         }
-        if (finished) {
-            outfile << "F";
+        if (isTimedOut) {
+            outfile << DEFAULT_TIMEOUT_CHAR;
+        } else {
+            if (finished) {
+                outfile << DEFAULT_FINISHED_CHAR;
+            }
         }
     } catch(const std::exception& e) {
         outfile.close();
@@ -89,9 +93,6 @@ void MySimulator::run() {
     try {
         vacuumLoop();
         calculateScore();
-        if (!isSummaryOnly) {
-            createOutputFile();
-        }
     } catch (const std::exception& e) {
         throw std::runtime_error("Unrecoverable error has occured in step: " + std::to_string(stepsTaken) + ". The error is: " + e.what());
     }
@@ -197,10 +198,6 @@ void MySimulator::initSimulator(FileDataExtractor& inputData, const std::string&
     initHouse(inputData, fileName);
     vacuumCleaner.initVacuumCleaner(inputData.getDockingX(), inputData.getDockingY(), inputData.getMaxBattery());
     maxSteps = inputData.getMaxSteps();
-}
-
-void MySimulator::setIsSummaryOnly(bool isSummary) {
-    isSummaryOnly = isSummary;
 }
 
 std::string MySimulator::getHouseName() const {

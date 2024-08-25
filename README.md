@@ -25,7 +25,7 @@ These files define the `VacuumCleaner` class, which simulates the behavior of th
 
 ### `House.h` and `House.cpp`
 
-These files define the `House` class, which represents the house layout and dirt levels. It includes methods for checking walls, managing dirt levels, and visualizing the house.
+These files define the `House` class, which represents the house layout and dirt levels. It includes methods for checking walls and managing dirt levels.
 
 ### `Algorithm.h`, `Algorithm.cpp` (and `abstract_algorithm.h`)
 

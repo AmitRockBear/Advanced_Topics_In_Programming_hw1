@@ -186,7 +186,6 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
         return;
     }
 
-    simulator.setIsSummaryOnly(isSummaryOnly);
     threadController.setScore(simulator.getMaxSteps() * 2 + simulator.getTotalDirt() * 300 + 2000);
     std::atomic<bool> workerFailed(false);
     const std::string houseFileBaseName = threadController.getHouseFileBaseName();
@@ -212,11 +211,15 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
         std::future<void> future = task.get_future();
         std::thread workerThread(std::move(task));
         if (future.wait_for(timeout) == std::future_status::timeout) {
+            if (!isSummaryOnly) simulator.createOutputFile(true);
             workerThread.detach();
             return;
         }
         workerThread.join();
-
+        
+        if (!isSummaryOnly) { 
+            simulator.createOutputFile(false);
+        }
         if (!workerFailed.load()) {
             threadController.setScore(simulator.getScore());
         }
