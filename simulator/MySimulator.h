@@ -26,6 +26,7 @@ public:
     bool initSimulatorFromHouse(ThreadController& threadController, HouseWrapper& houseWrapper, FileDataExtractor& inputData);
     bool setSimulatorAlgorithm(ThreadController& threadController, const std::string& algorithmFileName);
     void createOutputFile(bool isTimedOut);
+    void setScore(std::size_t score);
 
     MySimulator(const MySimulator&) = delete;
     MySimulator& operator=(const MySimulator&) = delete;

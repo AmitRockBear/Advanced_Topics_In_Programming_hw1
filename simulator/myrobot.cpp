@@ -185,8 +185,10 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
     if (!isSet) {
         return;
     }
-
-    threadController.setScore(simulator.getMaxSteps() * 2 + simulator.getTotalDirt() * 300 + 2000);
+    
+    std::size_t score = simulator.getMaxSteps() * 2 + simulator.getTotalDirt() * 300 + 2000;
+    simulator.setScore(score);
+    threadController.setScore(score);
     std::atomic<bool> workerFailed(false);
     const std::string houseFileBaseName = threadController.getHouseFileBaseName();
     const std::string algorithmFileBaseName = threadController.getAlgorithmFileBaseName();

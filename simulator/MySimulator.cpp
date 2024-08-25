@@ -68,12 +68,11 @@ void MySimulator::createOutputFile(bool isTimedOut) {
         for(auto &&step : steps) {
             outfile << toString(step);
         }
+        if (finished) {
+            outfile << DEFAULT_FINISHED_CHAR;
+        }
         if (isTimedOut) {
             outfile << DEFAULT_TIMEOUT_CHAR;
-        } else {
-            if (finished) {
-                outfile << DEFAULT_FINISHED_CHAR;
-            }
         }
     } catch(const std::exception& e) {
         outfile.close();
@@ -233,4 +232,8 @@ bool MySimulator::setSimulatorAlgorithm(ThreadController& threadController, cons
         return false;
     }
     return true;
+}
+
+void MySimulator::setScore(std::size_t score) {
+    this->score = score;
 }
