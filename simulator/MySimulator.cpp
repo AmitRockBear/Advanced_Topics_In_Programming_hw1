@@ -68,6 +68,9 @@ void MySimulator::createOutputFile() {
         for(auto &&step : steps) {
             outfile << toString(step);
         }
+        if (finished) {
+            outfile << "F";
+        }
     } catch(const std::exception& e) {
         outfile.close();
         throw std::runtime_error("Error during writing to output file: " + outputFile + ". The error is: " + e.what());
