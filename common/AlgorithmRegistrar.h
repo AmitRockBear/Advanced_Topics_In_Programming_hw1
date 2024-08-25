@@ -24,9 +24,7 @@ public:
     // NOTE: API is guaranteed, actual implementation may change
     static AlgorithmRegistrar& getAlgorithmRegistrar();
     void registerAlgorithm(const std::string& name, AlgorithmFactory algorithmFactory) {
-        printf("ADDED ALGORITHM %s\n--------------------------\n", name.c_str());
         algorithms.emplace_back(name, std::move(algorithmFactory));
-        printf("algorithms amount: %zu\n--------------------------\n", algorithms.size());
 
     }
     auto begin() const { return algorithms.begin(); }
