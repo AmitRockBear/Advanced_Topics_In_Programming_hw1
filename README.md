@@ -117,5 +117,5 @@ In case the program reaches timeout, the letter `T` will represent it in the out
 
 ## Example inputs and output
 
-In the folder `tests` there is an `inputs` folder with house files (`*.house` files).
+In the folder `tests` there is an `inputs` folder with house files (`*.house` files), and a matching `outputs` folder.
 Additionally, you can see an example `summary.csv` under the same `tests` directory
