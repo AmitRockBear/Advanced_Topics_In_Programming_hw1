@@ -3,6 +3,12 @@
 #include "../common/AlgorithmRegistrar.h"
 #include "../common/Logger.h"
 #include "../common/Utils.h"
+#include "../common/General.h"
+#include "AlgorithmWrapper.h"
+#include "HouseWrapper.h"
+#include "ThreadController.h"
+#include <vector>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,147 +20,7 @@
 #include <future>
 #include <semaphore>
 
-namespace fs = std::filesystem;
-
-struct HouseWrapper {
-    std::string houseFileName;
-    bool isValid = true;
-};
-
-struct AlgorithmWrapper {
-    std::string algorithmFileName;
-    void *dlOpenPointer = nullptr;
-    std::size_t index;
-    bool isValid = true;
-};
-
-struct Result {
-    std::string houseFileBaseName;
-    std::string algorithmFileBaseName;
-    std::unique_ptr<AbstractAlgorithm> createdAlgorithmPointer;
-    std::size_t score;
-    std::string error;
-    bool joined = false;
-};
-
-std::tuple<std::ptrdiff_t, bool> parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Parsing arguments");
-
-    std::ptrdiff_t numThreads = DEFAULT_NUM_THREADS_VALUE;
-    bool isSummaryOnly = false;
-
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if (arg.rfind(DEFAULT_HOUSE_ARG, 0) == 0) {
-            housePath = arg.substr(DEFAULT_HOUSE_ARG.length());
-        } else if (arg.rfind(DEFAULT_ALGORITHM_ARG, 0) == 0) {
-            algoPath = arg.substr(DEFAULT_ALGORITHM_ARG.length());
-        } else if (arg.rfind(DEFAULT_NUM_THREADS_ARG, 0) == 0) {
-            numThreads = std::stoul(arg.substr(DEFAULT_NUM_THREADS_ARG.length()));
-        } else if (arg.rfind(DEFAULT_SUMMARY_ARG, 0) == 0) {
-            isSummaryOnly = true;
-        }
-    }
-
-    logger.logInfo("Arguments parsed successfully");
-
-    return std::make_tuple(numThreads, isSummaryOnly);
-}
-
-void findHouseFiles(const std::string& housePath, std::vector<std::string>& houseFilePaths) {
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Finding house files");
-
-    for (const auto& entry : fs::directory_iterator(housePath)) {
-        if (entry.is_regular_file() && entry.path().extension() == DEFAULT_HOUSE_FILE_EXTENSION) {
-            houseFilePaths.push_back(entry.path().string());
-        }
-    }
-    
-    logger.logInfo("All house files found successfully");
-}
-
-void findAlgoFiles(const std::string& algoPath, std::vector<std::string>& algoFilePaths) {
-    Logger& logger = Logger::getInstance();
-    logger.logInfo("Finding algorithm files");
-
-    for (const auto& entry : fs::directory_iterator(algoPath)) {
-        if (entry.is_regular_file() && entry.path().extension() == DEFAULT_ALGORITHM_FILE_EXTENSION) {
-            algoFilePaths.push_back(entry.path().string());
-        }
-    }
-
-    logger.logInfo("All algorithm files found successfully");
-}
-
-void createHouseWrappers(const std::vector<std::string>& houseFilePaths, std::vector<HouseWrapper>& houseWrappers) {
-    for (std::size_t i = 0; i < houseFilePaths.size(); i++) {
-        houseWrappers[i].houseFileName = houseFilePaths[i];
-    }
-}
-
-bool createAlgorithm(AlgorithmWrapper& algorithmWrapper, Result& result) {
-    auto algorithmRegistered = AlgorithmRegistrar::getAlgorithmRegistrar().begin() + algorithmWrapper.index;
-    result.createdAlgorithmPointer = algorithmRegistered->create();
-    if (!result.createdAlgorithmPointer) {
-        std::string& algoFilePath = algorithmWrapper.algorithmFileName;
-        const std::string errorMessage = "Failed to create algorithm: " + getFileBaseName(algoFilePath);
-        appendToErrorFile(algoFilePath, errorMessage);
-        algorithmWrapper.isValid = false;
-        return false;
-    }    
-    return true;
-}
-
-bool registerAlgorithm(AlgorithmWrapper& algorithmWrapper) {
-    Logger& logger = Logger::getInstance();
-    const std::string& algoFilePath = algorithmWrapper.algorithmFileName;
-    algorithmWrapper.dlOpenPointer = dlopen(algoFilePath.c_str(), RTLD_LAZY | RTLD_LOCAL);
-    if (!algorithmWrapper.dlOpenPointer) {
-        const std::string errorMessage = "Failed to dlopen algorithm: " + getFileBaseName(algoFilePath) + " " + std::string(dlerror());
-        logger.logError(errorMessage);
-        appendToErrorFile(algoFilePath, errorMessage);
-        algorithmWrapper.isValid = false;
-        return false;
-    }
-    return true;
-}
-
-bool hasAlgorithmRegisteredSuccessfully(AlgorithmWrapper& algorithmWrapper, std::size_t countBeforeRegistering) {
-    Logger& logger = Logger::getInstance();
-    if (countBeforeRegistering == AlgorithmRegistrar::getAlgorithmRegistrar().count()) {
-        algorithmWrapper.isValid = false;
-        const std::string& algoFilePath = algorithmWrapper.algorithmFileName;
-        const std::string errorMessage = "Failed to register algorithm: " + getFileBaseName(algoFilePath) + " number of algorithms in the registrar is not increased after opening the .so";
-        logger.logError(errorMessage);
-        appendToErrorFile(algoFilePath, errorMessage);
-        return false;
-    }
-    return true;
-}
-
-void createAlgorithmWrappers(const std::vector<std::string>& algoFilePaths, std::vector<AlgorithmWrapper>& algorithmWrappers) {
-    Logger& logger = Logger::getInstance();    
-    std::size_t i;
-    std::size_t countBeforeRegistering;
-
-    logger.logInfo("Registering algorithms");
-
-    for (i = 0; i < algoFilePaths.size(); i++) {
-        countBeforeRegistering = AlgorithmRegistrar::getAlgorithmRegistrar().count();
-        algorithmWrappers[i].algorithmFileName = algoFilePaths[i];
-        if (!registerAlgorithm(algorithmWrappers[i])) return; 
-        if (!hasAlgorithmRegisteredSuccessfully(algorithmWrappers[i], countBeforeRegistering)) return;
-        std::size_t algorithmIndex = countBeforeRegistering + 1;
-        // Zero based
-        algorithmWrappers[i].index = algorithmIndex - 1;
-    }
-
-    logger.logInfo("All algorithms registered successfully");
-}
-
-void generateSummaryCSV(const std::vector<Result>& runResults, std::vector<HouseWrapper>& houseWrappers, std::vector<AlgorithmWrapper>& algorithmWrappers) {
+void generateSummaryCSV(const std::vector<ThreadController>& threadControllers, std::vector<HouseWrapper>& houseWrappers, std::vector<AlgorithmWrapper>& algorithmWrappers) {
     Logger& logger = Logger::getInstance();    
     size_t numHouses = houseWrappers.size();
     size_t numAlgos = algorithmWrappers.size();
@@ -169,18 +35,18 @@ void generateSummaryCSV(const std::vector<Result>& runResults, std::vector<House
     try {
         csvFile << "Algorithm/House";
         for (std::size_t i = 0; i < numHouses; i++) {
-            if (houseWrappers[i].isValid) {
-                csvFile << "," << getFileBaseName(houseWrappers[i].houseFileName);
+            if (houseWrappers[i].getIsValid()) {
+                csvFile << "," << getFileBaseName(houseWrappers[i].getHouseFileName());
             }
         }
         csvFile << "\n";
 
         for (size_t i = 0; i < numAlgos; i++) {
-            if (algorithmWrappers[i].isValid) {
-                csvFile << getFileBaseName(algorithmWrappers[i].algorithmFileName);
+            if (algorithmWrappers[i].getIsValid()) {
+                csvFile << getFileBaseName(algorithmWrappers[i].getAlgorithmFileName());
                 for (size_t j = 0; j < numHouses; j++) {
-                    if (houseWrappers[j].isValid) {
-                        csvFile << "," << runResults[i * numHouses + j].score;
+                    if (houseWrappers[j].getIsValid()) {
+                        csvFile << "," << threadControllers[i * numHouses + j].getScore();
                     }
                 }
                 csvFile << "\n"; 
@@ -201,84 +67,93 @@ void generateSummaryCSV(const std::vector<Result>& runResults, std::vector<House
     logger.logInfo("Summary file " + DEFAULT_SUMMARY_FILE_NAME + " created successfully");
 }
 
-
-void writeSimulationErrorsToFiles(const std::vector<Result>& runResults, std::vector<HouseWrapper>& houseWrappers, std::vector<AlgorithmWrapper>& algorithmWrappers) {
+void writeErrorsToFiles(const std::vector<ThreadController>& threadControllers, std::vector<HouseWrapper>& houseWrappers, std::vector<AlgorithmWrapper>& algorithmWrappers) {
     Logger& logger = Logger::getInstance();    
     std::size_t index;
     size_t numHouses = houseWrappers.size();
     size_t numAlgos = algorithmWrappers.size();
-    logger.logInfo("Start writing simulation errors to files");
+    logger.logInfo("Start writing errors to files");
 
     for (size_t i = 0; i < numAlgos; i++) {
         for (size_t j = 0; j < numHouses; j++) {
             index = i * numHouses + j;
-            if (!runResults[index].error.empty()) {
-                appendToErrorFile(runResults[index].algorithmFileBaseName, runResults[index].error);
+            const std::string houseError = threadControllers[index].getHouseError();
+            const std::string algorithmError = threadControllers[index].getAlgorithmError();
+            
+            if (!houseError.empty()) {
+                appendToErrorFile(threadControllers[index].getHouseFileBaseName(), houseError);
+            }
+            if (!algorithmError.empty()) {
+                appendToErrorFile(threadControllers[index].getAlgorithmFileBaseName(), algorithmError);
             }
         }
     }
 
-    logger.logInfo("All simulation errors written to files successfully");
+    logger.logInfo("All errors were written to files successfully");
 }
 
-bool initSimulatorFromHouse(MySimulator& simulator, HouseWrapper& houseWrapper, FileDataExtractor& inputData) {
+bool initSimulatorFromHouse(MySimulator& simulator, ThreadController& threadController, HouseWrapper& houseWrapper, FileDataExtractor& inputData) {
+    const std::string houseFileName = houseWrapper.getHouseFileName();
     try {
-        inputData.readAndExtract(houseWrapper.houseFileName);
-        simulator.initSimulator(inputData, houseWrapper.houseFileName);
+        inputData.readAndExtract(houseFileName);
+        simulator.initSimulator(inputData, houseFileName);
     } catch(const std::exception& e) {
-        houseWrapper.isValid = false;
-        const std::string errorMessage = "House file is not valid: " + houseWrapper.houseFileName + " Due to error: " + e.what();
-        appendToErrorFile(houseWrapper.houseFileName, errorMessage);
+        houseWrapper.setIsValid(false);
+        const std::string errorMessage = "House file is not valid: " + houseFileName + " Due to error: " + e.what();
+        threadController.setHouseError(errorMessage);
+        threadController.setScore(THREAD_ERROR_CODE);
         return false;
     }
     return true;
 }
 
-bool setSimulatorAlgorithm(MySimulator& simulator, Result& result, std::string& algorithmFileName) {
+bool setSimulatorAlgorithm(MySimulator& simulator, ThreadController& threadController, const std::string& algorithmFileName) {
     try {
-        simulator.setAlgorithm(*result.createdAlgorithmPointer, algorithmFileName);
+        simulator.setAlgorithm(*threadController.getCreatedAlgorithmPointer(), algorithmFileName);
     } catch(const std::exception& e) {
         const std::string errorMessage = "Failed to set algorithm: " + algorithmFileName + "Due to error: " + e.what();
-        appendToErrorFile(algorithmFileName, errorMessage);
+        threadController.setAlgorithmError(errorMessage);
+        threadController.setScore(THREAD_ERROR_CODE);
         return false;
     }
     return true;
 }
 
-void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrapper, Result& result, bool isSummaryOnly) {
+void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrapper, ThreadController& threadController, bool isSummaryOnly) {
     MySimulator simulator;  
     FileDataExtractor inputData = FileDataExtractor();
-    bool isValidHouse = initSimulatorFromHouse(simulator, houseWrapper, inputData);
+    bool isValidHouse = initSimulatorFromHouse(simulator, threadController, houseWrapper, inputData);
     if (!isValidHouse) {
-        result.score = THREAD_ERROR_CODE;
         return;
     }
 
-    bool isCreated = createAlgorithm(algorithmWrapper, result);
+    bool isCreated = algorithmWrapper.createAlgorithm(threadController);
     if (!isCreated) {
-        result.score = THREAD_ERROR_CODE;
         return;
     }
 
-    bool isSet = setSimulatorAlgorithm(simulator, result, algorithmWrapper.algorithmFileName);
+    const std::string algorithmFileName = algorithmWrapper.getAlgorithmFileName();
+    bool isSet = setSimulatorAlgorithm(simulator, threadController, algorithmFileName);
     if (!isSet) {
-        result.score = THREAD_ERROR_CODE;
         return;
     }
+
     simulator.setIsSummaryOnly(isSummaryOnly);
-    result.score = simulator.getMaxSteps() * 2 + simulator.getTotalDirt() * 300 + 2000;
+    threadController.setScore(simulator.getMaxSteps() * 2 + simulator.getTotalDirt() * 300 + 2000);
     std::atomic<bool> workerFailed(false);
+    const std::string houseFileBaseName = threadController.getHouseFileBaseName();
+    const std::string algorithmFileBaseName = threadController.getAlgorithmFileBaseName();
     try {
-        auto worker = [&simulator, &result, &workerFailed]() {
+        auto worker = [&simulator, &threadController, &workerFailed, &houseFileBaseName, &algorithmFileBaseName]() { 
             try {
                 simulator.run();
             }
             catch(const std::exception& e) {
-                result.error = "Running simulation for house " + result.houseFileBaseName + " and algorithm " + result.algorithmFileBaseName + " has failed due to error: " + e.what();
+                threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to error: " + e.what());
                 workerFailed.store(true);
             }
             catch(...) {
-                result.error = "Running simulation for house " + result.houseFileBaseName + " and algorithm " + result.algorithmFileBaseName + " has failed due to unknown error.";
+                threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to unknown error.");
                 workerFailed.store(true);
             }
         };
@@ -295,14 +170,14 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
         workerThread.join();
 
         if (!workerFailed.load()) {
-            result.score = simulator.getScore();
+            threadController.setScore(simulator.getScore());
         }
     }
     catch (const std::exception& e) {
-        result.error = "An error has occurred during monitor of simulation for house " + result.houseFileBaseName + " and algorithm " + result.algorithmFileBaseName + ". The error is: " + e.what();
+        threadController.setAlgorithmError("An error has occurred during monitor of simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + ". The error is: " + e.what());
     }
     catch (...) {
-        result.error = "An unknown error has occurred during monitor of simulation for house " + result.houseFileBaseName + " and algorithm " + result.algorithmFileBaseName;
+        threadController.setAlgorithmError("An unknown error has occurred during monitor of simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName);
     }
 }
 
@@ -329,11 +204,11 @@ int main(int argc, char *argv[]) {
         std::vector<HouseWrapper> houseWrappers(numHouses);
         std::vector<AlgorithmWrapper> algorithmWrappers(numAlgos);
 
-        createHouseWrappers(houseFilePaths, houseWrappers);
-        createAlgorithmWrappers(algoFilePaths, algorithmWrappers);
+        HouseWrapper::createHouseWrappers(houseFilePaths, houseWrappers);
+        AlgorithmWrapper::createAlgorithmWrappers(algoFilePaths, algorithmWrappers);
 
         std::vector<std::thread> workerMonitorThreads;
-        std::vector<Result> runResults(numHouses * numAlgos);
+        std::vector<ThreadController> threadControllers(numHouses * numAlgos);
         std::counting_semaphore semaphore{numThreads};
 
         logger.logInfo("Start creating threads");
@@ -341,22 +216,22 @@ int main(int argc, char *argv[]) {
         for (j = 0; j < numAlgos; j++) {
             for (i = 0; i < numHouses; i++) {
                 threadNumber = j * numHouses + i;
-                runResults[threadNumber].score = THREAD_ERROR_CODE;
-                runResults[threadNumber].houseFileBaseName = getFileBaseName(houseWrappers[i].houseFileName);
-                runResults[threadNumber].algorithmFileBaseName = getFileBaseName(algorithmWrappers[j].algorithmFileName);
+                threadControllers[threadNumber].setScore(THREAD_ERROR_CODE);
+                threadControllers[threadNumber].setHouseFileBaseName(getFileBaseName(houseWrappers[i].getHouseFileName()));
+                threadControllers[threadNumber].setAlgorithmFileBaseName(getFileBaseName(algorithmWrappers[j].getAlgorithmFileName()));
 
-                if (!houseWrappers[i].isValid || !algorithmWrappers[j].isValid) {
+                if (!houseWrappers[i].getIsValid() || !algorithmWrappers[j].getIsValid()) {
                     workerMonitorThreads.emplace_back();
-                    runResults[threadNumber].joined = true;
+                    threadControllers[threadNumber].setJoined(true);
                     continue;
                 }
                 
                 semaphore.acquire();
                 logger.logInfo("--------Creating thread number " + std::to_string(threadNumber) + "--------");
-                logger.logInfo("House file: " + getFileBaseName(houseWrappers[i].houseFileName));
-                logger.logInfo("Algorithm file: " + getFileBaseName(algorithmWrappers[j].algorithmFileName));
-                workerMonitorThreads.emplace_back([&semaphore, &houseWrappers, &algorithmWrappers, &runResults, i, j, threadNumber, isSummaryOnly]() {
-                    workerMonitor(houseWrappers[i], algorithmWrappers[j], runResults[threadNumber], isSummaryOnly);
+                logger.logInfo("House file: " + threadControllers[threadNumber].getHouseFileBaseName());
+                logger.logInfo("Algorithm file: " + threadControllers[threadNumber].getAlgorithmFileBaseName());
+                workerMonitorThreads.emplace_back([&semaphore, &houseWrappers, &algorithmWrappers, &threadControllers, i, j, threadNumber, isSummaryOnly]() {
+                    workerMonitor(houseWrappers[i], algorithmWrappers[j], threadControllers[threadNumber], isSummaryOnly);
                     semaphore.release();
                 });
             }
@@ -366,30 +241,31 @@ int main(int argc, char *argv[]) {
         
         logger.logInfo("Start joining threads");
         for (i = 0; i < workerMonitorThreads.size(); i++) {
-            if (runResults[i].joined) {
+            if (threadControllers[i].isJoined()) {
                 continue;
             }
             workerMonitorThreads[i].join();
-            runResults[i].joined = true;
+            threadControllers[i].setJoined(true);
         }
         logger.logInfo("All threads joined successfully");
 
-        writeSimulationErrorsToFiles(runResults, houseWrappers, algorithmWrappers);
-        generateSummaryCSV(runResults, houseWrappers, algorithmWrappers);
+        writeErrorsToFiles(threadControllers, houseWrappers, algorithmWrappers);
+        generateSummaryCSV(threadControllers, houseWrappers, algorithmWrappers);
 
         logger.logInfo("Clearing algorithm registrar");
         AlgorithmRegistrar::getAlgorithmRegistrar().clear();
 
-        for (auto& runResult : runResults) {
-            if (runResult.createdAlgorithmPointer) {
-                runResult.createdAlgorithmPointer.reset();
+        for (auto& threadController : threadControllers) {
+            if (threadController.getCreatedAlgorithmPointer()) {
+                threadController.resetCreatedAlgorithmPointer();
             }
         }
 
         logger.logInfo("Start dlclose algorithm files");
         for (auto& algoWrapper : algorithmWrappers) {
-            if (algoWrapper.dlOpenPointer) {
-                dlclose(algoWrapper.dlOpenPointer);
+            void* dlOpenPointer = algoWrapper.getDlOpenPointer();
+            if (dlOpenPointer) {
+                dlclose(dlOpenPointer);
                 break;
             }
         }

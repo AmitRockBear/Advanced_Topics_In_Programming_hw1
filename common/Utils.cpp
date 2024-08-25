@@ -1,6 +1,11 @@
 #include "Utils.h"
 #include "Logger.h"
+#include "General.h"
 #include <thread>
+#include <fstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 void clear() {
   #if defined _WIN32
@@ -72,4 +77,55 @@ bool appendToErrorFile(const std::string& fileName, const std::string& message) 
     errorFile << message << std::endl;
     errorFile.close();
     return true;
+}
+
+std::tuple<std::ptrdiff_t, bool> parseArguments(int argc, char* argv[], std::string& housePath, std::string& algoPath) {
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Parsing arguments");
+
+    std::ptrdiff_t numThreads = DEFAULT_NUM_THREADS_VALUE;
+    bool isSummaryOnly = false;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg.rfind(DEFAULT_HOUSE_ARG, 0) == 0) {
+            housePath = arg.substr(DEFAULT_HOUSE_ARG.length());
+        } else if (arg.rfind(DEFAULT_ALGORITHM_ARG, 0) == 0) {
+            algoPath = arg.substr(DEFAULT_ALGORITHM_ARG.length());
+        } else if (arg.rfind(DEFAULT_NUM_THREADS_ARG, 0) == 0) {
+            numThreads = std::stoul(arg.substr(DEFAULT_NUM_THREADS_ARG.length()));
+        } else if (arg.rfind(DEFAULT_SUMMARY_ARG, 0) == 0) {
+            isSummaryOnly = true;
+        }
+    }
+
+    logger.logInfo("Arguments parsed successfully");
+
+    return std::make_tuple(numThreads, isSummaryOnly);
+}
+
+void findHouseFiles(const std::string& housePath, std::vector<std::string>& houseFilePaths) {
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Finding house files");
+
+    for (const auto& entry : fs::directory_iterator(housePath)) {
+        if (entry.is_regular_file() && entry.path().extension() == DEFAULT_HOUSE_FILE_EXTENSION) {
+            houseFilePaths.push_back(entry.path().string());
+        }
+    }
+    
+    logger.logInfo("All house files found successfully");
+}
+
+void findAlgoFiles(const std::string& algoPath, std::vector<std::string>& algoFilePaths) {
+    Logger& logger = Logger::getInstance();
+    logger.logInfo("Finding algorithm files");
+
+    for (const auto& entry : fs::directory_iterator(algoPath)) {
+        if (entry.is_regular_file() && entry.path().extension() == DEFAULT_ALGORITHM_FILE_EXTENSION) {
+            algoFilePaths.push_back(entry.path().string());
+        }
+    }
+
+    logger.logInfo("All algorithm files found successfully");
 }

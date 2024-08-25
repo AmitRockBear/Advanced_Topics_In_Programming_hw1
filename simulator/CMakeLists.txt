@@ -15,6 +15,9 @@ add_executable(myrobot
         ../common/Utils.cpp
         VacuumCleaner.cpp
         ../common/WallsSensorImpl.cpp
+        AlgorithmWrapper.cpp
+        HouseWrapper.cpp
+        ThreadController.cpp        
 )
 
 set_target_properties(myrobot PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
