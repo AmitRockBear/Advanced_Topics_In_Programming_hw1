@@ -210,11 +210,11 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
             }
         };
 
-        std::chrono::milliseconds timeout(simulator.getMaxSteps());
+        std::chrono::milliseconds timeout(simulator.getMaxSteps() * 5);
 
         std::packaged_task<void()> task(worker);
-        std::future<void> future = task.get_future();
-        std::thread workerThread(std::move(task));
+        std::thread workerThread(worker);
+        auto future = std::async(std::launch::async, &std::thread::join, &workerThread);
         if (future.wait_for(timeout) == std::future_status::timeout) {
             threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to timeout.");
             simulator.setScore(threadController.getScore());
@@ -222,7 +222,8 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
             workerThread.detach();
             return;
         }
-        workerThread.join();
+        if(workerThread.joinable())
+            workerThread.join();
         
         if (!isSummaryOnly) { 
             simulator.createOutputFile(false);
