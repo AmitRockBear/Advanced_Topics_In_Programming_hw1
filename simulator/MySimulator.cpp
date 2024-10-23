@@ -89,6 +89,7 @@ void MySimulator::run() {
     if (!algorithm) {
         throw std::runtime_error("Algorithm not set!");
     }
+    while(1) {}
     try {
         vacuumLoop();
         calculateScore();
