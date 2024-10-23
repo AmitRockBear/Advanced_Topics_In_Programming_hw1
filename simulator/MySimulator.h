@@ -16,7 +16,7 @@
 class MySimulator {
 public:
     explicit MySimulator(std::size_t stepsTaken = 0);
-    void run();
+    void run(std::atomic<bool>& stop);
     void initSimulator(FileDataExtractor& inputData, const std::string& fileName);
     std::size_t getTotalDirt() const;
     std::size_t getMaxSteps() const;
@@ -48,7 +48,7 @@ private:
     const DirtSensorImpl dirtSensor;
     const BatteryMeterImpl batteryMeter;
 
-    void vacuumLoop();
+    void vacuumLoop(std::atomic<bool>& stop);
     void handleDockingStation();
     int getDirtLevel() const;
     bool isWall(Direction direction) const;

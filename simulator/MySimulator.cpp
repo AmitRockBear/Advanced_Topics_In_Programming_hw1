@@ -8,6 +8,7 @@
 #include <fstream>
 #include <memory>
 #include <utility>
+#include <atomic>
 
 MySimulator::MySimulator(std::size_t stepsTaken) 
     : stepsTaken(stepsTaken), finished(false), steps(std::vector<Step>()), 
@@ -85,23 +86,23 @@ void MySimulator::createOutputFile(bool isTimedOut) {
 }
 
 
-void MySimulator::run() {
+void MySimulator::run(std::atomic<bool>& stop) {
     if (!algorithm) {
         throw std::runtime_error("Algorithm not set!");
     }
     try {
-        vacuumLoop();
+        vacuumLoop(stop);
         calculateScore();
     } catch (const std::exception& e) {
         throw std::runtime_error("Unrecoverable error has occured in step: " + std::to_string(stepsTaken) + ". The error is: " + e.what());
     }
 }
 
-void MySimulator::vacuumLoop() {
+void MySimulator::vacuumLoop(std::atomic<bool>& stop) {
     Point dockingLocation, currentVacuumLocation;
     house.getDockingLocation(dockingLocation);
 
-    while (!finished) {
+    while (!finished && !stop.load()) {
         vacuumCleaner.getLocation(currentVacuumLocation);
         bool atDockingStation = vacuumCleaner.isAtLocation(dockingLocation);
 

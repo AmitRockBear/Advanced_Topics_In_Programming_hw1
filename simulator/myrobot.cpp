@@ -193,12 +193,13 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
     simulator.setScore(score);
     threadController.setScore(score);
     std::atomic<bool> workerFailed(false);
+    std::atomic<bool> stop(false);
     const std::string houseFileBaseName = threadController.getHouseFileBaseName();
     const std::string algorithmFileBaseName = threadController.getAlgorithmFileBaseName();
     try {
-        auto worker = [&simulator, &threadController, &workerFailed, &houseFileBaseName, &algorithmFileBaseName]() { 
+        auto worker = [&simulator, &threadController, &workerFailed, &houseFileBaseName, &algorithmFileBaseName, &stop]() { 
             try {
-                simulator.run();
+                simulator.run(stop);
             }
             catch(const std::exception& e) {
                 threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to error: " + e.what());
@@ -216,14 +217,14 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
         std::future<void> future = task.get_future();
         std::thread workerThread(std::move(task));
         if (future.wait_for(timeout) == std::future_status::timeout) {
+            stop.store(true);
+            workerThread.join();
             threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to timeout.");
             simulator.setScore(threadController.getScore());
             if (!isSummaryOnly) simulator.createOutputFile(true);
-            workerThread.detach();
             return;
         }
         workerThread.join();
-        
         if (!isSummaryOnly) { 
             simulator.createOutputFile(false);
         }
