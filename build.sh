@@ -13,7 +13,12 @@ cd build
 cmake ..
 
 # Build the project using multiple cores
-make -j
+if [ -z "$1" ]
+  then
+    make -j
+  else
+    make -j "$1"
+fi
 
 # Change back to the parent directory
 cd ..
