@@ -212,18 +212,28 @@ void workerMonitor(HouseWrapper& houseWrapper, AlgorithmWrapper& algorithmWrappe
 
         std::chrono::milliseconds timeout(simulator.getMaxSteps() * 5);
 
+        std::packaged_task<void()> task(worker);
         std::thread workerThread(worker);
-        auto future = std::async(std::launch::async, &std::thread::join, &workerThread);
+        auto future = std::async(std::launch::async, [&workerThread]() {
+            if (workerThread.joinable()) {
+                std::cout << "Joining worker thread Before" << std::endl;
+                workerThread.join();
+                std::cout << "Joining worker thread After" << std::endl;
+            }
+        });
         if (future.wait_for(timeout) == std::future_status::timeout) {
             threadController.setAlgorithmError("Running simulation for house " + houseFileBaseName + " and algorithm " + algorithmFileBaseName + " has failed due to timeout.");
             simulator.setScore(threadController.getScore());
             if (!isSummaryOnly) simulator.createOutputFile(true);
-            workerThread.detach();
+            if(workerThread.joinable()) {
+                std::cout << "Detaching worker thread Before" << std::endl;
+                workerThread.detach();
+                std::cout << "Detaching worker thread After" << std::endl;
+            }
             return;
         }
-        if(workerThread.joinable())
-            workerThread.join();
-
+        // JOIN REMOVED HERE
+        
         if (!isSummaryOnly) {
             simulator.createOutputFile(false);
         }
